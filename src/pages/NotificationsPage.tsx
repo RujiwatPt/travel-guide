@@ -5,8 +5,24 @@ import { NKP_PHOTOS } from '../data/nkpPhotos'
 import type { Overrides } from '../lib/figmaOverrides'
 
 const NKP_NOTIFICATIONS_OVERRIDES: Overrides = {
+  // Status bar + decorative top-of-screen kit art
   '↳ Time':                                          { hideLayer: true },
-  '↳ Indicators':                                    { hideLayer: true },
+  'Vector 1':                                        { hideLayer: true },
+  'Vector 2':                                        { hideLayer: true },
+  'Vector#0':                                        { hideLayer: true },
+  'Vector#1':                                        { hideLayer: true },
+  'Vector#2':                                        { hideLayer: true },
+  'Vector#3':                                        { hideLayer: true },
+  'Vector#4':                                        { hideLayer: true },
+  'Vector#5':                                        { hideLayer: true },
+  'Frame 21':                                        { hideLayer: true },
+  'Frame 22':                                        { hideLayer: true },
+  'Border':                                          { hideLayer: true },
+  'Capacity':                                        { hideLayer: true },
+  'Wifi':                                            { hideLayer: true },
+  'Cellular Connection':                             { hideLayer: true },
+  'Bar':                                             { hideLayer: true },
+  'Notification':                                    { text: 'Notifications' },
   // Hidden kit photo layers — replace Mount Daisen photos + Jhon Snow avatar
   'Rectangle 2173':                                  { imageSrc: NKP_PHOTOS.phraThatPhanom },
   'Ellipse 7':                                       { imageSrc: NKP_PHOTOS.nagaStatue },

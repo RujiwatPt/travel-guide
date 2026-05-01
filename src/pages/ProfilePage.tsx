@@ -5,12 +5,28 @@ import { NKP_PHOTOS } from '../data/nkpPhotos'
 import type { Overrides } from '../lib/figmaOverrides'
 
 const NKP_PROFILE_OVERRIDES: Overrides = {
+  // Status bar + decorative top-of-screen kit art
   '↳ Time':                            { hideLayer: true },
-  '↳ Indicators':                      { hideLayer: true },
+  'Vector 1':                          { hideLayer: true },
+  'Vector 2':                          { hideLayer: true },
+  'Vector#0':                          { hideLayer: true },
+  'Vector#1':                          { hideLayer: true },
+  'Vector#2':                          { hideLayer: true },
+  'Vector#3':                          { hideLayer: true },
+  'Vector#4':                          { hideLayer: true },
+  'Vector#5':                          { hideLayer: true },
+  'Frame 21':                          { hideLayer: true },
+  'Frame 22':                          { hideLayer: true },
+  'Border':                            { hideLayer: true },
+  'Capacity':                          { hideLayer: true },
+  'Wifi':                              { hideLayer: true },
+  'Cellular Connection':               { hideLayer: true },
+  'Bar':                               { hideLayer: true },
   // Replace J. Snow avatar with an NKP-themed photo
   'Frame 1000002987':                  { imageSrc: NKP_PHOTOS.phraThatPhanom },
   'J. Snow (あなた)':                 { text: 'Khun Ploy (แขก)' },
-  '17 Km from your location ':         { text: 'In Nakhon Phanom now' },
+  // Layer name has no trailing space (text does)
+  '17 Km from your location':          { text: 'In Nakhon Phanom now' },
   ' Nomad':                            { text: ' สายมู' },
   'Explorer':                          { text: 'Foodie' },
   '30':                                { text: '8' },
