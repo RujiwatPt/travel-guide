@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomSheet, { type SheetState } from '../components/BottomSheet'
 import KitBottomNav2 from '../components/KitBottomNav2'
 import ChatbotBar from '../components/ChatbotBar'
@@ -27,6 +27,7 @@ type ActiveSearch = {
 
 export default function MapPage() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const entries = useAppStore((s) => s.entries)
   const [sheetState, setSheetState] = useState<SheetState>('peek')
   const [selectedChipIds, setSelectedChipIds] = useState<string[]>([])
@@ -120,6 +121,22 @@ export default function MapPage() {
     setRouteRevealedSegments(0)
     setSheetState('peek')
   }
+
+  // If we landed on /app?q=<query> (e.g. user typed on Home and submitted),
+  // auto-run the search. Tracked via ref so we only trigger once per query
+  // value, even across the strict-mode double-mount.
+  const consumedQueryRef = useRef<string | null>(null)
+  useEffect(() => {
+    const q = searchParams.get('q')
+    if (!q) return
+    if (consumedQueryRef.current === q) return
+    consumedQueryRef.current = q
+    void handleChatbotSubmit(q)
+    // Strip the query param from the URL so refresh / back doesn't re-fire
+    setSearchParams({}, { replace: true })
+  // handleChatbotSubmit captures `entries`; we deliberately depend only on q
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   // After plan arrives, reveal route segments in sequence (matches card cascade timing)
   useEffect(() => {

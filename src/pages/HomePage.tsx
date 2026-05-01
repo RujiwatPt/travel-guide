@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import KitBottomNav2 from '../components/KitBottomNav2'
 import SplashOverlay from '../components/SplashOverlay'
 import { NKP_PHOTOS } from '../data/nkpPhotos'
@@ -66,7 +67,16 @@ function Insight({ icon, label, tone, to }: InsightProps) {
 }
 
 export default function HomePage() {
+  const navigate = useNavigate()
   const entries = useAppStore((s) => s.entries)
+  const [query, setQuery] = useState('')
+
+  const handleAskSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const q = query.trim()
+    if (!q) return
+    navigate(`/app?q=${encodeURIComponent(q)}`)
+  }
   // Pick two iconic destinations for "Locals by AI"
   const phra = entries.find((e) => e.id === 'wat-phra-that-phanom')
   const naga = entries.find((e) => e.id === 'naga-statue')
@@ -93,16 +103,28 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Search */}
-        <Link
-          to="/explore"
-          className="block relative mb-7"
+        {/* Ask-anything chatbot input — submits to /app for ranked search */}
+        <form
+          onSubmit={handleAskSubmit}
+          className="flex items-center gap-2 mb-7 bg-white rounded-kit-pill px-4 py-3 shadow-kit-pill border border-ink/[0.05]"
         >
-          <div className="w-full bg-white rounded-kit-pill px-5 py-3.5 pr-12 shadow-kit-pill border border-ink/[0.05] text-[14px] font-medium text-ink/45">
-            Find places, food, trips…
-          </div>
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-ink/45 text-lg">🔍</span>
-        </Link>
+          <span className="text-base text-blue-strong">✦</span>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Ask about Nakhon Phanom…"
+            className="flex-1 bg-transparent outline-none text-[14px] font-semibold text-ink placeholder:text-ink/45"
+          />
+          <button
+            type="submit"
+            disabled={query.trim().length === 0}
+            aria-label="Ask"
+            className="w-8 h-8 grid place-items-center rounded-kit-pill bg-ink/5 text-blue-strong text-lg leading-none disabled:opacity-30 hover:bg-ink/10 transition"
+          >
+            ›
+          </button>
+        </form>
 
         {/* AI Insights Today */}
         <div className="mb-7">
