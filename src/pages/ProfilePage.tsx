@@ -1,11 +1,14 @@
 import EditableFigmaScreenRenderer from '../components/EditableFigmaScreenRenderer'
 import KitBottomNav from '../components/KitBottomNav'
 import { PROFILE_SCREEN } from '../data/screenLookup'
+import { NKP_PHOTOS } from '../data/nkpPhotos'
 import type { Overrides } from '../lib/figmaOverrides'
 
 const NKP_PROFILE_OVERRIDES: Overrides = {
   '↳ Time':                            { hideLayer: true },
   '↳ Indicators':                      { hideLayer: true },
+  // Replace J. Snow avatar with an NKP-themed photo
+  'Frame 1000002987':                  { imageSrc: NKP_PHOTOS.phraThatPhanom },
   'J. Snow (あなた)':                 { text: 'Khun Ploy (แขก)' },
   '17 Km from your location ':         { text: 'In Nakhon Phanom now' },
   ' Nomad':                            { text: ' สายมู' },

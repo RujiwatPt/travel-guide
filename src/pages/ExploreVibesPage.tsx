@@ -7,6 +7,10 @@ import type { Overrides } from '../lib/figmaOverrides'
 const NKP_EXPLORE_OVERRIDES: Overrides = {
   '↳ Time':                                 { hideLayer: true },
   '↳ Indicators':                           { hideLayer: true },
+  // Hero card photo lives in 'Rec' layer (not 'image') — kit Mt Takao mountain
+  'Rec':                                    { imageSrc: NKP_PHOTOS.mekongSunset },
+  // Frame 7 icon — could be NKP themed
+  'Frame 7':                                { imageSrc: NKP_PHOTOS.birthdayStupa },
   // image#0 has no backgroundImage in kit (decorative). Photo layers
   // start at image#1 (Must-See Today / Hidden Gems Nearby cards)
   'image#1':                                { imageSrc: NKP_PHOTOS.phraThatPhanom },

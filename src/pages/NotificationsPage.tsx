@@ -1,11 +1,22 @@
 import EditableFigmaScreenRenderer from '../components/EditableFigmaScreenRenderer'
 import KitBottomNav from '../components/KitBottomNav'
 import { NOTIFICATIONS_SCREEN } from '../data/screenLookup'
+import { NKP_PHOTOS } from '../data/nkpPhotos'
 import type { Overrides } from '../lib/figmaOverrides'
 
 const NKP_NOTIFICATIONS_OVERRIDES: Overrides = {
   '↳ Time':                                          { hideLayer: true },
   '↳ Indicators':                                    { hideLayer: true },
+  // Hidden kit photo layers — replace Mount Daisen photos + Jhon Snow avatar
+  'Rectangle 2173':                                  { imageSrc: NKP_PHOTOS.phraThatPhanom },
+  'Ellipse 7':                                       { imageSrc: NKP_PHOTOS.nagaStatue },
+  // Refresh timestamps for NKP context
+  '12m':                                             { text: '2m' },
+  '13h':                                             { text: '3h' },
+  '15h':                                             { text: '6h' },
+  '37m':                                             { text: '15m' },
+  '2d':                                              { text: '1d' },
+  '5d':                                              { text: '2d' },
   'Trip Reminders':                                  { text: 'Owner Updates' },
   'AI Travel Tips':                                  { text: 'AI Tips for NKP' },
   'Weather & Safety Alerts':                         { text: 'Weather & Safety' },
@@ -22,7 +33,7 @@ const NKP_NOTIFICATIONS_OVERRIDES: Overrides = {
   'Head to Arashiyama Bamboo..':                     { text: 'Best Mekong photo spot in NKP.' },
   'Mount Daisen(いせ)':                               { text: 'Phra That Phanom Pilgrimage' },
   'May 14-17':                                       { text: 'Sunday morning' },
-  'Jhon Snow, you created a travel\nplan for the coming week..':
+  'Jhon Snow, you created a travel plan for the coming week..':
                                                      { text: 'AI created your half-day Sunday plan' },
 }
 
