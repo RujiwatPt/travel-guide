@@ -1,8 +1,9 @@
 import type { Entry, LiveStatus } from '../types'
 import { ENTRIES as LOCAL_SEED } from '../data/seed'
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() || 'http://127.0.0.1:8000'
-const API_KEY = (import.meta.env.VITE_API_KEY as string | undefined)?.trim() || 'dev-local-key'
+// Temporary demo fallback until Vercel env vars are configured for the deployed frontend.
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() || 'https://pattarabordee-nakhon-phanom-backend.hf.space'
+const API_KEY = (import.meta.env.VITE_API_KEY as string | undefined)?.trim() || 'nkp-demo-key-2026'
 
 type ApiEntry = {
   id: string
