@@ -17,17 +17,26 @@ def search_intent(
     city: str = Query("nkp"),
     q: str = Query(..., min_length=1),
     open_now_only: bool = Query(False),
+    open_statuses: str | None = Query(None),
     top_k: int = Query(10, ge=1, le=50),
 ):
     city = ensure_supported_city(city)
     gate = intent_service.classify(q)
     rows = repo.list_entries(city=city)
+    allowed_open_statuses = None
+    if open_statuses:
+        allowed_open_statuses = {
+            s.strip()
+            for s in open_statuses.split(",")
+            if s.strip() in {"open_now", "closing_soon", "closed", "unknown"}
+        }
     results, excluded, debug = retrieval.search(
         rows=rows,
         query=q,
         entity_scope=gate.entity_scope,
         hard_filters=gate.hard_filters,
         open_now_only=open_now_only,
+        allowed_open_statuses=allowed_open_statuses,
         top_k=top_k,
     )
     return SearchIntentResponse(

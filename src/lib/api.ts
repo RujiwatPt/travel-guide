@@ -37,6 +37,9 @@ type ApiSearchItem = {
   category: string
   name: string
   score: number
+  open_status?: 'open_now' | 'closing_soon' | 'closed' | 'unknown'
+  hours_confidence?: 'high' | 'medium' | 'low' | 'unknown'
+  retrieval_grade?: 'high' | 'medium' | 'low'
 }
 
 type ApiSearchResponse = {
@@ -55,6 +58,22 @@ export type IntentSearchHit = {
   score: number
   matchedIntent: string
   entityScope: ApiSearchResponse['entity_scope']
+  openStatus?: ApiSearchItem['open_status']
+  hoursConfidence?: ApiSearchItem['hours_confidence']
+  retrievalGrade?: ApiSearchItem['retrieval_grade']
+}
+
+type ApiPlan = {
+  query: string
+  city_id: string
+  generated_at: string
+  start_time: string
+  end_time: string
+  total_duration_min: number
+  rationale_en: string
+  rationale_th: string
+  stops: unknown[]
+  route_geometry: { type: 'LineString'; coordinates: [number, number][] }
 }
 
 function emojiForCategory(category: string): string {
@@ -169,8 +188,27 @@ export async function searchIntent(city: string, q: string, topK = 8): Promise<A
   return apiGet<ApiSearchResponse>(`/api/v1/search-intent?city=${encodeURIComponent(city)}&q=${encodeURIComponent(q)}&top_k=${topK}`)
 }
 
-export async function searchIntentHits(city: string, q: string, topK = 8): Promise<IntentSearchHit[]> {
-  const res = await searchIntent(city, q, topK)
+export async function searchIntentWithStatus(
+  city: string,
+  q: string,
+  topK = 8,
+  statuses: Array<'open_now' | 'closing_soon' | 'closed' | 'unknown'> = [],
+): Promise<ApiSearchResponse> {
+  const statusParam = statuses.length > 0 ? `&open_statuses=${encodeURIComponent(statuses.join(','))}` : ''
+  return apiGet<ApiSearchResponse>(
+    `/api/v1/search-intent?city=${encodeURIComponent(city)}&q=${encodeURIComponent(q)}&top_k=${topK}${statusParam}`,
+  )
+}
+
+export async function searchIntentHits(
+  city: string,
+  q: string,
+  topK = 8,
+  statuses: Array<'open_now' | 'closing_soon' | 'closed' | 'unknown'> = [],
+): Promise<IntentSearchHit[]> {
+  const res = statuses.length > 0
+    ? await searchIntentWithStatus(city, q, topK, statuses)
+    : await searchIntent(city, q, topK)
   return res.results.map((r) => ({
     entryId: resolveStableLocalId({
       id: r.entry_id,
@@ -188,5 +226,21 @@ export async function searchIntentHits(city: string, q: string, topK = 8): Promi
     score: r.score,
     matchedIntent: res.matched_intent,
     entityScope: res.entity_scope,
+    openStatus: r.open_status,
+    hoursConfidence: r.hours_confidence,
+    retrievalGrade: r.retrieval_grade,
   }))
+}
+
+export async function fetchPlan(city: string, query: string): Promise<ApiPlan> {
+  const res = await fetch(`${API_BASE_URL}/api/v1/plan`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': API_KEY,
+    },
+    body: JSON.stringify({ city, query }),
+  })
+  if (!res.ok) throw new Error(`Plan API request failed: ${res.status}`)
+  return (await res.json()) as ApiPlan
 }

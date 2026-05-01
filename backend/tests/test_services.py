@@ -22,6 +22,7 @@ def test_retrieval_food_scope_normalized_to_activity_food_category():
         entity_scope=gate.entity_scope,
         hard_filters=gate.hard_filters,
         open_now_only=False,
+        allowed_open_statuses=None,
         top_k=10,
     )
     assert len(results) > 0
@@ -119,8 +120,24 @@ def test_retrieval_returns_rag_why_matched():
         entity_scope=gate.entity_scope,
         hard_filters=gate.hard_filters,
         open_now_only=False,
+        allowed_open_statuses=None,
         top_k=5,
     )
     assert len(results) > 0
     assert any('RAG evidence' in r['why_matched'] for r in results)
     assert debug.get('rag_hit_count', 0) >= 1
+
+
+def test_waterfall_query_prioritizes_nature_over_landmark():
+    gate = IntentGateService().classify('อยากไปเที่ยวน้ำตก')
+    results, _, _ = RetrievalService().search(
+        rows=ENTRIES,
+        query='อยากไปเที่ยวน้ำตก',
+        entity_scope=gate.entity_scope,
+        hard_filters=gate.hard_filters,
+        open_now_only=False,
+        allowed_open_statuses=None,
+        top_k=5,
+    )
+    assert len(results) > 0
+    assert results[0]['category'] == 'nature'

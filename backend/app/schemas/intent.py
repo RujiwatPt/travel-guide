@@ -25,6 +25,8 @@ class SearchResult(BaseModel):
     why_matched: str
     open_status: str
     hours_confidence: str
+    retrieval_grade: str
+    grade_reason: str
     score: float
 
 

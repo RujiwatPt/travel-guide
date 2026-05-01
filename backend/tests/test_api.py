@@ -33,6 +33,9 @@ def test_entries_and_alias():
     alias = client.get('/api/v1/places', params={'city': 'nkp'}, headers=AUTH_HEADERS)
     assert alias.status_code == 200
     assert alias.json()['count'] == body['count']
+    first = body['items'][0]
+    for key in ['city', 'city_id', 'lat', 'lng', 'hours_source_type', 'hours_last_checked_at', 'search_text_blob']:
+        assert key in first
 
 
 def test_search_intent_activity_excludes_food_leakage():
@@ -68,6 +71,9 @@ def test_verify_hours_and_log_roundtrip():
     body = r.json()
     assert body['entry_id'] == entry_id
     assert body['computed_open_status'] in {'open_now', 'closing_soon', 'closed', 'unknown'}
+    assert body['resolved_confidence'] in {'high', 'medium', 'low', 'unknown'}
+    assert isinstance(body['conflict_flag'], bool)
+    assert 'source=' in body['provenance_note']
 
     logs = client.get(f'/api/v1/verification-logs/{entry_id}', headers=AUTH_HEADERS)
     assert logs.status_code == 200
@@ -95,3 +101,12 @@ def test_temple_query_is_place_focused():
     body = r.json()
     assert body['entity_scope'] == 'activity_only'
     assert all(x['category'] != 'food' for x in body['results'])
+
+
+def test_place_only_query_returns_place_entries():
+    r = client.get('/api/v1/search-intent', params={'city': 'nkp', 'q': 'อยากไปแลนด์มาร์กริมโขง', 'top_k': 10}, headers=AUTH_HEADERS)
+    assert r.status_code == 200
+    body = r.json()
+    assert body['entity_scope'] == 'place_only'
+    assert len(body['results']) > 0
+    assert all(x['entity_type'] == 'place' for x in body['results'])

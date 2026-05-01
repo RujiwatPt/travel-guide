@@ -1,4 +1,5 @@
 import { ENTRIES } from '../data/seed'
+import { fetchPlan } from './api'
 import type { Entry } from '../types'
 
 export type EntrySummary = {
@@ -163,7 +164,9 @@ function dispatchPlan(query: string, cityId: string): Plan {
 export function getPlan(query: string, cityId: string): Promise<Plan> {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(dispatchPlan(query, cityId))
+      fetchPlan(cityId, query)
+        .then((remote) => resolve(remote as Plan))
+        .catch(() => resolve(dispatchPlan(query, cityId)))
     }, FAKE_DELAY_MS)
   })
 }
