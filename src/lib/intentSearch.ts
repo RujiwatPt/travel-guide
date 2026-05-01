@@ -9,6 +9,7 @@ export type RankedEntry = {
   matchedReasons: string[]
 }
 
+/** Canonical intent ids shared by deterministic and AI-assisted ranking. */
 export type IntentId =
   | 'general_blessing'
   | 'fertility_blessing'
@@ -16,6 +17,7 @@ export type IntentId =
   | 'riverside_evening'
   | 'food_trip'
 
+/** Provider-neutral hint payload that can nudge deterministic ranking. */
 export type AiIntentHint = {
   intentIds: IntentId[]
   confidence: number
@@ -29,6 +31,7 @@ export type AiIntentHint = {
   provider: 'mock' | string
 }
 
+/** Async classifier contract for future server-side or mock intent providers. */
 export type IntentClassifierProvider = {
   classifyIntent(query: string): Promise<AiIntentHint | null>
 }
@@ -236,6 +239,7 @@ function addReason(reasons: Set<string>, reason: string) {
   if (reasons.size < 4) reasons.add(reason)
 }
 
+/** Adds one short reason while keeping AI-specific annotations visible in the cap. */
 function addReasonToList(reasons: string[], reason: string) {
   if (reasons.includes(reason)) return
   if (reasons.length < 4) {
@@ -336,6 +340,7 @@ function scoreIntentMatch(group: IntentGroup, entry: Entry, reasons: Set<string>
   return score
 }
 
+/** Applies small additive boosts from AI intent hints to an already-ranked entry. */
 function scoreAiHintIntentMatch(
   hint: AiIntentHint,
   entry: Entry,
@@ -521,6 +526,7 @@ export const mockIntentClassifierProvider: IntentClassifierProvider = {
 /**
  * Async wrapper that preserves deterministic search while allowing provider-based
  * intent hints to add small ranking boosts and matched reasons.
+ * Provider failures or missing hints return deterministic results unchanged.
  */
 export async function rankEntriesForIntentWithHints(
   query: string,
