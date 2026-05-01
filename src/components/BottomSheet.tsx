@@ -81,7 +81,7 @@ export default function BottomSheet({ state, onStateChange, children }: Props) {
   return (
     <div
       ref={sheetRef}
-      className="absolute inset-x-0 bottom-0 z-20 bg-white rounded-t-3xl shadow-sheet flex flex-col"
+      className="absolute inset-x-0 bottom-0 z-20 bg-white rounded-t-[36px] shadow-sheet flex flex-col"
       style={{
         top: topStyle,
         transition: dragTop == null ? 'top 220ms ease-out' : undefined,
@@ -93,7 +93,7 @@ export default function BottomSheet({ state, onStateChange, children }: Props) {
         className="w-full pt-3 pb-2 grid place-items-center cursor-grab active:cursor-grabbing"
         aria-label="Drag handle"
       >
-        <div className="w-[44px] h-[5px] rounded-full bg-ink/30" />
+        <div className="w-[44px] h-[5px] rounded-full bg-ink/25" />
       </div>
       <div className="flex-1 overflow-y-auto px-4 pb-8">{children}</div>
     </div>

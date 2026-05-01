@@ -141,10 +141,7 @@ export default function MapPage() {
                     key={chip.id}
                     onClick={() => toggleChip(chip.id)}
                     className={
-                      'px-3 py-1.5 rounded-full border text-[12px] font-semibold whitespace-nowrap transition ' +
-                      (active
-                        ? 'bg-yellow border-yellow text-ink'
-                        : 'bg-white border-ink/10 text-muted')
+                      'kit-chip ' + (active ? 'kit-chip-active' : 'kit-chip-inactive')
                     }
                   >
                     {chip.label}
@@ -156,16 +153,19 @@ export default function MapPage() {
             {/* Active-theme banner */}
             {activeTheme && (
               <div
-                className="rounded-xl p-2.5 mb-2 text-[12px] flex items-center gap-2"
-                style={{ background: `${activeTheme.accent_color}15` }}
+                className="rounded-kit-photo p-3 mb-3 text-[12px] flex items-center gap-2.5 border-2"
+                style={{
+                  background: `linear-gradient(135deg, ${activeTheme.accent_color}25, ${activeTheme.accent_color}08)`,
+                  borderColor: `${activeTheme.accent_color}50`,
+                }}
               >
-                <span>{activeTheme.emoji}</span>
-                <span className="flex-1 text-ink/80">
-                  Showing <strong>{activeTheme.name_en}</strong>
+                <span className="text-lg">{activeTheme.emoji}</span>
+                <span className="flex-1 text-ink/85 font-semibold">
+                  Showing <span className="font-extrabold">{activeTheme.name_en}</span>
                 </span>
                 <button
                   onClick={() => setActiveThemeId(null)}
-                  className="text-muted hover:text-ink text-base leading-none"
+                  className="w-7 h-7 grid place-items-center rounded-kit-pill text-muted hover:text-ink hover:bg-ink/5 text-base leading-none transition"
                   aria-label="Clear theme"
                 >
                   ✕

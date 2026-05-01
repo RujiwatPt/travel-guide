@@ -22,19 +22,19 @@ export default function ChatbotBar({ onSubmit, loading, initialQuery, onClear, h
     <div className="absolute top-4 left-4 right-4 z-30">
       <form
         onSubmit={handleSubmit}
-        className="flex items-center gap-2 h-12 px-4 rounded-full bg-white/95 backdrop-blur shadow-soft border border-ink/5"
+        className="kit-pill"
       >
-        <span className="text-base">⌕</span>
+        <span className="text-base text-ink/60">⌕</span>
         <input
           type="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Ask about Nakhon Phanom…"
           disabled={loading}
-          className="flex-1 bg-transparent outline-none text-sm text-ink placeholder:text-muted disabled:opacity-60"
+          className="flex-1 bg-transparent outline-none text-sm font-semibold text-ink placeholder:text-muted disabled:opacity-60"
         />
         {loading ? (
-          <div className="flex gap-0.5 px-1">
+          <div className="flex gap-1 px-1">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-strong animate-pulse" style={{ animationDelay: '0ms' }} />
             <span className="w-1.5 h-1.5 rounded-full bg-blue-strong animate-pulse" style={{ animationDelay: '160ms' }} />
             <span className="w-1.5 h-1.5 rounded-full bg-blue-strong animate-pulse" style={{ animationDelay: '320ms' }} />
@@ -43,7 +43,7 @@ export default function ChatbotBar({ onSubmit, loading, initialQuery, onClear, h
           <button
             type="button"
             onClick={onClear}
-            className="text-muted hover:text-ink text-lg leading-none"
+            className="w-8 h-8 grid place-items-center rounded-kit-pill text-muted hover:text-ink hover:bg-ink/5 text-lg leading-none transition"
             aria-label="Clear plan"
           >
             ✕
@@ -51,7 +51,7 @@ export default function ChatbotBar({ onSubmit, loading, initialQuery, onClear, h
         ) : (
           <button
             type="submit"
-            className="text-blue-strong text-lg leading-none disabled:opacity-40"
+            className="w-8 h-8 grid place-items-center rounded-kit-pill bg-ink/5 text-blue-strong text-lg leading-none disabled:opacity-30 hover:bg-ink/10 transition"
             disabled={value.trim().length === 0}
             aria-label="Submit"
           >
