@@ -12,9 +12,13 @@ import type { EditableFigmaScreen } from '../figmaEditableData'
 export type LayerOverride = {
   text?: string
   imageSrc?: string
+  hideLayer?: boolean
 }
 
 export type Overrides = {
+  // Key forms:
+  //   "Layer Name"      — applies to all layers with this name
+  //   "Layer Name#0"    — applies to the 0th occurrence of this name
   [layerName: string]: LayerOverride
 }
 
@@ -23,22 +27,35 @@ export function applyOverrides(
   overrides: Overrides,
 ): EditableFigmaScreen {
   if (Object.keys(overrides).length === 0) return screen
-  return {
-    ...screen,
-    layers: screen.layers.map((layer) => {
-      const o = overrides[layer.name]
-      if (!o) return layer
-      let next = layer
-      if (o.text !== undefined) next = { ...next, text: o.text }
-      if (o.imageSrc !== undefined) {
-        next = {
-          ...next,
-          style: { ...next.style, background: replaceUrlInBackground(String(next.style.background ?? ''), o.imageSrc) },
-        }
+
+  // Track per-name occurrence index for "Name#N" matching
+  const occurrence = new Map<string, number>()
+
+  const out = screen.layers.flatMap((layer) => {
+    const idx = occurrence.get(layer.name) ?? 0
+    occurrence.set(layer.name, idx + 1)
+
+    // Indexed override (e.g. "image#0") wins over plain name
+    const o = overrides[`${layer.name}#${idx}`] ?? overrides[layer.name]
+    if (!o) return [layer]
+    if (o.hideLayer) return []
+
+    let next = layer
+    if (o.text !== undefined) next = { ...next, text: o.text }
+    if (o.imageSrc !== undefined) {
+      next = {
+        ...next,
+        style: {
+          ...next.style,
+          background: replaceUrlInBackground(String(next.style.background ?? ''), o.imageSrc),
+          backgroundImage: `url(${o.imageSrc})`,
+        },
       }
-      return next
-    }),
-  }
+    }
+    return [next]
+  })
+
+  return { ...screen, layers: out }
 }
 
 function replaceUrlInBackground(bg: string, newUrl: string): string {

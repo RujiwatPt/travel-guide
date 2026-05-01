@@ -1,9 +1,16 @@
 import EditableFigmaScreenRenderer from '../components/EditableFigmaScreenRenderer'
 import KitBottomNav from '../components/KitBottomNav'
 import { LOCAL_EXPERIENCES_SCREEN } from '../data/screenLookup'
+import { NKP_PHOTOS } from '../data/nkpPhotos'
 import type { Overrides } from '../lib/figmaOverrides'
 
 const NKP_LOCAL_OVERRIDES: Overrides = {
+  '↳ Time':                                                    { hideLayer: true },
+  '↳ Indicators':                                              { hideLayer: true },
+  // Wide photo card hero images — 3 instances of "image"
+  'image#0':                                                   { imageSrc: NKP_PHOTOS.phoSawan },
+  'image#1':                                                   { imageSrc: NKP_PHOTOS.riverVibes },
+  'image#2':                                                   { imageSrc: NKP_PHOTOS.walkingStreet },
   ' Local Gems Around You':                                    { text: ' Local Gems in Nakhon Phanom' },
   "Feel the city's heartbeat through food & festivals.":       { text: "Feel the heartbeat through food & culture." },
   'Street Food':                                               { text: 'Street Food' },

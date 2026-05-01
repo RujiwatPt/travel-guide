@@ -87,4 +87,41 @@ describe('applyOverrides', () => {
     applyOverrides(original, { Title: { text: 'Nakhon Phanom!' } })
     expect(original).toEqual(snapshot)
   })
+
+  it('hides a layer from the output when hideLayer is true', () => {
+    const screen = makeScreen([
+      { kind: 'text', name: 'StatusBar', text: '9:54', style: {} },
+      { kind: 'text', name: 'Title', text: 'Tokyo!', style: {} },
+    ])
+    const result = applyOverrides(screen, { StatusBar: { hideLayer: true } })
+    expect(result.layers).toHaveLength(1)
+    expect(result.layers[0].name).toBe('Title')
+  })
+
+  it("replaces backgroundImage style (camelCase) when imageSrc override is set on a layer using backgroundImage", () => {
+    const screen = makeScreen([
+      {
+        kind: 'shape',
+        name: 'PhotoCard',
+        style: { backgroundImage: 'url(/figma-assets-small/19-9cc5e3d432.jpg)', backgroundSize: 'cover' },
+      },
+    ])
+    const result = applyOverrides(screen, {
+      PhotoCard: { imageSrc: '/nkp/phanom.jpg' },
+    })
+    expect(String(result.layers[0].style.backgroundImage)).toContain('/nkp/phanom.jpg')
+  })
+
+  it('targets the Nth occurrence of a layer name when key uses #index notation', () => {
+    const screen = makeScreen([
+      { kind: 'shape', name: 'image', style: { backgroundImage: 'url(/old-1.jpg)' } },
+      { kind: 'shape', name: 'image', style: { backgroundImage: 'url(/old-2.jpg)' } },
+    ])
+    const result = applyOverrides(screen, {
+      'image#0': { imageSrc: '/new-first.jpg' },
+      'image#1': { imageSrc: '/new-second.jpg' },
+    })
+    expect(String(result.layers[0].style.backgroundImage)).toContain('/new-first.jpg')
+    expect(String(result.layers[1].style.backgroundImage)).toContain('/new-second.jpg')
+  })
 })

@@ -1,9 +1,19 @@
 import EditableFigmaScreenRenderer from '../components/EditableFigmaScreenRenderer'
 import KitBottomNav from '../components/KitBottomNav'
 import { TRIP_JOURNAL_SCREEN } from '../data/screenLookup'
+import { NKP_PHOTOS } from '../data/nkpPhotos'
 import type { Overrides } from '../lib/figmaOverrides'
 
 const NKP_JOURNAL_OVERRIDES: Overrides = {
+  '↳ Time':                        { hideLayer: true },
+  '↳ Indicators':                  { hideLayer: true },
+  // Journal cards — kit has multiple "image" layers; map to NKP stupas + iconic places
+  'image#0':                       { imageSrc: NKP_PHOTOS.phraThatPhanom },
+  'image#1':                       { imageSrc: NKP_PHOTOS.birthdayStupa },
+  'image#2':                       { imageSrc: NKP_PHOTOS.nagaStatue },
+  'image#3':                       { imageSrc: NKP_PHOTOS.mekongSunset },
+  'image#4':                       { imageSrc: NKP_PHOTOS.thamNakee },
+  'image#5':                       { imageSrc: NKP_PHOTOS.hoChiMinhHouse },
   'Trip Journal':                  { text: 'Birthday-Stupa Pilgrimage' },
   'Timeline':                      { text: 'Timeline' },
   'Storymode':                     { text: 'Storymode' },

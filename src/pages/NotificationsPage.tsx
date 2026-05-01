@@ -4,6 +4,8 @@ import { NOTIFICATIONS_SCREEN } from '../data/screenLookup'
 import type { Overrides } from '../lib/figmaOverrides'
 
 const NKP_NOTIFICATIONS_OVERRIDES: Overrides = {
+  '↳ Time':                                          { hideLayer: true },
+  '↳ Indicators':                                    { hideLayer: true },
   'Trip Reminders':                                  { text: 'Owner Updates' },
   'AI Travel Tips':                                  { text: 'AI Tips for NKP' },
   'Weather & Safety Alerts':                         { text: 'Weather & Safety' },
