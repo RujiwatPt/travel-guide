@@ -26,6 +26,12 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw.strip().lower() in {"1", "true", "yes", "on"}
 
 
+_AI_INTENT_TIMEOUT_SECONDS = os.getenv(
+    "AI_INTENT_TIMEOUT_SECONDS",
+    os.getenv("OPENROUTER_TIMEOUT_SECONDS", "3.0"),
+)
+
+
 class Settings(BaseModel):
     app_name: str = os.getenv("APP_NAME", "Regional Travel Guide API")
     city_default: str = os.getenv("CITY_DEFAULT", "nkp")
@@ -48,7 +54,8 @@ class Settings(BaseModel):
         "OPENROUTER_MODEL_FALLBACK",
         "openai/gpt-oss-120b:free",
     )
-    openrouter_timeout_seconds: float = float(os.getenv("OPENROUTER_TIMEOUT_SECONDS", "3.0"))
+    ai_intent_timeout_seconds: float = float(_AI_INTENT_TIMEOUT_SECONDS)
+    openrouter_timeout_seconds: float = float(_AI_INTENT_TIMEOUT_SECONDS)
 
 
 settings = Settings()

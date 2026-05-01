@@ -30,6 +30,7 @@ Key vars:
 - `OPENROUTER_API_KEY` (optional now, required to enable LLM intent grading)
 - `OPENROUTER_MODEL_PRIMARY` (`inclusionai/ling-2.6-1t:free`)
 - `OPENROUTER_MODEL_FALLBACK` (`openai/gpt-oss-120b:free`)
+- `AI_INTENT_TIMEOUT_SECONDS` (`3.0`)
 
 If `OPENROUTER_API_KEY` is missing or model call fails, API automatically falls back to deterministic rule-based intent classification.
 LLM timeout defaults to 3 seconds for demo reliability.

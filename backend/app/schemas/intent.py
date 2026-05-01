@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, Field
 
 
 class IntentGateOut(BaseModel):
@@ -7,6 +9,21 @@ class IntentGateOut(BaseModel):
     entity_scope: str
     hard_filters: list[str]
     reason: str
+
+
+class IntentProviderOut(BaseModel):
+    detected_intent: Literal[
+        "activity_discovery",
+        "food_trip",
+        "place_discovery",
+        "temple_merit_discovery",
+        "mixed_activity_food",
+        "general_discovery",
+    ]
+    intent_confidence: Literal["high", "medium", "low"]
+    entity_scope: Literal["activity_only", "food_only", "place_only", "mixed"]
+    hard_filters: list[str] = Field(default_factory=list)
+    reason: str = "llm_classified"
 
 
 class ExcludedCandidate(BaseModel):
