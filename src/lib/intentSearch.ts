@@ -9,13 +9,35 @@ export type RankedEntry = {
   matchedReasons: string[]
 }
 
+/** Canonical intent ids shared by deterministic and AI-assisted ranking. */
+export type IntentId =
+  | 'general_blessing'
+  | 'fertility_blessing'
+  | 'birthday_stupa'
+  | 'riverside_evening'
+  | 'food_trip'
+
+/** Provider-neutral hint payload that can nudge deterministic ranking. */
+export type AiIntentHint = {
+  intentIds: IntentId[]
+  confidence: number
+  matchedTerms: string[]
+  categoryHints?: Entry['category'][]
+  tagHints?: {
+    vibeTags?: string[]
+    cuisineTags?: string[]
+    timeTags?: string[]
+  }
+  provider: 'mock' | string
+}
+
+/** Async classifier contract for future server-side or mock intent providers. */
+export type IntentClassifierProvider = {
+  classifyIntent(query: string): Promise<AiIntentHint | null>
+}
+
 type IntentGroup = {
-  id:
-    | 'general_blessing'
-    | 'fertility_blessing'
-    | 'birthday_stupa'
-    | 'riverside_evening'
-    | 'food_trip'
+  id: IntentId
   label: string
   keywords: string[]
   entryBoosts?: Record<string, number>
@@ -217,6 +239,19 @@ function addReason(reasons: Set<string>, reason: string) {
   if (reasons.size < 4) reasons.add(reason)
 }
 
+/** Adds one short reason while keeping AI-specific annotations visible in the cap. */
+function addReasonToList(reasons: string[], reason: string) {
+  if (reasons.includes(reason)) return
+  if (reasons.length < 4) {
+    reasons.push(reason)
+    return
+  }
+  if (reason.startsWith('ai ') && reasons.some((existing) => existing.startsWith('ai '))) {
+    return
+  }
+  reasons[reasons.length - 1] = reason
+}
+
 /** Returns the configured intent groups whose keywords appear in the query. */
 function detectIntentGroups(query: string): IntentGroup[] {
   const normalizedQuery = normalize(query)
@@ -305,6 +340,64 @@ function scoreIntentMatch(group: IntentGroup, entry: Entry, reasons: Set<string>
   return score
 }
 
+/** Applies small additive boosts from AI intent hints to an already-ranked entry. */
+function scoreAiHintIntentMatch(
+  hint: AiIntentHint,
+  entry: Entry,
+  reasons: string[],
+): number {
+  let score = 0
+  const confidence = Math.max(0, Math.min(1, hint.confidence || 0))
+
+  for (const intentId of hint.intentIds) {
+    const group = INTENT_GROUPS.find((candidate) => candidate.id === intentId)
+    if (!group) continue
+
+    const entryBoost = group.entryBoosts?.[entry.id] ?? 0
+    if (entryBoost > 0) {
+      score += Math.round(entryBoost * 0.2 * confidence)
+      addReasonToList(reasons, `ai ${intentId} hint`)
+    }
+
+    const categoryBoost = group.categories?.[entry.category] ?? 0
+    if (categoryBoost > 0) {
+      score += Math.round(categoryBoost * 0.15 * confidence)
+      addReasonToList(reasons, `ai ${intentId} hint`)
+    }
+
+    if (
+      entry.vibe_tags.some((tag) => (group.vibeTags?.[tag] ?? 0) > 0) ||
+      entry.cuisine_tags.some((tag) => (group.cuisineTags?.[tag] ?? 0) > 0) ||
+      entry.time_tags.some((tag) => (group.timeTags?.[tag] ?? 0) > 0)
+    ) {
+      score += Math.round(4 * confidence)
+      addReasonToList(reasons, `ai ${intentId} hint`)
+    }
+  }
+
+  if (hint.categoryHints?.includes(entry.category)) {
+    score += Math.round(6 * confidence)
+    addReasonToList(reasons, `ai ${entry.category} category`)
+  }
+
+  if (hint.tagHints?.vibeTags?.some((tag) => entry.vibe_tags.includes(tag))) {
+    score += Math.round(4 * confidence)
+    addReasonToList(reasons, 'ai vibe hint')
+  }
+
+  if (hint.tagHints?.cuisineTags?.some((tag) => entry.cuisine_tags.includes(tag))) {
+    score += Math.round(4 * confidence)
+    addReasonToList(reasons, 'ai cuisine hint')
+  }
+
+  if (hint.tagHints?.timeTags?.some((tag) => entry.time_tags.includes(tag))) {
+    score += Math.round(4 * confidence)
+    addReasonToList(reasons, 'ai time hint')
+  }
+
+  return score
+}
+
 /**
  * Ranks mixed Entries for an activity-style query using deterministic intent rules
  * plus text relevance from the current seed data.
@@ -351,4 +444,116 @@ export function rankEntriesForIntent(query: string, entries: Entry[]): RankedEnt
       score: Math.round(score),
       matchedReasons,
     }))
+}
+
+/**
+ * Mock AI-ready provider that emits typed intent hints for known Thai search phrases.
+ * It exists only to prove the async hint interface without any network calls.
+ */
+export const mockIntentClassifierProvider: IntentClassifierProvider = {
+  async classifyIntent(query) {
+    const normalizedQuery = normalize(query)
+    if (!normalizedQuery) return null
+
+    if (
+      normalizedQuery.includes(normalize('ไหว้พระ')) &&
+      normalizedQuery.includes(normalize('ขอพร'))
+    ) {
+      return {
+        intentIds: ['general_blessing'],
+        confidence: 0.88,
+        matchedTerms: ['ไหว้พระ', 'ขอพร'],
+        categoryHints: ['temple', 'landmark'],
+        tagHints: { vibeTags: ['spiritual', 'birthday-stupa'] },
+        provider: 'mock',
+      }
+    }
+
+    if (normalizedQuery.includes(normalize('ขอลูก'))) {
+      return {
+        intentIds: ['fertility_blessing'],
+        confidence: 0.96,
+        matchedTerms: ['ขอลูก'],
+        categoryHints: ['temple'],
+        tagHints: { vibeTags: ['spiritual'] },
+        provider: 'mock',
+      }
+    }
+
+    if (
+      normalizedQuery.includes(normalize('ของกิน')) &&
+      normalizedQuery.includes(normalize('อาหารเวียดนาม'))
+    ) {
+      return {
+        intentIds: ['food_trip'],
+        confidence: 0.91,
+        matchedTerms: ['ของกิน', 'อาหารเวียดนาม'],
+        categoryHints: ['food', 'cafe', 'market'],
+        tagHints: { cuisineTags: ['vietnamese'] },
+        provider: 'mock',
+      }
+    }
+
+    if (normalizedQuery.includes(normalize('พระธาตุประจำวันเกิด'))) {
+      return {
+        intentIds: ['birthday_stupa'],
+        confidence: 0.9,
+        matchedTerms: ['พระธาตุประจำวันเกิด'],
+        categoryHints: ['temple'],
+        tagHints: { vibeTags: ['birthday-stupa', 'spiritual'] },
+        provider: 'mock',
+      }
+    }
+
+    if (
+      normalizedQuery.includes(normalize('ริมโขง')) &&
+      normalizedQuery.includes(normalize('เดินเล่น'))
+    ) {
+      return {
+        intentIds: ['riverside_evening'],
+        confidence: 0.84,
+        matchedTerms: ['ริมโขง', 'เดินเล่น'],
+        categoryHints: ['landmark', 'market', 'cafe'],
+        tagHints: { vibeTags: ['photo-spot', 'iconic'], timeTags: ['sunset', 'evening'] },
+        provider: 'mock',
+      }
+    }
+
+    return null
+  },
+}
+
+/**
+ * Async wrapper that preserves deterministic search while allowing provider-based
+ * intent hints to add small ranking boosts and matched reasons.
+ * Provider failures or missing hints return deterministic results unchanged.
+ */
+export async function rankEntriesForIntentWithHints(
+  query: string,
+  entries: Entry[],
+  provider: IntentClassifierProvider,
+): Promise<RankedEntry[]> {
+  const baseResults = rankEntriesForIntent(query, entries)
+
+  try {
+    const hint = await provider.classifyIntent(query)
+    if (!hint) return baseResults
+
+    return baseResults
+      .map((result, index) => {
+        const matchedReasons = [...result.matchedReasons]
+        const boostedScore = result.score + scoreAiHintIntentMatch(hint, result.entry, matchedReasons)
+
+        return {
+          ...result,
+          index,
+          score: boostedScore,
+          matchedReasons,
+        }
+      })
+      .sort((a, b) => b.score - a.score || a.index - b.index)
+      .map(({ index: _index, ...result }) => result)
+  } catch {
+    return baseResults
+  }
 }

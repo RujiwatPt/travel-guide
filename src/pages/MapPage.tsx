@@ -12,7 +12,8 @@ import { themesForCity } from '../data/themes'
 import { distanceKm } from '../lib/distance'
 import { CHIPS, applyFilters } from '../lib/filters'
 import {
-  rankEntriesForIntent,
+  mockIntentClassifierProvider,
+  rankEntriesForIntentWithHints,
   shouldUsePlanMode,
   type RankedEntry,
 } from '../lib/intentSearch'
@@ -94,7 +95,11 @@ export default function MapPage() {
       return
     }
 
-    const rankedResults = rankEntriesForIntent(query, entries)
+    const rankedResults = await rankEntriesForIntentWithHints(
+      query,
+      entries,
+      mockIntentClassifierProvider,
+    )
     if (rankedResults.length > 0) {
       setActiveSearch({ query, results: rankedResults })
       setSheetState('full')
