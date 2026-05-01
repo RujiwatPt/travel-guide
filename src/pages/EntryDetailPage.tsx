@@ -55,8 +55,8 @@ export default function EntryDetailPage() {
 
   return (
     <div className="min-h-[100dvh] bg-panel relative pb-28">
-      {/* Hero */}
-      <div className="relative h-[55dvh] w-full overflow-hidden">
+      {/* Hero — kit Place Details Page pattern: full-bleed cover + dark text overlay */}
+      <div className="relative h-[62dvh] w-full overflow-hidden">
         {photo ? (
           <img
             src={photo}
@@ -64,33 +64,35 @@ export default function EntryDetailPage() {
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-soft to-cream grid place-items-center text-7xl">
+          <div className="absolute inset-0 bg-kit-sky grid place-items-center text-8xl">
             {entry.emoji}
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/30 to-transparent" />
+        {/* Kit overlay-dark gradient (top→bottom darkening for text legibility) */}
+        <div className="absolute inset-0 bg-kit-overlay-dark" />
 
-        {/* Floating buttons */}
+        {/* Floating buttons — kit pill style */}
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-3 left-3 w-10 h-10 grid place-items-center rounded-full bg-white/40 backdrop-blur text-white text-xl"
+          className="absolute top-4 left-4 w-11 h-11 grid place-items-center rounded-kit-pill bg-white/35 backdrop-blur-md text-white text-2xl shadow-kit-pill"
+          aria-label="Back"
         >
           ‹
         </button>
-        <div className="absolute top-3 right-3 flex gap-2">
-          <button className="w-10 h-10 grid place-items-center rounded-full bg-white/40 backdrop-blur text-white">
+        <div className="absolute top-4 right-4 flex gap-2">
+          <button className="w-11 h-11 grid place-items-center rounded-kit-pill bg-white/35 backdrop-blur-md text-white text-lg shadow-kit-pill">
             ♡
           </button>
-          <button className="w-10 h-10 grid place-items-center rounded-full bg-white/40 backdrop-blur text-white">
+          <button className="w-11 h-11 grid place-items-center rounded-kit-pill bg-white/35 backdrop-blur-md text-white text-lg shadow-kit-pill">
             ⋯
           </button>
         </div>
 
-        {/* Live status pill (Activity only) */}
+        {/* Live status pill (Activity only) — kit pill at top-center */}
         {entry.type === 'activity' && (
-          <div className="absolute top-3 left-1/2 -translate-x-1/2">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2">
             <div
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide text-white shadow"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-kit-pill text-[11px] font-extrabold tracking-wide text-white shadow-kit-pill"
               style={{ background: STATUS_COLOR[status] }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-white" />
@@ -99,22 +101,24 @@ export default function EntryDetailPage() {
           </div>
         )}
 
-        {/* Title block */}
-        <div className="absolute bottom-5 left-5 right-5 text-white">
-          <p className="text-xs uppercase tracking-wider opacity-80">{entry.category}</p>
-          <h1 className="text-3xl font-extrabold leading-tight mt-1">{entry.name_en}</h1>
-          <p className="text-base text-white/80 mt-0.5">{entry.name_th}</p>
+        {/* Title block — kit hero typography */}
+        <div className="absolute bottom-7 left-6 right-6 text-white">
+          <p className="kit-eyebrow text-white/75">{entry.category}</p>
+          <h1 className="kit-h1 text-[44px] leading-[0.96] tracking-[-0.06em] text-white mt-2.5">
+            {entry.name_en}
+          </h1>
+          <p className="text-lg text-white/75 mt-1.5 font-bold">{entry.name_th}</p>
         </div>
       </div>
 
-      {/* White scrollable card */}
-      <div className="bg-white -mt-6 rounded-t-3xl p-5 space-y-5 relative z-10">
-        {/* Trust badge */}
+      {/* White scrollable card — kit hero corner radius */}
+      <div className="bg-white -mt-7 rounded-t-[36px] p-6 space-y-5 relative z-10 shadow-kit-frame">
+        {/* Trust badge — kit cream-yellow accent */}
         {entry.type === 'activity' && owner && updated && (
-          <div className="flex items-center gap-3 bg-cream/70 border border-yellow/40 rounded-2xl px-4 py-3">
-            <div className="w-9 h-9 rounded-full bg-white grid place-items-center text-base">👤</div>
+          <div className="flex items-center gap-3 bg-gradient-to-r from-kit-cream-1 to-kit-cream-1/50 border border-yellow/30 rounded-kit-photo px-4 py-3 shadow-sm">
+            <div className="w-10 h-10 rounded-kit-pill bg-white grid place-items-center text-base shadow-sm">👤</div>
             <div className="flex-1 text-sm">
-              <div className="font-bold text-ink">
+              <div className="font-extrabold text-ink">
                 Updated {updated} by {owner.display_name}
                 {owner.verified && <span className="ml-1 text-blue-strong">✓</span>}
               </div>
@@ -126,44 +130,44 @@ export default function EntryDetailPage() {
         )}
 
         {/* why_visit */}
-        <p className="text-base text-ink/80 italic">
-          <span className="not-italic">✨ </span>{entry.why_visit_en}
+        <p className="text-base text-ink/85 italic font-medium leading-relaxed">
+          <span className="not-italic mr-0.5">✨</span> {entry.why_visit_en}
         </p>
 
-        <hr className="border-ink/10" />
+        <hr className="border-ink/8" />
 
         {/* Today's hours */}
         <section>
           <div className="text-sm flex items-center gap-2">
             <span>🕐</span>
-            <span className="font-semibold">Today</span>
+            <span className="font-extrabold text-ink">Today</span>
             <span className="text-ink/30">·</span>
-            <span>{todaysHoursLabel(entry, new Date())}</span>
+            <span className="text-ink/80">{todaysHoursLabel(entry, new Date())}</span>
           </div>
           {entry.hours_weekly?.notes_en && (
             <div className="text-xs text-muted mt-1.5 ml-6">
               ⓘ {entry.hours_weekly.notes_en}
             </div>
           )}
-          <div className="text-xs text-blue-strong mt-1.5 ml-6 cursor-pointer">See full week ›</div>
+          <div className="text-xs text-blue-strong font-bold mt-1.5 ml-6 cursor-pointer">See full week ›</div>
         </section>
 
-        <hr className="border-ink/10" />
+        <hr className="border-ink/8" />
 
         {/* Description */}
         <section>
-          <h2 className="text-sm font-bold text-ink mb-2">About</h2>
-          <p className="text-sm text-ink/80 leading-relaxed">{entry.description_en}</p>
+          <p className="kit-eyebrow mb-2">About</p>
+          <p className="text-sm text-ink/85 leading-relaxed">{entry.description_en}</p>
         </section>
 
-        {/* Tags */}
+        {/* Tags — kit chip pattern */}
         {allTags.length > 0 && (
           <section>
             <div className="flex flex-wrap gap-1.5">
               {allTags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-2.5 py-1 rounded-full bg-panel border border-ink/10 text-[11px] text-ink/70"
+                  className="kit-chip kit-chip-inactive"
                 >
                   {tag}
                 </span>
@@ -172,11 +176,11 @@ export default function EntryDetailPage() {
           </section>
         )}
 
-        <hr className="border-ink/10" />
+        <hr className="border-ink/8" />
 
         {/* Mini map */}
         <section>
-          <div className="rounded-2xl overflow-hidden border border-ink/10 h-40 relative">
+          <div className="rounded-kit-photo overflow-hidden border border-ink/8 h-44 relative shadow-kit-card">
             <MapContainer
               center={[entry.lat, entry.lng]}
               zoom={14}
@@ -192,21 +196,21 @@ export default function EntryDetailPage() {
               {pinIcon && <Marker position={[entry.lat, entry.lng]} icon={pinIcon} />}
             </MapContainer>
           </div>
-          <div className="text-xs text-muted mt-2">
+          <div className="text-xs text-muted mt-2 font-semibold">
             📍 {entry.lat.toFixed(4)}, {entry.lng.toFixed(4)}
           </div>
         </section>
       </div>
 
-      {/* Sticky CTA */}
-      <div className="fixed inset-x-0 bottom-0 px-5 pb-6 pt-3 bg-gradient-to-t from-white via-white to-transparent">
+      {/* Sticky CTA — kit prominent button style */}
+      <div className="fixed inset-x-0 bottom-0 px-5 pb-6 pt-4 bg-gradient-to-t from-white via-white/95 to-transparent">
         <a
           href={directionsUrl}
           target="_blank"
           rel="noopener"
-          className="block w-full h-14 rounded-2xl bg-blue-strong text-white font-bold text-center grid place-items-center shadow-lg hover:opacity-95"
+          className="block w-full h-15 rounded-kit-hero bg-ink text-white font-extrabold text-center grid place-items-center shadow-kit-frame hover:opacity-95 active:scale-[0.99] transition py-4 tracking-wide"
         >
-          Get Directions
+          Get Directions →
         </a>
       </div>
     </div>
