@@ -61,11 +61,11 @@ export const NKP_THEMES: Theme[] = [
     city_id: 'nkp',
     name_en: 'OTOP & Local Crafts',
     name_th: 'OTOP & งานคราฟต์ท้องถิ่น',
-    tagline_en: 'Phu Thai textiles, mat-mi weaving, Renu Nakhon crafts',
-    tagline_th: 'ผ้ามัดหมี่ ผ้าเรณูนคร งานคราฟต์ผู้ไท',
+    tagline_en: 'Phu Thai textiles, mat-mi weaving, ผ้ามัดย้อม, civet coffee',
+    tagline_th: 'ผ้ามัดหมี่ ผ้ามัดย้อม ผ้าเรณูนคร กาแฟขี้ชะมด',
     emoji: '🧵',
     accent_color: '#7c5acc',
-    entry_ids: [], // ← data gap, awaiting OTOP entries (next grilling fork)
+    entry_ids: ['renu-nakhon-otop', 'bluegold-coffee', 'indochina-walking-street'],
   },
 ]
 
