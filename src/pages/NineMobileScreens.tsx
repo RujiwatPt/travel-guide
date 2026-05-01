@@ -1,5 +1,5 @@
-import type { CSSProperties } from 'react'
 import { editableFigmaScreens, type EditableFigmaScreen } from '../figmaEditableData'
+import EditableFigmaScreenRenderer from '../components/EditableFigmaScreenRenderer'
 
 function EditablePhone({ screen }: { screen: EditableFigmaScreen }) {
   return (
@@ -15,34 +15,7 @@ function EditablePhone({ screen }: { screen: EditableFigmaScreen }) {
           {screen.id}
         </span>
       </div>
-
-      <div className="overflow-hidden rounded-[36px] bg-white shadow-[0_28px_80px_rgba(32,75,111,0.24)] ring-1 ring-black/5">
-        <div
-          className="relative overflow-hidden bg-white"
-          style={{ width: screen.width, height: screen.height } as CSSProperties}
-        >
-          {screen.layers.map((layer, index) => {
-            const style = {
-              position: 'absolute',
-              boxSizing: 'border-box',
-              overflow: 'hidden',
-              whiteSpace: layer.kind === 'text' ? 'pre-wrap' : undefined,
-              wordBreak: layer.kind === 'text' ? 'break-word' : undefined,
-              ...layer.style,
-            } as CSSProperties
-
-            if (layer.kind === 'text') {
-              return (
-                <div key={`${layer.name}-${index}`} data-figma-layer={layer.name} style={style}>
-                  {layer.text}
-                </div>
-              )
-            }
-
-            return <div key={`${layer.name}-${index}`} data-figma-layer={layer.name} style={style} />
-          })}
-        </div>
-      </div>
+      <EditableFigmaScreenRenderer screen={screen} />
     </article>
   )
 }
