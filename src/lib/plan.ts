@@ -1,5 +1,6 @@
-// Chatbot Plan Provider — for MVP returns a hardcoded Plan after a fake delay.
-// Interface is stable per /CONTEXT.md so a real LLM impl can drop in later.
+import { ENTRIES } from '../data/seed'
+import { fetchPlan } from './api'
+import type { Entry } from '../types'
 
 export type EntrySummary = {
   name_en: string
@@ -14,7 +15,7 @@ export type EntrySummary = {
 export type Stop = {
   position: number
   entry_id: string
-  arrival_time: string             // "13:00"
+  arrival_time: string
   duration_min: number
   travel_min_to_next: number | null
   travel_mode_to_next: 'walk' | 'drive' | 'bike' | null
@@ -27,13 +28,13 @@ export type Stop = {
 
 export type RouteGeometry = {
   type: 'LineString'
-  coordinates: [number, number][]  // [lng, lat]
+  coordinates: [number, number][]
 }
 
 export type Plan = {
   query: string
   city_id: string
-  generated_at: string             // ISO
+  generated_at: string
   start_time: string
   end_time: string
   total_duration_min: number
@@ -43,207 +44,109 @@ export type Plan = {
   route_geometry: RouteGeometry
 }
 
-const AFTERNOON_PLAN: Plan = {
-  query: 'I have one afternoon, I love food and history',
-  city_id: 'nkp',
-  generated_at: new Date().toISOString(),
-  start_time: '13:00',
-  end_time: '18:00',
-  total_duration_min: 300,
-  rationale_en:
-    "Pho Sawan's last lunch order is 14:00, Ho Chi Minh's House closes at 17:00, and the Naga statue faces west — sunset is at 18:18 today. Everything lines up.",
-  rationale_th:
-    'เฝอสวรรค์รับออเดอร์อาหารกลางวันถึง 14:00 บ้านลุงโฮปิด 17:00 และพญาศรีสัตตนาคราชหันหน้าไปทางทิศตะวันตก พระอาทิตย์ตก 18:18 วันนี้ ทุกอย่างลงล็อก',
-  stops: [
-    {
-      position: 1,
-      entry_id: 'pho-sawan',
-      arrival_time: '13:00',
-      duration_min: 45,
-      travel_min_to_next: 8,
-      travel_mode_to_next: 'drive',
-      why_en: 'Lunch — pho + nem nuong',
-      why_th: 'อาหารกลางวัน — เฝอ + แหนมเนือง',
-      icon_emoji: '🍜',
-      optional: false,
-      entry_summary: {
-        name_en: 'Pho Sawan',
-        name_th: 'เฝอสวรรค์',
-        category: 'food',
-        primary_photo_url: 'https://images.unsplash.com/photo-1583224944844-5b268c057b72?auto=format&w=400&q=70',
-        lat: 17.408,
-        lng: 104.779,
-        price_band: 'budget',
-      },
-    },
-    {
-      position: 2,
-      entry_id: 'ho-chi-minh-house',
-      arrival_time: '14:00',
-      duration_min: 45,
-      travel_min_to_next: 10,
-      travel_mode_to_next: 'drive',
-      why_en: 'Walk through the 1928 wooden house',
-      why_th: 'เดินชมบ้านไม้ปี 1928',
-      icon_emoji: '🏛️',
-      optional: false,
-      entry_summary: {
-        name_en: "Ho Chi Minh's House Memorial",
-        name_th: 'บ้านลุงโฮ',
-        category: 'museum',
-        primary_photo_url: 'https://images.unsplash.com/photo-1565611655036-8af6a82b3b08?auto=format&w=400&q=70',
-        lat: 17.4192,
-        lng: 104.753,
-        price_band: 'budget',
-      },
-    },
-    {
-      position: 3,
-      entry_id: 'river-vibes-cafe',
-      arrival_time: '15:30',
-      duration_min: 30,
-      travel_min_to_next: 3,
-      travel_mode_to_next: 'walk',
-      why_en: 'Coffee + rooftop river view',
-      why_th: 'กาแฟ + วิวแม่น้ำชั้นบน',
-      icon_emoji: '☕',
-      optional: false,
-      entry_summary: {
-        name_en: 'River Vibes Café',
-        name_th: 'ริเวอร์ไวบส์',
-        category: 'cafe',
-        primary_photo_url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&w=400&q=70',
-        lat: 17.4085,
-        lng: 104.78,
-        price_band: 'mid',
-      },
-    },
-    {
-      position: 4,
-      entry_id: 'naga-statue',
-      arrival_time: '16:30',
-      duration_min: 60,
-      travel_min_to_next: 1,
-      travel_mode_to_next: 'walk',
-      why_en: 'Iconic Naga + sunset over Laos',
-      why_th: 'พญานาคไอคอนิก + พระอาทิตย์ตกฝั่งลาว',
-      icon_emoji: '🐉',
-      optional: false,
-      entry_summary: {
-        name_en: 'Phaya Sri Sattanakharat',
-        name_th: 'พญาศรีสัตตนาคราช',
-        category: 'landmark',
-        primary_photo_url: 'https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?auto=format&w=400&q=70',
-        lat: 17.4083,
-        lng: 104.7805,
-        price_band: 'free',
-      },
-    },
-    {
-      position: 5,
-      entry_id: 'indochina-walking-street',
-      arrival_time: '18:00',
-      duration_min: 90,
-      travel_min_to_next: null,
-      travel_mode_to_next: null,
-      why_en: 'Friday night market — dinner & shopping',
-      why_th: 'ตลาดคืนวันศุกร์ — มื้อเย็น & ช้อปปิ้ง',
-      icon_emoji: '🌙',
-      optional: true,
-      entry_summary: {
-        name_en: 'Indochina Walking Street',
-        name_th: 'ถนนคนเดินอินโดจีน',
-        category: 'market',
-        primary_photo_url: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&w=400&q=70',
-        lat: 17.4078,
-        lng: 104.7795,
-        price_band: 'budget',
-      },
-    },
-  ],
-  route_geometry: {
-    type: 'LineString',
-    coordinates: [
-      [104.779, 17.408],
-      [104.753, 17.4192],
-      [104.78, 17.4085],
-      [104.7805, 17.4083],
-      [104.7795, 17.4078],
-    ],
-  },
+const FAKE_DELAY_MS = 500
+
+const entryById = new Map(ENTRIES.map((e) => [e.id, e]))
+
+function mustEntry(id: string): Entry {
+  const row = entryById.get(id)
+  if (!row) throw new Error(`Missing seed entry: ${id}`)
+  return row
 }
 
-const BIRTHDAY_STUPA_SUNDAY_PLAN: Plan = {
-  query: 'I was born on Sunday — what is my birthday temple?',
-  city_id: 'nkp',
-  generated_at: new Date().toISOString(),
-  start_time: '09:00',
-  end_time: '13:00',
-  total_duration_min: 240,
-  rationale_en:
-    "In Thai tradition, every weekday has a sacred Buddhist stupa — and Nakhon Phanom is the only province with all eight. Your Sunday stupa is Wat Phra That Phanom, the most sacred in all of Isan. We'll start at the Naga statue for blessings, then drive south to the stupa.",
-  rationale_th:
-    'ในธรรมเนียมไทย วันเกิดแต่ละวันมีพระธาตุประจำของตน และนครพนมเป็นจังหวัดเดียวที่มีครบทั้ง 8 องค์ คนเกิดวันอาทิตย์คือพระธาตุพนม ศักดิ์สิทธิ์ที่สุดในอีสาน เริ่มที่พญาศรีสัตตนาคราชขอพร แล้วไปต่อทางใต้ที่องค์พระธาตุ',
-  stops: [
-    {
-      position: 1,
-      entry_id: 'naga-statue',
-      arrival_time: '09:00',
-      duration_min: 30,
-      travel_min_to_next: 55,
-      travel_mode_to_next: 'drive',
-      why_en: 'Blessings from the seven-headed Naga before the pilgrimage',
-      why_th: 'ขอพรจากพญาศรีสัตตนาคราช 7 เศียร ก่อนเดินทางไปกราบพระธาตุ',
-      icon_emoji: '🐉',
-      optional: false,
-      entry_summary: {
-        name_en: 'Phaya Sri Sattanakharat',
-        name_th: 'พญาศรีสัตตนาคราช',
-        category: 'landmark',
-        primary_photo_url:
-          'https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?auto=format&w=400&q=70',
-        lat: 17.4083,
-        lng: 104.7805,
-        price_band: 'free',
-      },
-    },
-    {
-      position: 2,
-      entry_id: 'wat-phra-that-phanom',
-      arrival_time: '10:30',
-      duration_min: 120,
-      travel_min_to_next: null,
-      travel_mode_to_next: null,
-      why_en: 'Your Sunday birthday stupa — pray for prosperity and family blessings',
-      why_th: 'พระธาตุประจำวันเกิดของคุณ ขอพรเรื่องความเจริญและครอบครัว',
-      icon_emoji: '🛕',
-      optional: false,
-      entry_summary: {
-        name_en: 'Wat Phra That Phanom',
-        name_th: 'วัดพระธาตุพนม',
-        category: 'temple',
-        primary_photo_url:
-          'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&w=400&q=70',
-        lat: 16.9437,
-        lng: 104.7239,
-        price_band: 'free',
-      },
-    },
-  ],
-  route_geometry: {
-    type: 'LineString',
-    coordinates: [
-      [104.7805, 17.4083],
-      [104.7239, 16.9437],
-    ],
-  },
+function toSummary(e: Entry): EntrySummary {
+  return {
+    name_en: e.name_en,
+    name_th: e.name_th,
+    category: e.category,
+    primary_photo_url: e.photos?.[0] ?? null,
+    lat: e.lat,
+    lng: e.lng,
+    price_band: e.price_band ?? null,
+  }
 }
 
-const FAKE_DELAY_MS = 1400
+function stopFromEntry(e: Entry, position: number, arrival: string, whyEn: string, whyTh: string, optional = false): Stop {
+  return {
+    position,
+    entry_id: e.id,
+    arrival_time: arrival,
+    duration_min: e.duration_min ?? 45,
+    travel_min_to_next: null,
+    travel_mode_to_next: null,
+    why_en: whyEn,
+    why_th: whyTh,
+    icon_emoji: e.emoji,
+    optional,
+    entry_summary: toSummary(e),
+  }
+}
 
-function dispatchPlan(query: string): Plan {
+function withTravel(stops: Stop[]): Stop[] {
+  return stops.map((s, i) => {
+    if (i === stops.length - 1) return s
+    return { ...s, travel_min_to_next: 8, travel_mode_to_next: 'drive' }
+  })
+}
+
+function birthdayPlan(query: string, cityId: string): Plan {
+  const naga = mustEntry('naga-statue')
+  const phra = mustEntry('wat-phra-that-phanom')
+  const stops = withTravel([
+    stopFromEntry(naga, 1, '09:00', 'Start with blessings at the Mekong Naga landmark.', 'เริ่มด้วยการขอพรที่พญานาคริมโขง'),
+    stopFromEntry(phra, 2, '10:30', 'Visit your birthday stupa for merit and family blessings.', 'ไปกราบพระธาตุประจำวันเกิดเพื่อความเป็นสิริมงคล'),
+  ])
+  return {
+    query,
+    city_id: cityId,
+    generated_at: new Date().toISOString(),
+    start_time: '09:00',
+    end_time: '13:00',
+    total_duration_min: 240,
+    rationale_en: 'Built from Sunday birthday-temple intent and local NKP sacred landmarks with practical daytime hours.',
+    rationale_th: 'จัดแผนจากเจตนาวันเกิดและจุดศักดิ์สิทธิ์ในนครพนม โดยยึดช่วงเวลาเปิดที่เดินทางได้จริง',
+    stops,
+    route_geometry: {
+      type: 'LineString',
+      coordinates: stops.map((s) => [s.entry_summary.lng, s.entry_summary.lat]),
+    },
+  }
+}
+
+function afternoonPlan(query: string, cityId: string): Plan {
+  const pho = mustEntry('pho-sawan')
+  const ho = mustEntry('ho-chi-minh-house')
+  const cafe = mustEntry('river-vibes-cafe')
+  const naga = mustEntry('naga-statue')
+  const street = mustEntry('indochina-walking-street')
+
+  const stops = withTravel([
+    stopFromEntry(pho, 1, '13:00', 'Lunch first at a local Vietnamese-Thai favorite.', 'เริ่มมื้อกลางวันที่ร้านดังสไตล์เวียดนาม-ไทยท้องถิ่น'),
+    stopFromEntry(ho, 2, '14:00', 'Continue with history and cultural context of the city.', 'ต่อด้วยจุดประวัติศาสตร์เพื่อเข้าใจบริบทเมือง'),
+    stopFromEntry(cafe, 3, '15:30', 'Short coffee break before the sunset zone.', 'พักดื่มกาแฟก่อนเข้าช่วงเย็นริมโขง'),
+    stopFromEntry(naga, 4, '16:30', 'Prime riverside landmark for golden-hour photos.', 'จุดแลนด์มาร์กริมโขงสำหรับแสงเย็นและถ่ายรูป'),
+    stopFromEntry(street, 5, '18:00', 'Optional night market for dinner and local shopping.', 'ทางเลือกช่วงค่ำที่ถนนคนเดินสำหรับมื้อเย็นและช้อปปิ้ง', true),
+  ])
+
+  return {
+    query,
+    city_id: cityId,
+    generated_at: new Date().toISOString(),
+    start_time: '13:00',
+    end_time: '18:00',
+    total_duration_min: 300,
+    rationale_en: 'Built from food + culture + riverside flow using local entries and their listed opening windows.',
+    rationale_th: 'จัดลำดับจากอาหาร ประวัติศาสตร์ และจุดริมน้ำ โดยอิงเวลาที่เปิดให้บริการของสถานที่ในชุดข้อมูล',
+    stops,
+    route_geometry: {
+      type: 'LineString',
+      coordinates: stops.map((s) => [s.entry_summary.lng, s.entry_summary.lat]),
+    },
+  }
+}
+
+function dispatchPlan(query: string, cityId: string): Plan {
   const q = query.toLowerCase()
-  // Birthday-stupa intent (Sunday version supported in MVP)
   if (
     q.includes('birthday') ||
     q.includes('born') ||
@@ -253,27 +156,21 @@ function dispatchPlan(query: string): Plan {
     q.includes('วันอาทิตย์') ||
     q.includes('พระธาตุ')
   ) {
-    return BIRTHDAY_STUPA_SUNDAY_PLAN
+    return birthdayPlan(query, cityId)
   }
-  // Default — afternoon food + history plan
-  return AFTERNOON_PLAN
+  return afternoonPlan(query, cityId)
 }
 
 export function getPlan(query: string, cityId: string): Promise<Plan> {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const base = dispatchPlan(query)
-      resolve({
-        ...base,
-        query,
-        city_id: cityId,
-        generated_at: new Date().toISOString(),
-      })
+      fetchPlan(cityId, query)
+        .then((remote) => resolve(remote as Plan))
+        .catch(() => resolve(dispatchPlan(query, cityId)))
     }, FAKE_DELAY_MS)
   })
 }
 
-// Runtime shape validation — the shape contract test consumes this.
 export function isValidPlan(value: unknown): value is Plan {
   if (!value || typeof value !== 'object') return false
   const v = value as Record<string, unknown>

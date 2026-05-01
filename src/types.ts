@@ -61,7 +61,7 @@ export type Entry = {
   lng: number
 
   category: Category
-  emoji: string                 // demo-specific override (per-entry)
+  emoji: string
   vibe_tags: string[]
   cuisine_tags: string[]
   time_tags: string[]
@@ -74,20 +74,21 @@ export type Entry = {
   price_min_thb?: number | null
   price_max_thb?: number | null
 
-  // Activity-only (null on Places)
   owner_id: string | null
   owner_edit_token: string | null
   live_status: LiveStatus | null
   status_note: string | null
-  status_updated: string | null  // ISO
+  status_updated: string | null
+
+  hours_confidence?: 'high' | 'medium' | 'low' | 'unknown'
+  hours_source_type?: 'official' | 'facebook' | 'map_listing' | 'community' | 'unknown'
+  hours_last_checked_at?: string | null
+  contact_phone?: string | null
+  facebook_url?: string | null
 
   data_source: DataSource
 }
 
-/**
- * Theme — curated city-level identity statement (per CONTEXT.md).
- * 3-5 per City. Hardcoded in src/data/themes.ts for MVP.
- */
 export type Theme = {
   id: string
   city_id: string
@@ -97,7 +98,7 @@ export type Theme = {
   tagline_th: string
   emoji: string
   accent_color: string
-  entry_ids: string[]  // n:m — the same entry can appear in multiple themes
+  entry_ids: string[]
 }
 
 export type StatusLogEntry = {
@@ -107,5 +108,5 @@ export type StatusLogEntry = {
   field: string
   old_value: unknown
   new_value: unknown
-  updated_at: string             // ISO
+  updated_at: string
 }

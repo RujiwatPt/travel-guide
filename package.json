@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "backend:dev": "cd backend && .venv/bin/python -m uvicorn app.main:app --reload --port 8000",
+    "backend:test": "cd backend && .venv/bin/python -m pytest -q",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",

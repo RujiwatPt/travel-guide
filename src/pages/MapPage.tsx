@@ -15,14 +15,19 @@ import {
   mockIntentClassifierProvider,
   rankEntriesForIntentWithHints,
   shouldUsePlanMode,
-  type RankedEntry,
 } from '../lib/intentSearch'
+import { searchIntentHits } from '../lib/api'
 import { getPlan, type Plan } from '../lib/plan'
 import { useAppStore } from '../store/useAppStore'
+import type { Entry } from '../types'
 
 type ActiveSearch = {
   query: string
-  results: RankedEntry[]
+  results: Array<{
+    entry: Entry
+    score: number
+    matchedReasons: string[]
+  }>
 }
 
 export default function MapPage() {
@@ -33,6 +38,7 @@ export default function MapPage() {
   const [selectedChipIds, setSelectedChipIds] = useState<string[]>([])
   const [activeThemeId, setActiveThemeId] = useState<string | null>(null)
   const [activeSearch, setActiveSearch] = useState<ActiveSearch | null>(null)
+  const [activeStatusFilters, setActiveStatusFilters] = useState<Array<'open_now' | 'closing_soon' | 'closed' | 'unknown'>>([])
 
   // Chatbot / plan orchestration
   const [chatbotLoading, setChatbotLoading] = useState(false)
@@ -96,20 +102,40 @@ export default function MapPage() {
       return
     }
 
-    const rankedResults = await rankEntriesForIntentWithHints(
-      query,
-      entries,
-      mockIntentClassifierProvider,
-    )
+    const hits = await searchIntentHits('nkp', query, 12, activeStatusFilters).catch(() => [])
+    const byId = new Map(entries.map((e) => [e.id, e]))
+    let rankedResults = hits
+      .map((h) => {
+        const entry = byId.get(h.entryId)
+        if (!entry) return null
+        const matchedReasons = [h.matchedIntent, h.category]
+        if (h.retrievalGrade) matchedReasons.push(`grade:${h.retrievalGrade}`)
+        return {
+          entry,
+          score: Math.round(h.score * 100),
+          matchedReasons,
+        }
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null)
+
+    // Fallback to deterministic local ranker if backend search is unavailable
+    // or returns no usable mapped results.
+    if (rankedResults.length === 0) {
+      rankedResults = await rankEntriesForIntentWithHints(
+        query,
+        entries,
+        mockIntentClassifierProvider,
+      )
+    }
+
     if (rankedResults.length > 0) {
       setActiveSearch({ query, results: rankedResults })
       setSheetState('full')
       return
     }
-    setChatbotLoading(true)
-    const plan = await getPlan(query, 'nkp')
-    setChatbotLoading(false)
-    setActivePlan(plan)
+
+    // Keep search mode; do not auto-switch to itinerary for normal queries.
+    setActiveSearch({ query, results: [] })
     setSheetState('full')
   }
 
@@ -119,7 +145,30 @@ export default function MapPage() {
     setSelectedChipIds([])
     setActiveThemeId(null)
     setRouteRevealedSegments(0)
+    setActiveStatusFilters([])
     setSheetState('peek')
+  }
+
+  const toggleStatusFilter = (status: 'open_now' | 'closing_soon' | 'closed' | 'unknown') => {
+    setActiveStatusFilters((prev) => {
+      const next = prev.includes(status) ? prev.filter((x) => x !== status) : [...prev, status]
+      if (activeSearch?.query) {
+        void searchIntentHits('nkp', activeSearch.query, 12, next).then((hits) => {
+          const byId = new Map(entries.map((e) => [e.id, e]))
+          const rankedResults = hits
+            .map((h) => {
+              const entry = byId.get(h.entryId)
+              if (!entry) return null
+              const matchedReasons = [h.matchedIntent, h.category]
+              if (h.retrievalGrade) matchedReasons.push(`grade:${h.retrievalGrade}`)
+              return { entry, score: Math.round(h.score * 100), matchedReasons }
+            })
+            .filter((x): x is NonNullable<typeof x> => x !== null)
+          setActiveSearch({ query: activeSearch.query, results: rankedResults })
+        })
+      }
+      return next
+    })
   }
 
   // If we landed on /app?q=<query> (e.g. user typed on Home and submitted),
@@ -200,6 +249,26 @@ export default function MapPage() {
               >
                 Clear
               </button>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-2 mb-2">
+              {[
+                { id: 'open_now', label: 'Open now' },
+                { id: 'closing_soon', label: 'Closing soon' },
+                { id: 'closed', label: 'Closed' },
+                { id: 'unknown', label: 'Uncertain' },
+              ].map((s) => {
+                const active = activeStatusFilters.includes(s.id as 'open_now' | 'closing_soon' | 'closed' | 'unknown')
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => toggleStatusFilter(s.id as 'open_now' | 'closing_soon' | 'closed' | 'unknown')}
+                    className={'kit-chip ' + (active ? 'kit-chip-active' : 'kit-chip-inactive')}
+                  >
+                    {s.label}
+                  </button>
+                )
+              })}
             </div>
 
             {activeSearch.results.map((result, index) => (

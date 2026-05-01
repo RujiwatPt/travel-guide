@@ -8,6 +8,24 @@ import { isOpenNow } from '../lib/status'
 import { STATUS_COLOR, STATUS_LABEL } from '../lib/statusDisplay'
 import { relativeTime } from '../lib/time'
 
+
+
+function confidenceLabel(v?: string): string {
+  if (!v) return 'Unknown'
+  return v.replace('_', ' ').toUpperCase()
+}
+
+function sourceLabel(v?: string): string {
+  if (!v) return 'unknown'
+  return v.replace('_', ' ')
+}
+
+function reliabilityBadge(v?: string): { label: string; className: string } {
+  if (v === 'high') return { label: 'Verified', className: 'bg-emerald-100 text-emerald-800 border-emerald-200' }
+  if (v === 'medium') return { label: 'Partially Verified', className: 'bg-amber-100 text-amber-800 border-amber-200' }
+  return { label: 'Uncertain', className: 'bg-rose-100 text-rose-800 border-rose-200' }
+}
+
 function makePinIcon(emoji: string, color: string): L.DivIcon {
   return L.divIcon({
     className: 'pin-wrapper',
@@ -52,6 +70,7 @@ export default function EntryDetailPage() {
   ]
 
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${entry.lat},${entry.lng}`
+  const reliability = reliabilityBadge(entry.hours_confidence)
 
   return (
     <div className="min-h-[100dvh] bg-panel relative pb-28">
@@ -158,6 +177,29 @@ export default function EntryDetailPage() {
         <section>
           <p className="kit-eyebrow mb-2">About</p>
           <p className="text-sm text-ink/85 leading-relaxed">{entry.description_en}</p>
+        </section>
+
+        {/* PRD reliability metadata */}
+        <section className="text-sm text-ink/75 space-y-1">
+          <div className={`inline-flex px-2.5 py-1 rounded-kit-pill border text-[11px] font-extrabold ${reliability.className}`}>
+            {reliability.label}
+          </div>
+          <p><span className="font-bold">Hours confidence:</span> {confidenceLabel(entry.hours_confidence)}</p>
+          <p><span className="font-bold">Source:</span> {sourceLabel(entry.hours_source_type)}</p>
+          {entry.hours_last_checked_at && (
+            <p><span className="font-bold">Last checked:</span> {new Date(entry.hours_last_checked_at).toLocaleString()}</p>
+          )}
+          {entry.contact_phone && (
+            <p><span className="font-bold">Phone:</span> {entry.contact_phone}</p>
+          )}
+          {entry.facebook_url && (
+            <p>
+              <span className="font-bold">Facebook:</span>{' '}
+              <a href={entry.facebook_url} target="_blank" rel="noopener" className="text-blue-strong underline">
+                Open page
+              </a>
+            </p>
+          )}
         </section>
 
         {/* Tags — kit chip pattern */}
