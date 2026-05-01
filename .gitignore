@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 
 # Figma scratch exports
 tmp-*.json
+
+# Figma reference PNGs (regenerate from Figma API)
+figma-reference/
