@@ -54,7 +54,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon', 'evening'],
     setting: 'indoor',
     price_band: 'budget',
-    photos: ['https://images.unsplash.com/photo-1583224944844-5b268c057b72?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/9/96/Pho-Beef-Noodle-Soup-2008.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -94,7 +94,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['afternoon', 'sunset'],
     setting: 'mixed',
     price_band: 'mid',
-    photos: ['https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/8/82/Mekong_River_View_SkyWalk.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -132,7 +132,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['evening', 'weekend-only'],
     setting: 'outdoor',
     price_band: 'budget',
-    photos: ['https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/9/9b/DZ6_1772_Twilight_market_bustle_lanterns_glow_above_a_lively_street_filled_with_food_stalls_shoppers_and_evening_chatter.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -172,7 +172,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['sunset', 'evening'],
     setting: 'outdoor',
     price_band: 'free',
-    photos: ['https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/c/cb/Phaya_Naga.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       all_day: true,
@@ -244,7 +244,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon'],
     setting: 'mixed',
     price_band: 'free',
-    photos: ['https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/6/62/Wat_Phra_That_Phanom.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -315,7 +315,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon'],
     setting: 'mixed',
     price_band: 'free',
-    photos: ['https://images.unsplash.com/photo-1594732832278-abd644401426?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/f/f4/Phra_That_Tha_Uthen.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -346,7 +346,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon'],
     setting: 'mixed',
     price_band: 'free',
-    photos: ['https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/4/48/Wat_MahaThat_NKP.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -502,7 +502,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon'],
     setting: 'outdoor',
     price_band: 'budget',
-    photos: ['https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/5/5d/D85_4998_Sunset_from_Phu_Langka_National_Park%2C_Thailand.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -560,7 +560,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon'],
     setting: 'mixed',
     price_band: 'budget',
-    photos: ['https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/4/4a/Thai_Silk_Weaving_1_-_Ban_Tha_Sawang.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -593,7 +593,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon'],
     setting: 'mixed',
     price_band: 'premium',
-    photos: ['https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/4/4b/Bali_003_-_Ubud_-_famous_lukaw_coffee.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
