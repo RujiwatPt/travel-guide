@@ -9,17 +9,23 @@ type ApiEntry = {
   legacy_code: string
   type: 'activity' | 'place'
   category: string
-  city_id: string
+  city?: string
+  city_id?: string
   name_en: string
   name_th: string
   lat: number
   lng: number
   opening_hours_text?: string | null
   hours_confidence?: 'high' | 'medium' | 'low' | 'unknown'
+  hours_source_type?: 'official' | 'facebook' | 'map_listing' | 'community' | 'unknown'
+  hours_last_checked_at?: string | null
+  contact_phone?: string | null
+  facebook_url?: string | null
 }
 
 type ApiEntriesResponse = {
   city: string
+  city_id?: string
   count: number
   items: ApiEntry[]
 }
@@ -63,8 +69,7 @@ function emojiForCategory(category: string): string {
   return '✨'
 }
 
-function parseLiveStatus(confidence: ApiEntry['hours_confidence']): LiveStatus | null {
-  if (confidence === 'unknown') return null
+function parseLiveStatus(_confidence: ApiEntry['hours_confidence']): LiveStatus | null {
   return null
 }
 
@@ -81,28 +86,17 @@ function normalizeName(s: string): string {
 function resolveStableLocalId(api: ApiEntry): string {
   const th = normalizeName(api.name_th)
   const en = normalizeName(api.name_en)
-  const hit = LOCAL_SEED.find(
-    (e) => {
-      const eth = normalizeName(e.name_th)
-      const een = normalizeName(e.name_en)
-      return (
-        eth === th ||
-        een === en ||
-        eth.includes(th) ||
-        th.includes(eth) ||
-        een.includes(en) ||
-        en.includes(een)
-      )
-    },
-  )
+  const hit = LOCAL_SEED.find((e) => {
+    const eth = normalizeName(e.name_th)
+    const een = normalizeName(e.name_en)
+    return eth === th || een === en || eth.includes(th) || th.includes(eth) || een.includes(en) || en.includes(een)
+  })
   return hit?.id ?? api.id
 }
 
 function normalizeCategory(input: string): Entry['category'] {
   const c = input.toLowerCase()
-  if (
-    c === 'food' || c === 'cafe' || c === 'landmark' || c === 'market' || c === 'museum' || c === 'temple' || c === 'nature' || c === 'workshop' || c === 'shop'
-  ) {
+  if (c === 'food' || c === 'cafe' || c === 'landmark' || c === 'market' || c === 'museum' || c === 'temple' || c === 'nature' || c === 'workshop' || c === 'shop') {
     return c
   }
   return 'landmark'
@@ -110,10 +104,11 @@ function normalizeCategory(input: string): Entry['category'] {
 
 function toFrontendEntry(api: ApiEntry): Entry {
   const hoursNote = api.opening_hours_text?.trim() || null
+  const cityId = (api.city_id || api.city || 'nkp').toLowerCase()
   return {
     id: resolveStableLocalId(api),
     type: api.type,
-    city_id: api.city_id,
+    city_id: cityId,
     name_en: api.name_en,
     name_th: api.name_th,
     description_en: hoursNote ? `Opening hours: ${hoursNote}` : 'Curated listing from Nakhon Phanom dataset.',
@@ -138,7 +133,12 @@ function toFrontendEntry(api: ApiEntry): Entry {
     owner_edit_token: null,
     live_status: parseLiveStatus(api.hours_confidence),
     status_note: null,
-    status_updated: null,
+    status_updated: api.hours_last_checked_at ?? null,
+    hours_confidence: api.hours_confidence ?? 'unknown',
+    hours_source_type: api.hours_source_type ?? 'unknown',
+    hours_last_checked_at: api.hours_last_checked_at ?? null,
+    contact_phone: api.contact_phone ?? null,
+    facebook_url: api.facebook_url ?? null,
     data_source: 'imported',
   }
 }
@@ -151,9 +151,7 @@ async function apiGet<T>(path: string): Promise<T> {
       'x-api-key': API_KEY,
     },
   })
-  if (!res.ok) {
-    throw new Error(`API request failed: ${res.status}`)
-  }
+  if (!res.ok) throw new Error(`API request failed: ${res.status}`)
   return (await res.json()) as T
 }
 
@@ -168,9 +166,7 @@ export async function fetchEntriesRaw(city = 'nkp'): Promise<ApiEntry[]> {
 }
 
 export async function searchIntent(city: string, q: string, topK = 8): Promise<ApiSearchResponse> {
-  return apiGet<ApiSearchResponse>(
-    `/api/v1/search-intent?city=${encodeURIComponent(city)}&q=${encodeURIComponent(q)}&top_k=${topK}`,
-  )
+  return apiGet<ApiSearchResponse>(`/api/v1/search-intent?city=${encodeURIComponent(city)}&q=${encodeURIComponent(q)}&top_k=${topK}`)
 }
 
 export async function searchIntentHits(city: string, q: string, topK = 8): Promise<IntentSearchHit[]> {

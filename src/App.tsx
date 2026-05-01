@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import BookingHubPage from './pages/BookingHubPage'
 import EntryDetailPage from './pages/EntryDetailPage'
@@ -10,8 +11,15 @@ import NotificationsPage from './pages/NotificationsPage'
 import OwnerEditPage from './pages/OwnerEditPage'
 import ProfilePage from './pages/ProfilePage'
 import TripJournalPage from './pages/TripJournalPage'
+import { useAppStore } from './store/useAppStore'
 
 export default function App() {
+  const hydrateEntriesFromApi = useAppStore((s) => s.hydrateEntriesFromApi)
+
+  useEffect(() => {
+    void hydrateEntriesFromApi('nkp')
+  }, [hydrateEntriesFromApi])
+
   return (
     <Routes>
       <Route path="/figma-9-screens" element={<NineMobileScreens />} />
@@ -20,18 +28,14 @@ export default function App() {
         element={
           <div className="phone-frame">
             <Routes>
-              {/* / — kit Home destination-card hub for NKP themes */}
               <Route path="/" element={<HomePage />} />
-              {/* /app — the working interactive app (Leaflet + chatbot + sheet + sync) */}
               <Route path="/app" element={<MapPage />} />
-              {/* Kit-faithful pages with NKP data */}
               <Route path="/explore" element={<ExploreVibesPage />} />
               <Route path="/local" element={<LocalExperiencesPage />} />
               <Route path="/booking" element={<BookingHubPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/journal" element={<TripJournalPage />} />
               <Route path="/profile" element={<ProfilePage />} />
-              {/* Existing */}
               <Route path="/entry/:id" element={<EntryDetailPage />} />
               <Route path="/owner/edit" element={<OwnerEditPage />} />
             </Routes>

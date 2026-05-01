@@ -8,6 +8,18 @@ import { isOpenNow } from '../lib/status'
 import { STATUS_COLOR, STATUS_LABEL } from '../lib/statusDisplay'
 import { relativeTime } from '../lib/time'
 
+
+
+function confidenceLabel(v?: string): string {
+  if (!v) return 'Unknown'
+  return v.replace('_', ' ').toUpperCase()
+}
+
+function sourceLabel(v?: string): string {
+  if (!v) return 'unknown'
+  return v.replace('_', ' ')
+}
+
 function makePinIcon(emoji: string, color: string): L.DivIcon {
   return L.divIcon({
     className: 'pin-wrapper',
@@ -158,6 +170,26 @@ export default function EntryDetailPage() {
         <section>
           <p className="kit-eyebrow mb-2">About</p>
           <p className="text-sm text-ink/85 leading-relaxed">{entry.description_en}</p>
+        </section>
+
+        {/* PRD reliability metadata */}
+        <section className="text-sm text-ink/75 space-y-1">
+          <p><span className="font-bold">Hours confidence:</span> {confidenceLabel(entry.hours_confidence)}</p>
+          <p><span className="font-bold">Source:</span> {sourceLabel(entry.hours_source_type)}</p>
+          {entry.hours_last_checked_at && (
+            <p><span className="font-bold">Last checked:</span> {new Date(entry.hours_last_checked_at).toLocaleString()}</p>
+          )}
+          {entry.contact_phone && (
+            <p><span className="font-bold">Phone:</span> {entry.contact_phone}</p>
+          )}
+          {entry.facebook_url && (
+            <p>
+              <span className="font-bold">Facebook:</span>{' '}
+              <a href={entry.facebook_url} target="_blank" rel="noopener" className="text-blue-strong underline">
+                Open page
+              </a>
+            </p>
+          )}
         </section>
 
         {/* Tags — kit chip pattern */}
