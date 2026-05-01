@@ -1,0 +1,291 @@
+// In-memory demo data — mirrors /docs/schema/schema.sql seed.
+// Photos are unsplash placeholders; replace via Slice 4 (seed reconciliation).
+
+import type { City, Entry, Owner, StatusLogEntry } from '../types'
+
+export const NKP: City = {
+  id: 'nkp',
+  name_en: 'Nakhon Phanom',
+  name_th: 'นครพนม',
+  region_en: 'Isan / Northeast Thailand',
+  region_th: 'อีสาน',
+  default_lat: 17.4083,
+  default_lng: 104.7795,
+  default_zoom: 14,
+  tagline_en: 'Where Thailand meets Laos and Vietnam',
+  tagline_th: 'จุดบรรจบของไทย ลาว และเวียดนาม',
+}
+
+export const OWNERS: Owner[] = [
+  {
+    id: 'owner-somchai',
+    display_name: 'Khun Somchai',
+    contact_phone: '081-234-5678',
+    language_pref: 'th',
+    verified: true,
+  },
+  {
+    id: 'owner-walking-street',
+    display_name: 'Walking Street Vendors Association',
+    contact_phone: '082-345-6789',
+    language_pref: 'th',
+    verified: true,
+  },
+]
+
+const T_24H_FRI_MIDNIGHT_DEMO_DATE_HINT = '' // intentionally unused — see hours below
+
+export const ENTRIES: Entry[] = [
+  {
+    id: 'pho-sawan',
+    type: 'activity',
+    city_id: 'nkp',
+    name_en: 'Pho Sawan',
+    name_th: 'เฝอสวรรค์',
+    description_en:
+      'Family-run Vietnamese kitchen, third generation. Pho broth simmered 18 hours. Nem Nuong (grilled pork rolls wrapped in rice paper with herbs) is the must-order — locals queue at lunch.',
+    why_visit_en: 'The most famous Vietnamese food in town. Cheap, fast, authentic.',
+    lat: 17.4080,
+    lng: 104.7790,
+    category: 'food',
+    emoji: '🍜',
+    vibe_tags: ['local-favourite'],
+    cuisine_tags: ['vietnamese'],
+    time_tags: ['morning', 'afternoon', 'evening'],
+    setting: 'indoor',
+    price_band: 'budget',
+    photos: ['https://images.unsplash.com/photo-1583224944844-5b268c057b72?auto=format&w=800&q=70'],
+    hours_weekly: {
+      tz: 'Asia/Bangkok',
+      weekly: {
+        mon: [['09:00', '20:00']], tue: [['09:00', '20:00']],
+        wed: [['09:00', '20:00']], thu: [['09:00', '20:00']],
+        fri: [['09:00', '20:00']], sat: [['09:00', '20:00']],
+        sun: [['09:00', '20:00']],
+      },
+      notes_en: 'Last lunch order at 14:00',
+      notes_th: 'สั่งอาหารกลางวันก่อน 14:00',
+    },
+    duration_min: 45,
+    price_min_thb: 60,
+    price_max_thb: 120,
+    owner_id: 'owner-somchai',
+    owner_edit_token: 'pho-sawan-7x3k2',
+    live_status: 'open',
+    status_note: null,
+    status_updated: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    data_source: 'owner_updated',
+  },
+  {
+    id: 'river-vibes-cafe',
+    type: 'activity',
+    city_id: 'nkp',
+    name_en: 'River Vibes Café',
+    name_th: 'ริเวอร์ไวบส์',
+    description_en:
+      'Two-storey café with rooftop seating directly overlooking the Mekong and Laos on the far bank. Specialty coffee, Thai iced tea, simple cakes. Best afternoon stop before walking down to the Naga Statue for sunset.',
+    why_visit_en: "Air-con downstairs, breeze upstairs, perfect view. Locals' work-from-café spot.",
+    lat: 17.4085,
+    lng: 104.7800,
+    category: 'cafe',
+    emoji: '☕',
+    vibe_tags: ['photo-spot', 'quiet', 'hipster'],
+    cuisine_tags: ['coffee'],
+    time_tags: ['afternoon', 'sunset'],
+    setting: 'mixed',
+    price_band: 'mid',
+    photos: ['https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&w=800&q=70'],
+    hours_weekly: {
+      tz: 'Asia/Bangkok',
+      weekly: {
+        mon: [['09:00', '22:00']], tue: [['09:00', '22:00']],
+        wed: [['09:00', '22:00']], thu: [['09:00', '22:00']],
+        fri: [['09:00', '22:00']], sat: [['09:00', '22:00']],
+        sun: [['09:00', '22:00']],
+      },
+    },
+    duration_min: 30,
+    price_min_thb: 80,
+    price_max_thb: 150,
+    owner_id: 'owner-somchai',
+    owner_edit_token: 'river-vibes-9k2x4',
+    live_status: 'open',
+    status_note: null,
+    status_updated: new Date(Date.now() - 20 * 60 * 1000).toISOString(),
+    data_source: 'owner_updated',
+  },
+  {
+    id: 'indochina-walking-street',
+    type: 'activity',
+    city_id: 'nkp',
+    name_en: 'Indochina Walking Street',
+    name_th: 'ถนนคนเดินอินโดจีน',
+    description_en:
+      'Fri–Sun evening market along the Mekong. ~120 stalls: Isan grilled meats, Vietnamese sweets, OTOP textiles, handmade silver. Live music at the south end after 19:00.',
+    why_visit_en: 'Where the whole town goes on weekend nights. Best dinner option.',
+    lat: 17.4078,
+    lng: 104.7795,
+    category: 'market',
+    emoji: '🛍️',
+    vibe_tags: ['lively', 'family', 'local-favourite'],
+    cuisine_tags: ['isan', 'vietnamese', 'thai'],
+    time_tags: ['evening', 'weekend-only'],
+    setting: 'outdoor',
+    price_band: 'budget',
+    photos: ['https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&w=800&q=70'],
+    hours_weekly: {
+      tz: 'Asia/Bangkok',
+      weekly: {
+        mon: null, tue: null, wed: null, thu: null,
+        fri: [['17:00', '22:00']],
+        sat: [['17:00', '22:00']],
+        sun: [['17:00', '22:00']],
+      },
+      notes_en: 'Live music after 19:00 at south end',
+      notes_th: 'ดนตรีสดหลัง 19:00 ปลายตลาดทิศใต้',
+    },
+    duration_min: 90,
+    price_min_thb: 30,
+    price_max_thb: 200,
+    owner_id: 'owner-walking-street',
+    owner_edit_token: 'walking-street-3w8m1',
+    live_status: 'open',
+    status_note: null,
+    status_updated: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+    data_source: 'owner_updated',
+  },
+  {
+    id: 'naga-statue',
+    type: 'place',
+    city_id: 'nkp',
+    name_en: 'Phaya Sri Sattanakharat',
+    name_th: 'พญาศรีสัตตนาคราช',
+    description_en:
+      'The seven-headed Naga serpent statue on the Mekong River — the symbol of Nakhon Phanom. Made of bronze, weighing 9 tonnes. Locals come at sunset to make merit and watch the sun set over Laos across the river.',
+    why_visit_en: 'The single most photographed spot in NKP. Free. Sunset is magic.',
+    lat: 17.4083,
+    lng: 104.7805,
+    category: 'landmark',
+    emoji: '🐉',
+    vibe_tags: ['iconic', 'photo-spot', 'spiritual'],
+    cuisine_tags: [],
+    time_tags: ['sunset', 'evening'],
+    setting: 'outdoor',
+    price_band: 'free',
+    photos: ['https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?auto=format&w=800&q=70'],
+    hours_weekly: {
+      tz: 'Asia/Bangkok',
+      all_day: true,
+      notes_en: 'Best at sunset (~18:18)',
+      notes_th: 'วิวสวยที่สุดช่วงพระอาทิตย์ตก',
+    },
+    duration_min: 30,
+    owner_id: null,
+    owner_edit_token: null,
+    live_status: null,
+    status_note: null,
+    status_updated: null,
+    data_source: 'curated',
+  },
+  {
+    id: 'ho-chi-minh-house',
+    type: 'place',
+    city_id: 'nkp',
+    name_en: "Ho Chi Minh's House Memorial",
+    name_th: 'บ้านลุงโฮ',
+    description_en:
+      'The wooden house where Ho Chi Minh lived from 1928–1929 while exiled from French Indochina. He recruited Vietnamese refugees here. Now a preserved memorial showing original furniture, photographs, and the garden he tended.',
+    why_visit_en:
+      'One of two surviving Ho Chi Minh residences outside Vietnam. Quiet, unique, deep-cut history.',
+    lat: 17.4192,
+    lng: 104.7530,
+    category: 'museum',
+    emoji: '🏛️',
+    vibe_tags: ['quiet', 'hidden-gem'],
+    cuisine_tags: [],
+    time_tags: ['morning', 'afternoon'],
+    setting: 'mixed',
+    price_band: 'budget',
+    photos: ['https://images.unsplash.com/photo-1565611655036-8af6a82b3b08?auto=format&w=800&q=70'],
+    hours_weekly: {
+      tz: 'Asia/Bangkok',
+      weekly: {
+        mon: [['08:00', '17:00']], tue: [['08:00', '17:00']],
+        wed: [['08:00', '17:00']], thu: [['08:00', '17:00']],
+        fri: [['08:00', '17:00']], sat: [['08:00', '17:00']],
+        sun: [['08:00', '17:00']],
+      },
+    },
+    duration_min: 45,
+    price_min_thb: 20,
+    price_max_thb: 20,
+    owner_id: null,
+    owner_edit_token: null,
+    live_status: null,
+    status_note: null,
+    status_updated: null,
+    data_source: 'curated',
+  },
+  {
+    id: 'wat-phra-that-phanom',
+    type: 'place',
+    city_id: 'nkp',
+    name_en: 'Wat Phra That Phanom',
+    name_th: 'วัดพระธาตุพนม',
+    description_en:
+      'The most sacred Buddhist stupa in Isan, dating to the early Buddhist era. 53m tall, gold-tipped. Pilgrims come from across Thailand and Laos. Located in That Phanom district, ~50 km south of Mueang Nakhon Phanom — better as a half-day trip.',
+    why_visit_en: 'The headline landmark of Nakhon Phanom province. Plan a half-day for it.',
+    lat: 16.9437,
+    lng: 104.7239,
+    category: 'temple',
+    emoji: '🛕',
+    vibe_tags: ['iconic', 'spiritual'],
+    cuisine_tags: [],
+    time_tags: ['morning', 'afternoon'],
+    setting: 'mixed',
+    price_band: 'free',
+    photos: ['https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&w=800&q=70'],
+    hours_weekly: {
+      tz: 'Asia/Bangkok',
+      weekly: {
+        mon: [['06:00', '18:00']], tue: [['06:00', '18:00']],
+        wed: [['06:00', '18:00']], thu: [['06:00', '18:00']],
+        fri: [['06:00', '18:00']], sat: [['06:00', '18:00']],
+        sun: [['06:00', '18:00']],
+      },
+      notes_en: 'Allow ~1h drive each way from Mueang district',
+      notes_th: 'ใช้เวลาเดินทาง ~1 ชม. จากตัวเมือง',
+    },
+    duration_min: 120,
+    owner_id: null,
+    owner_edit_token: null,
+    live_status: null,
+    status_note: null,
+    status_updated: null,
+    data_source: 'curated',
+  },
+]
+
+export const STATUS_LOG: StatusLogEntry[] = [
+  {
+    id: 'log-1',
+    entry_id: 'pho-sawan',
+    owner_id: 'owner-somchai',
+    field: 'live_status',
+    old_value: 'closed_today',
+    new_value: 'open',
+    updated_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+  },
+]
+
+export function entryByToken(token: string): Entry | undefined {
+  return ENTRIES.find((e) => e.owner_edit_token === token)
+}
+
+export function ownerById(id: string): Owner | undefined {
+  return OWNERS.find((o) => o.id === id)
+}
+
+export function entriesForOwner(ownerId: string): Entry[] {
+  return ENTRIES.filter((e) => e.owner_id === ownerId)
+}

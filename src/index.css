@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: #d1d1d1;
+  font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Thai', ui-sans-serif, system-ui, sans-serif;
+  color: #061c22;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Phone frame for desktop preview; full-bleed on actual mobile */
+.phone-frame {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 430px; /* covers iPhone 14 Pro Max */
+  min-height: 100dvh;
+  background: #f9fbfe;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hide leaflet's default attribution control flair on mobile */
+.leaflet-container {
+  font-family: inherit;
+  background: #f0f4f7;
+}
+
+/* Pin styling — DivIcon container */
+.pin-wrapper {
+  background: transparent !important;
+  border: 0 !important;
+}
+.pin {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 4px 14px rgba(20, 45, 65, 0.25);
+  font-size: 22px;
+  border: 2px solid #2ea84a; /* default = open; Slice 8 makes this dynamic */
+  transition: transform 150ms ease;
+}
+.pin:hover {
+  transform: scale(1.1);
+}
