@@ -17,22 +17,26 @@ function useTypewriter(text: string, speedMs = 22, startDelayMs = 0): { typed: s
     setTyped('')
     setDone(false)
     let i = 0
+    let interval: ReturnType<typeof setInterval> | null = null
     const start = setTimeout(() => {
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         i++
         setTyped(text.slice(0, i))
         if (i >= text.length) {
-          clearInterval(interval)
+          if (interval) {
+            clearInterval(interval)
+            interval = null
+          }
           setDone(true)
         }
       }, speedMs)
-      // Cleanup if unmounted while typing
-      ;(start as unknown as { _interval?: ReturnType<typeof setInterval> })._interval = interval
     }, startDelayMs)
     return () => {
       clearTimeout(start)
-      const interval = (start as unknown as { _interval?: ReturnType<typeof setInterval> })._interval
-      if (interval) clearInterval(interval)
+      if (interval) {
+        clearInterval(interval)
+        interval = null
+      }
     }
   }, [text, speedMs, startDelayMs])
 
