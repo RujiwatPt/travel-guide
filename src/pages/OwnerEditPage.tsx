@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAppStore } from '../store/useAppStore'
 import { todaysHoursLabel } from '../lib/format'
@@ -23,11 +23,39 @@ export default function OwnerEditPage() {
   const [params] = useSearchParams()
   const token = params.get('token')
 
-  const entry = useAppStore((s) => (token ? s.getEntryByToken(token) : undefined))
-  const owner = useAppStore((s) => (entry?.owner_id ? s.getOwnerById(entry.owner_id) : undefined))
-  const entriesForOwner = useAppStore((s) => (owner ? s.getEntriesForOwner(owner.id) : []))
-  const recentUpdates = useAppStore((s) => (entry ? s.getRecentUpdates(entry.id, 3) : []))
+  // Subscribe to raw arrays (stable references unless contents change),
+  // then derive in the component via useMemo. The previous version called
+  // selectors that returned new arrays each render → infinite loop.
+  const entries = useAppStore((s) => s.entries)
+  const owners = useAppStore((s) => s.owners)
+  const statusLog = useAppStore((s) => s.statusLog)
   const updateEntryStatus = useAppStore((s) => s.updateEntryStatus)
+
+  const entry = useMemo(
+    () => (token ? entries.find((e) => e.owner_edit_token === token) : undefined),
+    [entries, token],
+  )
+  const owner = useMemo(
+    () => (entry?.owner_id ? owners.find((o) => o.id === entry.owner_id) : undefined),
+    [owners, entry],
+  )
+  const entriesForOwner = useMemo(
+    () => (owner ? entries.filter((e) => e.owner_id === owner.id) : []),
+    [entries, owner],
+  )
+  const recentUpdates = useMemo(
+    () =>
+      entry
+        ? statusLog
+            .filter((row) => row.entry_id === entry.id)
+            .sort(
+              (a, b) =>
+                new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+            )
+            .slice(0, 3)
+        : [],
+    [statusLog, entry],
+  )
 
   const [pendingStatus, setPendingStatus] = useState<LiveStatus | null>(
     entry?.live_status ?? 'open',
