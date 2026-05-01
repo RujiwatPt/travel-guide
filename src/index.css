@@ -2,6 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Accessibility ─── */
+
+/* Visible focus ring on keyboard navigation only (not on pointer click) */
+*:focus-visible {
+  outline: 2px solid #1e8df0;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Honor user's reduced-motion preference (CRITICAL: rule reduced-motion) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Visually-hidden but screen-reader accessible (sr-only) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ─── Kit design tokens — utility classes for patterns Tailwind can't compose cleanly ─── */
 @layer components {
   /* Kit eyebrow text — small uppercase tracking-wide, used above headers */
@@ -64,10 +98,14 @@ body,
   background: #f0f4f7;
 }
 
-/* Pin styling — DivIcon container */
+/* Pin styling — DivIcon container.
+ * Wrapper is 48×48 transparent for ≥44pt touch target;
+ * visible pin is 40×40 centered inside. (rule: touch-target-size) */
 .pin-wrapper {
   background: transparent !important;
   border: 0 !important;
+  display: grid;
+  place-items: center;
 }
 .pin {
   width: 40px;

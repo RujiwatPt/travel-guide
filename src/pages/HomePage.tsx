@@ -1,9 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Bell, ChevronRight, Sparkles, Star, Landmark, Sunset, Shirt } from 'lucide-react'
 import KitBottomNav2 from '../components/KitBottomNav2'
 import SplashOverlay from '../components/SplashOverlay'
 import { NKP_PHOTOS } from '../data/nkpPhotos'
 import { useAppStore } from '../store/useAppStore'
+
+const ICON_STROKE = 2.2
+const ICON_SM = 16
+const ICON_MD = 22
 
 /**
  * HomePage — structure adapted from Builder.io Visual Copilot's
@@ -25,12 +30,19 @@ function TravelCard({ title, subtitle, image, rating, to }: TravelCardProps) {
       to={to}
       className="block bg-white rounded-kit-photo overflow-hidden shadow-kit-card border border-ink/[0.04] active:scale-[0.99] transition-transform"
     >
-      <div className="relative">
-        <img src={image} alt={title} className="w-full h-32 object-cover" />
+      <div className="relative aspect-[4/3]">
+        <img
+          src={image}
+          alt={title}
+          loading="lazy"
+          width={300}
+          height={225}
+          className="w-full h-full object-cover bg-kit-cream-1"
+        />
         {rating != null && (
           <div className="absolute top-2 right-2 bg-white/95 backdrop-blur-sm rounded-kit-pill px-2 py-1 flex items-center gap-1 shadow-kit-pill">
-            <span className="text-kit-gold-1 text-xs">★</span>
-            <span className="text-[11px] font-extrabold text-ink">{rating.toFixed(1)}</span>
+            <Star size={12} fill="currentColor" className="text-kit-gold-1" aria-hidden="true" />
+            <span className="text-[11px] font-extrabold text-ink tabular-nums">{rating.toFixed(1)}</span>
           </div>
         )}
       </div>
@@ -43,7 +55,7 @@ function TravelCard({ title, subtitle, image, rating, to }: TravelCardProps) {
 }
 
 type InsightProps = {
-  icon: string
+  icon: React.ReactNode
   label: string
   tone: 'amber' | 'sky' | 'green'
   to: string
@@ -58,10 +70,10 @@ const TONE: Record<InsightProps['tone'], string> = {
 function Insight({ icon, label, tone, to }: InsightProps) {
   return (
     <Link to={to} className="text-center active:scale-[0.97] transition-transform">
-      <div className={`w-14 h-14 rounded-kit-pill grid place-items-center text-xl mx-auto mb-2 shadow-kit-pill ${TONE[tone]}`}>
+      <div className={`w-14 h-14 rounded-kit-pill grid place-items-center mx-auto mb-2 shadow-kit-pill ${TONE[tone]}`}>
         {icon}
       </div>
-      <p className="text-[11px] text-ink/70 font-bold leading-tight">{label}</p>
+      <p className="text-[11px] text-ink/70 font-bold leading-tight whitespace-pre-line">{label}</p>
     </Link>
   )
 }
@@ -99,30 +111,34 @@ export default function HomePage() {
             aria-label="Notifications"
             className="w-11 h-11 grid place-items-center rounded-kit-pill bg-white shadow-kit-pill text-ink"
           >
-            🔔
+            <Bell size={ICON_MD} strokeWidth={ICON_STROKE} aria-hidden="true" />
           </Link>
         </div>
 
         {/* Ask-anything chatbot input — submits to /app for ranked search */}
         <form
           onSubmit={handleAskSubmit}
+          role="search"
           className="flex items-center gap-2 mb-7 bg-white rounded-kit-pill px-4 py-3 shadow-kit-pill border border-ink/[0.05]"
         >
-          <span className="text-base text-blue-strong">✦</span>
+          <label htmlFor="home-ask-input" className="sr-only">Ask about Nakhon Phanom</label>
+          <Sparkles size={ICON_SM} strokeWidth={ICON_STROKE} className="text-blue-strong" aria-hidden="true" />
           <input
-            type="text"
+            id="home-ask-input"
+            type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Ask about Nakhon Phanom…"
+            autoComplete="off"
             className="flex-1 bg-transparent outline-none text-[14px] font-semibold text-ink placeholder:text-ink/45"
           />
           <button
             type="submit"
             disabled={query.trim().length === 0}
             aria-label="Ask"
-            className="w-8 h-8 grid place-items-center rounded-kit-pill bg-ink/5 text-blue-strong text-lg leading-none disabled:opacity-30 hover:bg-ink/10 transition"
+            className="w-11 h-11 -mr-2 grid place-items-center rounded-kit-pill bg-ink/5 text-blue-strong disabled:opacity-30 hover:bg-ink/10 transition"
           >
-            ›
+            <ChevronRight size={ICON_MD} strokeWidth={ICON_STROKE} aria-hidden="true" />
           </button>
         </form>
 
@@ -130,9 +146,9 @@ export default function HomePage() {
         <div className="mb-7">
           <h3 className="font-extrabold text-ink text-[16px] mb-4 tracking-tight">AI Insights Today</h3>
           <div className="grid grid-cols-3 gap-2">
-            <Insight icon="🛕"  label={`Birthday-Stupa\nRoute`}    tone="amber" to="/journal" />
-            <Insight icon="🌅"  label={`Mekong\nSunset`}           tone="sky"   to="/explore" />
-            <Insight icon="🧵"  label={`OTOP\nTextiles`}            tone="green" to="/booking" />
+            <Insight icon={<Landmark size={ICON_MD} strokeWidth={ICON_STROKE} aria-hidden="true" />} label={`Birthday-Stupa\nRoute`}    tone="amber" to="/journal" />
+            <Insight icon={<Sunset   size={ICON_MD} strokeWidth={ICON_STROKE} aria-hidden="true" />} label={`Mekong\nSunset`}           tone="sky"   to="/explore" />
+            <Insight icon={<Shirt    size={ICON_MD} strokeWidth={ICON_STROKE} aria-hidden="true" />} label={`OTOP\nTextiles`}           tone="green" to="/booking" />
           </div>
         </div>
 

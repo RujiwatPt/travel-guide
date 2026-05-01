@@ -1,5 +1,18 @@
 import { Link } from 'react-router-dom'
+import {
+  Settings,
+  ChevronRight,
+  Compass,
+  MapPin,
+  Plane,
+  Bell,
+  Languages,
+  Landmark,
+} from 'lucide-react'
 import KitBottomNav2 from '../components/KitBottomNav2'
+
+const ICON_STROKE = 2.2
+const ICON_MD = 22
 
 /**
  * ProfilePage — structure adapted from Builder.io Visual Copilot's
@@ -8,7 +21,7 @@ import KitBottomNav2 from '../components/KitBottomNav2'
  */
 
 type ProfileItemProps = {
-  icon: string
+  icon: React.ReactNode
   title: string
   subtitle?: string
   to?: string
@@ -26,9 +39,9 @@ const TONE_BG: Record<NonNullable<ProfileItemProps['tone']>, string> = {
 
 function ProfileItem({ icon, title, subtitle, to, tone = 'cream' }: ProfileItemProps) {
   const inner = (
-    <div className="flex items-center justify-between py-3.5 px-1 hover:bg-ink/[0.02] rounded-kit-photo transition">
+    <div className="flex items-center justify-between py-3.5 px-1 hover:bg-ink/[0.02] rounded-kit-photo transition min-h-[56px]">
       <div className="flex items-center gap-3">
-        <div className={`w-10 h-10 rounded-kit-pill grid place-items-center text-base flex-shrink-0 ${TONE_BG[tone]}`}>
+        <div className={`w-11 h-11 rounded-kit-pill grid place-items-center flex-shrink-0 ${TONE_BG[tone]}`}>
           {icon}
         </div>
         <div className="min-w-0">
@@ -36,7 +49,7 @@ function ProfileItem({ icon, title, subtitle, to, tone = 'cream' }: ProfileItemP
           {subtitle && <p className="text-[12px] text-ink/55 mt-0.5 font-semibold truncate">{subtitle}</p>}
         </div>
       </div>
-      <span className="text-ink/35 text-lg shrink-0">›</span>
+      <ChevronRight size={18} strokeWidth={ICON_STROKE} className="text-ink/35 shrink-0" aria-hidden="true" />
     </div>
   )
   if (to) return <Link to={to}>{inner}</Link>
@@ -52,9 +65,9 @@ export default function ProfilePage() {
           <h1 className="text-[20px] font-extrabold text-ink tracking-tight">Profile</h1>
           <button
             aria-label="Settings"
-            className="w-10 h-10 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05] text-ink"
+            className="w-11 h-11 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05] text-ink"
           >
-            ⚙️
+            <Settings size={ICON_MD} strokeWidth={ICON_STROKE} aria-hidden="true" />
           </button>
         </div>
 
@@ -81,19 +94,19 @@ export default function ProfilePage() {
           <h3 className="text-[15px] font-extrabold text-ink mb-3 px-1">Your Travel Profile</h3>
 
           <ProfileItem
-            icon="🧭"
+            icon={<Compass size={ICON_MD} strokeWidth={ICON_STROKE} aria-hidden="true" />}
             tone="amber"
             title="Travel Persona Manager"
             subtitle="สายมู, Foodie, Hidden-gem hunter"
           />
           <ProfileItem
-            icon="📍"
+            icon={<MapPin size={ICON_MD} strokeWidth={ICON_STROKE} aria-hidden="true" />}
             tone="sky"
             title="Saved Places"
             subtitle="5 Signatures saved"
           />
           <ProfileItem
-            icon="✈️"
+            icon={<Plane size={ICON_MD} strokeWidth={ICON_STROKE} aria-hidden="true" />}
             tone="rose"
             title="Saved Trips"
             subtitle="Birthday-Stupa Pilgrimage"
@@ -105,20 +118,20 @@ export default function ProfilePage() {
           <h3 className="text-[15px] font-extrabold text-ink mb-3 px-1">Your Preferences</h3>
 
           <ProfileItem
-            icon="🔔"
+            icon={<Bell size={ICON_MD} strokeWidth={ICON_STROKE} aria-hidden="true" />}
             tone="cream"
             title="Notifications"
             subtitle="Owner updates · AI tips"
             to="/notifications"
           />
           <ProfileItem
-            icon="🌐"
+            icon={<Languages size={ICON_MD} strokeWidth={ICON_STROKE} aria-hidden="true" />}
             tone="green"
             title="Language"
             subtitle="English / ไทย"
           />
           <ProfileItem
-            icon="🛕"
+            icon={<Landmark size={ICON_MD} strokeWidth={ICON_STROKE} aria-hidden="true" />}
             tone="violet"
             title="Birthday-Stupa Theme"
             subtitle="Today in NKP"
@@ -135,7 +148,7 @@ export default function ProfilePage() {
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="text-center">
-      <div className="text-[24px] font-extrabold text-ink leading-none">{value}</div>
+      <div className="text-[24px] font-extrabold text-ink leading-none tabular-nums">{value}</div>
       <div className="text-[11px] text-ink/55 font-bold mt-1 tracking-wide uppercase">{label}</div>
     </div>
   )

@@ -31,7 +31,10 @@ function makePinIcon(
     signature?: boolean
   },
 ): L.DivIcon {
-  const size = opts?.large ? 48 : 40
+  const visual = opts?.large ? 48 : 40
+  // Touch target ≥44pt: wrap a 40px pin in a 48px transparent hitbox.
+  // For "large" plan-mode pins the visual already meets 48.
+  const hit = Math.max(visual, 48)
   const opacity = opts?.faded ? 0.3 : 1
   const numberBadge = opts?.number != null
     ? `<div class="pin-num">${opts.number}</div>`
@@ -45,9 +48,9 @@ function makePinIcon(
   const innerContent = opts?.photo ? '' : emoji
   return L.divIcon({
     className: 'pin-wrapper',
-    html: `<div class="pin" style="border-color:${borderColor};width:${size}px;height:${size}px;font-size:${opts?.large ? 26 : 22}px;opacity:${opacity};${signatureGlow}${photoStyle}">${innerContent}${numberBadge}</div>`,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
+    html: `<div class="pin" style="border-color:${borderColor};width:${visual}px;height:${visual}px;font-size:${opts?.large ? 26 : 22}px;opacity:${opacity};${signatureGlow}${photoStyle}">${innerContent}${numberBadge}</div>`,
+    iconSize: [hit, hit],
+    iconAnchor: [hit / 2, hit / 2],
   })
 }
 
