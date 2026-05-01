@@ -34,6 +34,15 @@ This guide explains how teammates should use AI coding agents safely in this rep
 - Any assumptions, open questions, or areas needing team approval.
 - Confirmation that no unrelated files, private notes, or secrets were added.
 
+## Testing expectations
+
+- Every new feature should include tests, or a clear explanation of why tests are not applicable.
+- Business logic should have unit tests, and UI behavior changes should include component or integration tests when practical.
+- Bug fixes should add a regression test that fails before the fix and passes after it.
+- AI-generated code is not accepted only because it compiles, and tests must not be weakened or deleted just to make a task pass.
+- Before commit, run the smallest relevant test set plus a build when the change affects app behavior; in this repo, normally run `npm.cmd test`, `npm.cmd run build`, and `git diff --check`.
+- PR summaries should state what tests were run and what risks remain.
+
 ## What must stay private
 
 - Personal prompts and personal operating instructions.

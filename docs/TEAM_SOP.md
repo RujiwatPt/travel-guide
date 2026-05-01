@@ -22,10 +22,14 @@ This document describes the shared workflow for humans and AI coding agents work
 ## Definition of done
 
 - The scoped issue or task is addressed.
+- New feature work includes tests, or a clear explanation of why tests do not apply.
+- Business logic includes unit tests, and UI behavior changes include component or integration tests when practical.
+- Bug fixes include a regression test that fails before the fix and passes after it.
 - The working tree includes only intentional changes for that task.
-- The smallest relevant check has been run, or any skipped check is explained.
+- AI-generated code is not accepted only because it compiles, and tests are not weakened or deleted just to make a task pass.
+- The smallest relevant test set has been run, or any skipped test is explained; when app behavior changes in this repo, normally run `npm.cmd test`, `npm.cmd run build`, and `git diff --check`.
 - Documentation stays aligned with the current behavior when the change affects team understanding.
-- The PR summary is clear enough for a teammate to review without guessing what changed.
+- The PR summary is clear enough for a teammate to review without guessing what changed, including what tests were run and what risks remain.
 
 ## Conflict handling
 
