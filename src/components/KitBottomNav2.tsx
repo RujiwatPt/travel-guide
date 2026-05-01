@@ -8,7 +8,10 @@ type Props = {
 
 export default function KitBottomNav2({ active }: Props) {
   return (
-    <nav className="fixed bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-2.5 rounded-kit-pill bg-white shadow-kit-frame border border-ink/5 z-40">
+    <nav
+      aria-label="Primary navigation"
+      className="fixed bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-2.5 rounded-kit-pill bg-white shadow-kit-frame border border-ink/5 z-kit-nav"
+    >
       <Link
         to="/"
         aria-label="Home"

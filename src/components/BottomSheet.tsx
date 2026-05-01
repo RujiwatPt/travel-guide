@@ -81,7 +81,7 @@ export default function BottomSheet({ state, onStateChange, children }: Props) {
   return (
     <div
       ref={sheetRef}
-      className="absolute inset-x-0 bottom-0 z-20 bg-white rounded-t-[36px] shadow-sheet flex flex-col"
+      className="absolute inset-x-0 bottom-0 z-kit-sheet bg-white rounded-t-[36px] shadow-sheet flex flex-col"
       style={{
         top: topStyle,
         transition: dragTop == null ? 'top 220ms ease-out' : undefined,

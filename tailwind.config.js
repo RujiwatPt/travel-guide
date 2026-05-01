@@ -60,6 +60,27 @@ export default {
       letterSpacing: {
         eyebrow: '0.22em',
       },
+      transitionDuration: {
+        // Kit motion tokens — Material/HIG ranges (rule duration-timing 150-300ms)
+        'kit-fast': '150ms',
+        'kit':      '220ms',
+        'kit-slow': '300ms',
+      },
+      transitionTimingFunction: {
+        // Easing tokens — ease-out feels natural for entering UI (rule easing)
+        'kit-out': 'cubic-bezier(0.2, 0.8, 0.4, 1)',
+        'kit-in':  'cubic-bezier(0.4, 0, 1, 1)',
+      },
+      zIndex: {
+        // Layered z-index scale (rule z-index-management)
+        'kit-base':    '0',
+        'kit-content': '10',
+        'kit-sheet':   '30',
+        'kit-overlay': '40',
+        'kit-nav':     '50',
+        'kit-toast':   '60',
+        'kit-modal':   '100',
+      },
     },
   },
   plugins: [],

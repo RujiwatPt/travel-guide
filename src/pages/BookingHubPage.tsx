@@ -129,7 +129,7 @@ export default function BookingHubPage() {
         </div>
 
         {/* Card grid */}
-        <div className="grid grid-cols-2 gap-3 mb-7">
+        <div className="grid grid-cols-2 gap-3 mb-7 kit-stagger">
           {filtered.map((entry) => (
             <TravelCard key={entry.id} entry={entry} />
           ))}

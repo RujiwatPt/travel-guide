@@ -25,7 +25,7 @@ export default function ChatbotBar({ onSubmit, loading, initialQuery, onClear, h
   }
 
   return (
-    <div className="absolute top-4 left-4 right-4 z-30">
+    <div className="absolute top-4 left-4 right-4 z-kit-overlay">
       <form
         onSubmit={handleSubmit}
         role="search"

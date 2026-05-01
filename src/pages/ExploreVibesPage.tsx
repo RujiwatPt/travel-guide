@@ -151,7 +151,7 @@ export default function ExploreVibesPage() {
             <h3 className="text-[16px] font-extrabold text-ink tracking-tight">Must-See Today</h3>
             <Link to="/booking" className="text-blue-strong text-[12px] font-bold">See All</Link>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 kit-stagger">
             {filtered.length === 0 && (
               <div className="col-span-2 text-center text-sm text-ink/55 py-8 font-medium">
                 No matches.
