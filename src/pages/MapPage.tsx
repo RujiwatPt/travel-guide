@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import BottomSheet, { type SheetState } from '../components/BottomSheet'
+import KitBottomNav2 from '../components/KitBottomNav2'
 import ChatbotBar from '../components/ChatbotBar'
 import EntryCard from '../components/EntryCard'
 import MapView from '../components/MapView'
@@ -271,6 +272,7 @@ export default function MapPage() {
           </>
         )}
       </BottomSheet>
+      <KitBottomNav2 active="grid" />
     </div>
   )
 }
