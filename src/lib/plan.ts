@@ -43,7 +43,7 @@ export type Plan = {
   route_geometry: RouteGeometry
 }
 
-const HARDCODED_PLAN: Plan = {
+const AFTERNOON_PLAN: Plan = {
   query: 'I have one afternoon, I love food and history',
   city_id: 'nkp',
   generated_at: new Date().toISOString(),
@@ -173,13 +173,98 @@ const HARDCODED_PLAN: Plan = {
   },
 }
 
+const BIRTHDAY_STUPA_SUNDAY_PLAN: Plan = {
+  query: 'I was born on Sunday — what is my birthday temple?',
+  city_id: 'nkp',
+  generated_at: new Date().toISOString(),
+  start_time: '09:00',
+  end_time: '13:00',
+  total_duration_min: 240,
+  rationale_en:
+    "In Thai tradition, every weekday has a sacred Buddhist stupa — and Nakhon Phanom is the only province with all eight. Your Sunday stupa is Wat Phra That Phanom, the most sacred in all of Isan. We'll start at the Naga statue for blessings, then drive south to the stupa.",
+  rationale_th:
+    'ในธรรมเนียมไทย วันเกิดแต่ละวันมีพระธาตุประจำของตน และนครพนมเป็นจังหวัดเดียวที่มีครบทั้ง 8 องค์ คนเกิดวันอาทิตย์คือพระธาตุพนม ศักดิ์สิทธิ์ที่สุดในอีสาน เริ่มที่พญาศรีสัตตนาคราชขอพร แล้วไปต่อทางใต้ที่องค์พระธาตุ',
+  stops: [
+    {
+      position: 1,
+      entry_id: 'naga-statue',
+      arrival_time: '09:00',
+      duration_min: 30,
+      travel_min_to_next: 55,
+      travel_mode_to_next: 'drive',
+      why_en: 'Blessings from the seven-headed Naga before the pilgrimage',
+      why_th: 'ขอพรจากพญาศรีสัตตนาคราช 7 เศียร ก่อนเดินทางไปกราบพระธาตุ',
+      icon_emoji: '🐉',
+      optional: false,
+      entry_summary: {
+        name_en: 'Phaya Sri Sattanakharat',
+        name_th: 'พญาศรีสัตตนาคราช',
+        category: 'landmark',
+        primary_photo_url:
+          'https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?auto=format&w=400&q=70',
+        lat: 17.4083,
+        lng: 104.7805,
+        price_band: 'free',
+      },
+    },
+    {
+      position: 2,
+      entry_id: 'wat-phra-that-phanom',
+      arrival_time: '10:30',
+      duration_min: 120,
+      travel_min_to_next: null,
+      travel_mode_to_next: null,
+      why_en: 'Your Sunday birthday stupa — pray for prosperity and family blessings',
+      why_th: 'พระธาตุประจำวันเกิดของคุณ ขอพรเรื่องความเจริญและครอบครัว',
+      icon_emoji: '🛕',
+      optional: false,
+      entry_summary: {
+        name_en: 'Wat Phra That Phanom',
+        name_th: 'วัดพระธาตุพนม',
+        category: 'temple',
+        primary_photo_url:
+          'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&w=400&q=70',
+        lat: 16.9437,
+        lng: 104.7239,
+        price_band: 'free',
+      },
+    },
+  ],
+  route_geometry: {
+    type: 'LineString',
+    coordinates: [
+      [104.7805, 17.4083],
+      [104.7239, 16.9437],
+    ],
+  },
+}
+
 const FAKE_DELAY_MS = 1400
+
+function dispatchPlan(query: string): Plan {
+  const q = query.toLowerCase()
+  // Birthday-stupa intent (Sunday version supported in MVP)
+  if (
+    q.includes('birthday') ||
+    q.includes('born') ||
+    q.includes('sunday') ||
+    q.includes('stupa') ||
+    q.includes('วันเกิด') ||
+    q.includes('วันอาทิตย์') ||
+    q.includes('พระธาตุ')
+  ) {
+    return BIRTHDAY_STUPA_SUNDAY_PLAN
+  }
+  // Default — afternoon food + history plan
+  return AFTERNOON_PLAN
+}
 
 export function getPlan(query: string, cityId: string): Promise<Plan> {
   return new Promise((resolve) => {
     setTimeout(() => {
+      const base = dispatchPlan(query)
       resolve({
-        ...HARDCODED_PLAN,
+        ...base,
         query,
         city_id: cityId,
         generated_at: new Date().toISOString(),

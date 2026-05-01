@@ -36,4 +36,17 @@ describe('Plan shape contract', () => {
     expect(plan.query).toBe('test query')
     expect(plan.city_id).toBe('nkp')
   })
+
+  it('birthday-stupa query returns the Sunday-stupa plan featuring Phra That Phanom', async () => {
+    const plan = await getPlan('I was born on Sunday — what is my birthday temple?', 'nkp')
+    expect(plan.stops.some((s) => s.entry_id === 'wat-phra-that-phanom')).toBe(true)
+    expect(plan.rationale_en).toContain('Sunday')
+    expect(isValidPlan(plan)).toBe(true)
+  })
+
+  it('default query (food + history) returns the afternoon plan featuring Pho Sawan', async () => {
+    const plan = await getPlan('I have one afternoon, I love food and history', 'nkp')
+    expect(plan.stops.some((s) => s.entry_id === 'pho-sawan')).toBe(true)
+    expect(isValidPlan(plan)).toBe(true)
+  })
 })
