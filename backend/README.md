@@ -75,4 +75,5 @@ Backward-compatible aliases:
 
 ## Notes
 - Food is normalized as `type='activity' + category='food'`.
-- LLM integration is intentionally deferred; deterministic-first behavior is implemented now.
+- AI intent classification is backend-only and optional; deterministic-first fallback remains available.
+- Deployment notes live in [`docs/BACKEND_DEPLOYMENT.md`](../docs/BACKEND_DEPLOYMENT.md).
