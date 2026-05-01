@@ -1,0 +1,56 @@
+[
+  {
+    "index": 1,
+    "id": "4001:1575",
+    "name": "Plan A Trip",
+    "src": "/figma-screens/01-plan-a-trip.png"
+  },
+  {
+    "index": 2,
+    "id": "4001:1747",
+    "name": "Profile",
+    "src": "/figma-screens/02-profile.png"
+  },
+  {
+    "index": 3,
+    "id": "4001:1898",
+    "name": "Place Details Page",
+    "src": "/figma-screens/03-place-details-page.png"
+  },
+  {
+    "index": 4,
+    "id": "4001:1976",
+    "name": "Local Experiences & Food- Explore",
+    "src": "/figma-screens/04-local-experiences-food-explore.png"
+  },
+  {
+    "index": 5,
+    "id": "4001:2113",
+    "name": "Booking Hub",
+    "src": "/figma-screens/05-booking-hub.png"
+  },
+  {
+    "index": 6,
+    "id": "4001:2267",
+    "name": "9. Notifications & Alerts",
+    "src": "/figma-screens/06-9-notifications-alerts.png"
+  },
+  {
+    "index": 7,
+    "id": "4001:2399",
+    "name": "Home",
+    "src": "/figma-screens/07-home.png"
+  },
+  {
+    "index": 8,
+    "id": "4001:2484",
+    "name": "Explore new VIbes",
+    "src": "/figma-screens/08-explore-new-vibes.png"
+  },
+  {
+    "index": 9,
+    "id": "4001:2631",
+    "name": "Trip Journal",
+    "src": "/figma-screens/09-trip-journal.png"
+  }
+]
