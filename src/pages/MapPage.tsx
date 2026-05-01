@@ -108,7 +108,9 @@ export default function MapPage() {
       .map((h) => {
         const entry = byId.get(h.entryId)
         if (!entry) return null
-        const matchedReasons = [h.matchedIntent, h.category]
+        const matchedReasons = [h.matchedIntent, h.category].filter(
+          (value): value is string => Boolean(value),
+        )
         if (h.retrievalGrade) matchedReasons.push(`grade:${h.retrievalGrade}`)
         return {
           entry,
@@ -159,7 +161,9 @@ export default function MapPage() {
             .map((h) => {
               const entry = byId.get(h.entryId)
               if (!entry) return null
-              const matchedReasons = [h.matchedIntent, h.category]
+              const matchedReasons = [h.matchedIntent, h.category].filter(
+                (value): value is string => Boolean(value),
+              )
               if (h.retrievalGrade) matchedReasons.push(`grade:${h.retrievalGrade}`)
               return { entry, score: Math.round(h.score * 100), matchedReasons }
             })

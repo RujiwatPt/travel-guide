@@ -1,0 +1,8 @@
+fastapi
+httpx
+numpy
+pydantic
+python-dotenv
+sentence-transformers
+tzdata
+uvicorn

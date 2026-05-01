@@ -1,6 +1,9 @@
+import logging
+
 from app.schemas.intent import IntentGateOut
 from app.services.openrouter_intent import OpenRouterIntentService
 
+logger = logging.getLogger(__name__)
 
 ACTIVITY_HINTS = ["น้ำตก", "ไหว้พระ", "ทำบุญ", "เดินเล่น", "ธรรมชาติ", "ประวัติศาสตร์", "เที่ยว", "ป่า", "ถ้ำ", "ภู"]
 FOOD_HINTS = [
@@ -28,7 +31,10 @@ class IntentGateService:
                 return self._merge_base_with_llm(base, llm_out, query)
         except Exception:
             # Fall back to deterministic rules for demo reliability.
-            pass
+            logger.warning(
+                "Intent LLM classification failed; falling back to deterministic rules",
+                exc_info=True,
+            )
         return base
 
     def _merge_base_with_llm(self, base: IntentGateOut, llm_out: IntentGateOut, query: str) -> IntentGateOut:

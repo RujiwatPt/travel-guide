@@ -4,22 +4,35 @@ import re
 
 
 def _to_minutes(hhmm: str) -> int:
-    h, m = [int(n) for n in hhmm.split(":")]
+    parts = hhmm.split(":")
+    if len(parts) != 2:
+        raise ValueError(f"Malformed time string: {hhmm!r}")
+    h, m = [int(n) for n in parts]
+    if not (0 <= h <= 23 and 0 <= m <= 59):
+        raise ValueError(f"Out-of-range time string: {hhmm!r}")
     return h * 60 + m
 
 
 def _split_ranges(text: str) -> list[tuple[int, int]]:
     normalized = text.replace("–", "-").replace("—", "-").replace(" to ", "-")
     # Drop weekday prefixes like Mon-Fri: 08:00-17:00
-    normalized = re.sub(r"(mon|tue|wed|thu|fri|sat|sun)[^0-9:]*", " ", normalized, flags=re.I)
-    parts = [p.strip() for p in re.split(r"[,;/]|\\s{2,}", normalized) if p.strip()]
+    normalized = re.sub(
+        r"\b(?:mon|tue|wed|thu|fri|sat|sun)(?:\s*-\s*(?:mon|tue|wed|thu|fri|sat|sun))?\s*:\s*",
+        " ",
+        normalized,
+        flags=re.I,
+    )
+    parts = [p.strip() for p in re.split(r"[,;/]|\s{2,}", normalized) if p.strip()]
     ranges: list[tuple[int, int]] = []
     for part in parts:
         if "-" not in part:
             continue
         start, end = [x.strip() for x in part.split("-", 1)]
-        s = _to_minutes(start)
-        e = _to_minutes(end)
+        try:
+            s = _to_minutes(start)
+            e = _to_minutes(end)
+        except ValueError:
+            continue
         if e <= s:
             e += 24 * 60  # overnight span
         ranges.append((s, e))

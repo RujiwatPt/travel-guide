@@ -155,5 +155,6 @@ figma-reference/
 __pycache__/
 **/__pycache__/
 *.py[cod]
+backend/*.db
 
 .vercel

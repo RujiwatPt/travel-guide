@@ -20,7 +20,7 @@ uvicorn app.main:app --reload --port 8000
 ## Environment
 
 Backend reads `.env` from `backend/` (via `python-dotenv`).  
-Start from [backend/.env.example](/Users/howlinglight/travel-guide/backend/.env.example).
+Start from [`backend/.env.example`](./.env.example).
 
 Key vars:
 - `API_KEY` (must match frontend `VITE_API_KEY`)
