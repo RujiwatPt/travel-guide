@@ -1,110 +1,156 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import KitBottomNav2 from '../components/KitBottomNav2'
-import KitEventRow from '../components/KitEventRow'
-import KitHeroBookingCard from '../components/KitHeroBookingCard'
-import KitPageHeader from '../components/KitPageHeader'
-import KitSectionTitle from '../components/KitSectionTitle'
-import KitTabRow from '../components/KitTabRow'
 import { useAppStore } from '../store/useAppStore'
 import type { Entry } from '../types'
 
+/**
+ * BookingHubPage — adapted from Builder.io's Screen 8 (Booking Hub):
+ * page header + section title + 3-tab pill row + 2-col TravelCard grid
+ * with prices + Local Events callout. Tokyo/yen content swapped for
+ * Nakhon Phanom OTOP / baht.
+ */
+
 const TABS = [
-  { id: 'all',       label: 'All'       },
-  { id: 'textiles',  label: 'Textiles'  },
-  { id: 'coffee',    label: 'Coffee'    },
-  { id: 'workshops', label: 'Workshops' },
+  { id: 'recommended', label: 'Recommended' },
+  { id: 'crafts',      label: 'OTOP Crafts' },
+  { id: 'food',        label: 'Food & Coffee' },
 ]
 
 function matchTab(tabId: string, e: Entry): boolean {
-  if (tabId === 'all') return true
-  if (tabId === 'textiles') return e.id === 'renu-otop' || e.cuisine_tags.length === 0 && e.category === 'shop'
-  if (tabId === 'coffee')   return e.cuisine_tags.includes('coffee')
-  if (tabId === 'workshops') return e.category === 'shop'
+  if (tabId === 'recommended') return e.category === 'shop' || e.category === 'cafe' || e.category === 'temple'
+  if (tabId === 'crafts')      return e.category === 'shop'
+  if (tabId === 'food')        return e.category === 'cafe' || e.category === 'food'
   return true
+}
+
+const PRICE_FOR: Record<string, string> = {
+  'renu-nakhon-otop': '฿200+',
+  'bluegold-coffee':  '฿600',
+  'pho-sawan':        '฿120',
+  'river-vibes-cafe': '฿150',
+  'wat-phra-that-phanom': 'Free',
+  'naga-statue':      'Free',
+}
+
+function getPrice(id: string): string {
+  return PRICE_FOR[id] ?? '฿200+'
+}
+
+type CardProps = { entry: Entry }
+
+function TravelCard({ entry }: CardProps) {
+  return (
+    <Link
+      to={`/entry/${entry.id}`}
+      className="block bg-white rounded-kit-photo overflow-hidden shadow-kit-card border border-ink/[0.04] active:scale-[0.99] transition-transform"
+    >
+      <div className="relative">
+        <img
+          src={entry.photos?.[0] ?? ''}
+          alt={entry.name_en}
+          className="w-full h-32 object-cover bg-kit-cream-1"
+        />
+        <div className="absolute top-2 right-2 w-7 h-7 grid place-items-center rounded-kit-pill bg-white/95 text-rose-500 text-xs shadow-kit-pill">
+          ♡
+        </div>
+      </div>
+      <div className="p-3">
+        <h3 className="font-extrabold text-[13px] text-ink tracking-tight leading-tight truncate">
+          {entry.name_en}
+        </h3>
+        <p className="text-[11px] text-ink/55 mt-0.5 font-semibold truncate">
+          {entry.name_th}
+        </p>
+        <p className="text-[14px] font-extrabold text-blue-strong mt-1.5">{getPrice(entry.id)}</p>
+      </div>
+    </Link>
+  )
 }
 
 export default function BookingHubPage() {
   const navigate = useNavigate()
   const entries = useAppStore((s) => s.entries)
-  const [activeTab, setActiveTab] = useState('all')
+  const [activeTab, setActiveTab] = useState('recommended')
 
-  // Hero scroller: shop entries (Renu OTOP, BlueGold Coffee)
-  const heroes = useMemo(
-    () => entries.filter((e) => e.category === 'shop' && matchTab(activeTab, e)),
+  const filtered = useMemo(
+    () => entries.filter((e) => matchTab(activeTab, e)).slice(0, 6),
     [entries, activeTab],
   )
 
-  // Events: weekend-only / market / cafe entries with status
-  const events = useMemo(
-    () =>
-      entries.filter(
-        (e) =>
-          (e.category === 'market' || e.id === 'bluegold-coffee' || e.id === 'naga-statue') &&
-          matchTab(activeTab, e),
-      ),
-    [entries, activeTab],
-  )
+  const walkingStreet = entries.find((e) => e.id === 'indochina-walking-street')
 
   return (
-    <div className="min-h-[100dvh] bg-white relative pb-28">
-      <KitPageHeader title="Explore" />
+    <div className="bg-white min-h-[100dvh] relative pb-28">
+      <div className="px-5 pt-6 pb-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-[20px] font-extrabold text-ink tracking-tight">Explore</h1>
+          <button className="w-10 h-10 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05]">🔍</button>
+        </div>
 
-      <KitSectionTitle
-        title="OTOP Hub"
-        subtitle="OTOP & local crafts in Nakhon Phanom."
-      />
+        {/* Section title */}
+        <div className="mb-5">
+          <h2 className="text-[20px] font-extrabold text-ink tracking-tight">Booking Hub</h2>
+          <p className="text-[13px] text-ink/55 font-semibold mt-1">OTOP, food, and cultural bookings in Nakhon Phanom</p>
+        </div>
 
-      <div className="px-5">
-        <KitTabRow tabs={TABS} activeId={activeTab} onChange={setActiveTab} />
-      </div>
-
-      {/* Hero scroller */}
-      <div className="px-5 pt-4">
-        <div className="flex overflow-x-auto -mx-5 px-5 snap-x scrollbar-none pb-2">
-          {heroes.length === 0 && (
-            <div className="text-center text-sm text-ink/55 py-6 font-medium w-full">
-              No items in this category yet.
-            </div>
-          )}
-          {heroes.map((entry) => (
-            <KitHeroBookingCard
-              key={entry.id}
-              entry={entry}
-              price={entry.id === 'renu-nakhon-otop' ? '฿200+' : '฿600'}
-              ctaLabel="View"
-              onTap={(e) => navigate(`/entry/${e.id}`)}
-              onCta={(e) => navigate(`/entry/${e.id}`)}
-            />
+        {/* Tabs */}
+        <div className="flex gap-2 mb-5 overflow-x-auto -mx-5 px-5 scrollbar-none">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={
+                'shrink-0 px-4 py-2 rounded-kit-pill text-[12px] font-extrabold transition ' +
+                (activeTab === t.id
+                  ? 'bg-kit-gold-1 text-ink shadow-kit-pill'
+                  : 'bg-kit-cream-2 text-ink/65 hover:bg-ink/5')
+              }
+            >
+              {t.label}
+            </button>
           ))}
         </div>
-      </div>
 
-      {/* Events */}
-      <div className="px-5 pt-2 flex items-center justify-between">
-        <h2 className="text-[18px] font-extrabold text-ink tracking-tight">This Weekend</h2>
-        <button className="text-[12px] font-bold text-blue-strong">See All</button>
-      </div>
+        {/* Card grid */}
+        <div className="grid grid-cols-2 gap-3 mb-7">
+          {filtered.map((entry) => (
+            <TravelCard key={entry.id} entry={entry} />
+          ))}
+        </div>
 
-      <div className="px-5 pt-3">
-        {events.map((e) => (
-          <KitEventRow
-            key={e.id}
-            photo={e.photos?.[0]}
-            emoji={e.emoji}
-            title={e.id === 'indochina-walking-street' ? 'Walking Street (ถนนคนเดิน)'
-              : e.id === 'bluegold-coffee'             ? 'BlueGold Coffee Tour'
-              : e.id === 'naga-statue'                 ? 'Naga Sunset Walk'
-              : e.name_en}
-            meta={e.id === 'indochina-walking-street' ? 'Fri 17:00 · Indochina Market'
-              : e.id === 'bluegold-coffee'             ? 'Sat 10:00 · Civet coffee farm'
-              : e.id === 'naga-statue'                 ? 'Daily 18:00 · Free'
-              : 'NKP'}
-            ctaLabel={e.id === 'indochina-walking-street' ? 'Get Pass' : 'Details'}
-            onTap={() => navigate(`/entry/${e.id}`)}
-            onCta={() => navigate(`/entry/${e.id}`)}
-          />
-        ))}
+        {/* Local Events */}
+        {walkingStreet && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[16px] font-extrabold text-ink tracking-tight">This Weekend</h3>
+              <Link to="/explore" className="text-blue-strong text-[12px] font-bold">See All</Link>
+            </div>
+            <button
+              onClick={() => navigate(`/entry/${walkingStreet.id}`)}
+              className="w-full text-left bg-blue-soft/20 rounded-kit-photo p-4 active:scale-[0.99] transition-transform"
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-12 h-12 rounded-kit-photo bg-blue-soft/40 grid place-items-center text-xl flex-shrink-0">
+                  🎌
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-extrabold text-ink text-[14px] tracking-tight">
+                    Indochina Walking Street
+                  </h4>
+                  <p className="text-[12px] text-ink/55 mt-0.5 font-semibold leading-snug">
+                    Fri-Sun · live music + 120 stalls
+                  </p>
+                  <p className="text-[11px] text-ink/45 mt-1 font-bold">Tonight · 17:00 onwards</p>
+                </div>
+                <span className="bg-blue-strong text-white px-3 py-1.5 rounded-kit-pill text-[11px] font-extrabold shrink-0">
+                  Get Pass
+                </span>
+              </div>
+            </button>
+          </div>
+        )}
       </div>
 
       <KitBottomNav2 active="grid" />

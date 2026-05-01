@@ -1,31 +1,59 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import KitBottomNav2 from '../components/KitBottomNav2'
-import KitJournalCard from '../components/KitJournalCard'
-import KitPageHeader from '../components/KitPageHeader'
 import { useAppStore } from '../store/useAppStore'
 import type { Entry } from '../types'
 
-const STUPA_DAY: Record<string, string> = {
-  'wat-phra-that-phanom':       'That Phanom District · Sunday',
-  'phra-that-renu':             'Renu Nakhon · Monday',
-  'phra-that-si-khun':          'Mueang NKP · Tuesday',
-  'phra-that-mahachai':         'Pla Pak District · Wed daytime',
-  'phra-that-marukkha-nakhon':  'Tha Uthen · Wed night',
-  'phra-that-prasit':           'Tha Uthen · Thursday',
-  'phra-that-tha-uthen':        'Tha Uthen · Friday',
-  'phra-that-nakhon':           'Mueang NKP · Saturday',
-}
+/**
+ * TripJournalPage — adapted from Builder.io's Screen 3 (Trip Journal):
+ * gradient-background cards with location chip + title + description +
+ * rating + CTA. Tokyo content swapped for NKP birthday-stupa pilgrimage.
+ */
 
-const STUPA_HINT: Record<string, string> = {
-  'wat-phra-that-phanom':       '50 km south of Mueang NKP',
-  'phra-that-renu':             '30 km west of Mueang NKP',
-  'phra-that-si-khun':          'In Mueang NKP centre',
-  'phra-that-mahachai':         '20 km west of Mueang NKP',
-  'phra-that-marukkha-nakhon':  '40 km north of Mueang NKP',
-  'phra-that-prasit':           '40 km north of Mueang NKP',
-  'phra-that-tha-uthen':        '25 km north of Mueang NKP',
-  'phra-that-nakhon':           'In Mueang NKP centre',
+const STUPA_CONFIG: Record<
+  string,
+  { gradient: string; subtitle: string; rating: string }
+> = {
+  'wat-phra-that-phanom': {
+    gradient: 'from-amber-400 to-rose-400',
+    subtitle: 'That Phanom · Sunday',
+    rating: '4.9 (3.2k pilgrims)',
+  },
+  'phra-that-renu': {
+    gradient: 'from-pink-400 to-fuchsia-400',
+    subtitle: 'Renu Nakhon · Monday',
+    rating: '4.7 (1.5k pilgrims)',
+  },
+  'phra-that-si-khun': {
+    gradient: 'from-orange-400 to-amber-500',
+    subtitle: 'Mueang NKP · Tuesday',
+    rating: '4.6 (980 pilgrims)',
+  },
+  'phra-that-mahachai': {
+    gradient: 'from-emerald-400 to-teal-500',
+    subtitle: 'Pla Pak · Wed daytime',
+    rating: '4.5 (640 pilgrims)',
+  },
+  'phra-that-marukkha-nakhon': {
+    gradient: 'from-blue-400 to-indigo-500',
+    subtitle: 'Tha Uthen · Wed night',
+    rating: '4.6 (510 pilgrims)',
+  },
+  'phra-that-prasit': {
+    gradient: 'from-violet-400 to-purple-500',
+    subtitle: 'Tha Uthen · Thursday',
+    rating: '4.5 (430 pilgrims)',
+  },
+  'phra-that-tha-uthen': {
+    gradient: 'from-sky-400 to-cyan-500',
+    subtitle: 'Tha Uthen · Friday',
+    rating: '4.7 (720 pilgrims)',
+  },
+  'phra-that-nakhon': {
+    gradient: 'from-rose-400 to-orange-400',
+    subtitle: 'Mueang NKP · Saturday',
+    rating: '4.7 (1.1k pilgrims)',
+  },
 }
 
 export default function TripJournalPage() {
@@ -38,17 +66,26 @@ export default function TripJournalPage() {
   )
 
   return (
-    <div className="min-h-[100dvh] bg-white relative pb-28">
-      <KitPageHeader title="Birthday-Stupa Pilgrimage" />
+    <div className="bg-white min-h-[100dvh] relative pb-28">
+      <div className="px-5 pt-6 pb-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-[20px] font-extrabold text-ink tracking-tight">Trip Journal</h1>
+          <div className="flex gap-2">
+            <button className="w-10 h-10 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05]">📅</button>
+            <button className="w-10 h-10 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05]">⚙️</button>
+          </div>
+        </div>
 
-      {/* Tab toggle */}
-      <div className="px-5 pt-2">
-        <div className="flex gap-2 p-1.5 bg-kit-cream-2 rounded-kit-pill">
+        {/* Mode toggle */}
+        <div className="flex gap-2 mb-6">
           <button
             onClick={() => setMode('timeline')}
             className={
-              'flex-1 px-3 py-2 rounded-kit-pill text-[13px] font-extrabold transition flex items-center justify-center gap-1.5 ' +
-              (mode === 'timeline' ? 'bg-white shadow-kit-pill text-ink' : 'text-ink/55')
+              'px-5 py-2 rounded-kit-pill text-[13px] font-extrabold transition ' +
+              (mode === 'timeline'
+                ? 'bg-kit-gold-1 text-ink shadow-kit-pill'
+                : 'text-ink/55 hover:bg-ink/5')
             }
           >
             📔 Timeline
@@ -56,31 +93,54 @@ export default function TripJournalPage() {
           <button
             onClick={() => setMode('storymode')}
             className={
-              'flex-1 px-3 py-2 rounded-kit-pill text-[13px] font-extrabold transition flex items-center justify-center gap-1.5 ' +
-              (mode === 'storymode' ? 'bg-white shadow-kit-pill text-ink' : 'text-ink/55')
+              'px-5 py-2 rounded-kit-pill text-[13px] font-extrabold transition ' +
+              (mode === 'storymode'
+                ? 'bg-kit-gold-1 text-ink shadow-kit-pill'
+                : 'text-ink/55 hover:bg-ink/5')
             }
           >
             ✨ Storymode
           </button>
         </div>
-      </div>
 
-      <div className="px-5 pt-4">
-        {stupas.length === 0 && (
-          <div className="text-center text-sm text-ink/55 py-10 font-medium">
-            No stupas mapped yet.
-          </div>
-        )}
-        {stupas.map((entry) => (
-          <KitJournalCard
-            key={entry.id}
-            entry={entry}
-            subtitle={STUPA_DAY[entry.id] ?? 'Birthday-Stupa Trail'}
-            locationHint={STUPA_HINT[entry.id] ?? 'Nakhon Phanom Province'}
-            tags={['Spiritual', 'Iconic']}
-            onTap={(e) => navigate(`/entry/${e.id}`)}
-          />
-        ))}
+        {/* Stupa cards */}
+        <div className="space-y-4">
+          {stupas.map((entry) => {
+            const config = STUPA_CONFIG[entry.id] ?? {
+              gradient: 'from-slate-400 to-slate-500',
+              subtitle: 'Birthday-Stupa Trail',
+              rating: '4.5',
+            }
+            return (
+              <button
+                key={entry.id}
+                onClick={() => navigate(`/entry/${entry.id}`)}
+                className={`w-full text-left rounded-kit-photo p-4 text-white shadow-kit-card bg-gradient-to-br ${config.gradient} active:scale-[0.99] transition-transform`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm">📍</span>
+                  <span className="text-[12px] font-bold opacity-95">{config.subtitle}</span>
+                </div>
+                <h3 className="text-[18px] font-extrabold tracking-tight leading-tight mb-1">
+                  {entry.name_en}
+                </h3>
+                <p className="text-[13px] opacity-95 font-bold mb-2">{entry.name_th}</p>
+                <p className="text-[12px] opacity-90 mb-3 leading-snug line-clamp-2">
+                  {entry.why_visit_en}
+                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-[12px] font-bold">
+                    <span className="text-yellow-200">★</span>
+                    <span>{config.rating}</span>
+                  </div>
+                  <span className="bg-white/25 backdrop-blur-sm px-3 py-1.5 rounded-kit-pill text-[11px] font-extrabold">
+                    CONTINUE →
+                  </span>
+                </div>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       <KitBottomNav2 active="grid" />
