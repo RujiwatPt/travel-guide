@@ -44,9 +44,26 @@ body,
   background: white;
   box-shadow: 0 4px 14px rgba(20, 45, 65, 0.25);
   font-size: 22px;
-  border: 2px solid #2ea84a; /* default = open; Slice 8 makes this dynamic */
-  transition: transform 150ms ease;
+  border: 2px solid #2ea84a;
+  transition: opacity 300ms ease, transform 200ms ease, border-color 200ms ease;
+  position: relative;
 }
 .pin:hover {
   transform: scale(1.1);
+}
+.pin-num {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #1e8df0;
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(20, 45, 65, 0.3);
 }
