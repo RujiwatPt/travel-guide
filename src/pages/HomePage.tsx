@@ -12,9 +12,29 @@ import type { Overrides } from '../lib/figmaOverrides'
  */
 
 const NKP_HOME_OVERRIDES: Overrides = {
-  // Hide kit's hardcoded "9:54" status bar (iOS provides its own)
+  // Status bar + decorative top-of-screen kit art. Home has no
+  // "↳ Indicators" wrapper, so each piece is hidden individually.
+  // Vector#0–#10 are status-bar SVG paths; Vector#11 is a deeper
+  // decorative arrow we leave alone.
   '↳ Time':                        { hideLayer: true },
-  '↳ Indicators':                  { hideLayer: true },
+  'Bar':                           { hideLayer: true },
+  'Vector 1':                      { hideLayer: true },
+  'Vector 2':                      { hideLayer: true },
+  'Vector#0':                      { hideLayer: true },
+  'Vector#1':                      { hideLayer: true },
+  'Vector#2':                      { hideLayer: true },
+  'Vector#3':                      { hideLayer: true },
+  'Vector#4':                      { hideLayer: true },
+  'Vector#5':                      { hideLayer: true },
+  'Vector#6':                      { hideLayer: true },
+  'Vector#7':                      { hideLayer: true },
+  'Vector#8':                      { hideLayer: true },
+  'Vector#9':                      { hideLayer: true },
+  'Vector#10':                     { hideLayer: true },
+  'Border':                        { hideLayer: true },
+  'Capacity':                      { hideLayer: true },
+  'Wifi':                          { hideLayer: true },
+  'Cellular Connection':           { hideLayer: true },
 
   // Hero text
   'Ready to Explore Tokyo!':       { text: 'Ready to Explore \nNakhon Phanom!' },
