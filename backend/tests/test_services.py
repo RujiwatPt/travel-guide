@@ -1,7 +1,12 @@
+import logging
+
+from app.data.transport_hints import TRANSPORT_HINTS
 from app.data.seed_data import ENTRIES
+from app.repositories.transport_repo import TransportRepository
 from app.services.intent_gate import IntentGateService
 from app.services.retrieval import RetrievalService
 from app.services.rag_retrieval import EmbeddingRagService
+from app.services.status_engine import compute_open_status
 from app.schemas.intent import IntentGateOut
 
 
@@ -151,3 +156,42 @@ def test_rag_embedding_failure_falls_back_to_lexical():
     assert len(hits) > 0
     first = next(iter(hits.values()))
     assert any(str(s).startswith('lexical_hit:') for s in first.get('snippets', []))
+
+
+def test_intent_gate_logs_when_llm_fails(caplog):
+    class BrokenLLM:
+        def is_enabled(self):
+            return True
+
+        def classify(self, _query: str):
+            raise RuntimeError('boom')
+
+    gate = IntentGateService(llm_service=BrokenLLM())
+    query = 'à¸­à¸¢à¸²à¸à¹„à¸›à¹€à¸—à¸µà¹ˆà¸¢à¸§à¸™à¹‰à¸³à¸•à¸'
+    expected = IntentGateService().classify(query)
+    with caplog.at_level(logging.WARNING):
+        out = gate.classify(query)
+
+    assert out == expected
+    assert 'falling back to deterministic rules' in caplog.text
+
+
+def test_transport_repository_returns_copies():
+    repo = TransportRepository()
+    hints = repo.list_hints()
+    legacy_hints = repo.list_hints_for_legacy('NP-ACT-001')
+
+    hints[0]['hint_en'] = 'mutated'
+    legacy_hints[0]['hint_en'] = 'mutated again'
+
+    assert TRANSPORT_HINTS[0]['hint_en'] != 'mutated'
+    assert TRANSPORT_HINTS[0]['hint_en'] != 'mutated again'
+
+
+def test_status_engine_skips_malformed_ranges():
+    status = compute_open_status('Mon-Fri: 08:00-17:00; invalid-range; 99:99-10:00')
+    assert status in {'open_now', 'closing_soon', 'closed'}
+
+
+def test_status_engine_returns_unknown_for_only_malformed_ranges():
+    assert compute_open_status('bad-data; 99:99-10:00') == 'unknown'
