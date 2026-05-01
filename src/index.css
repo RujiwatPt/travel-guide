@@ -2,6 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Kit design tokens — utility classes for patterns Tailwind can't compose cleanly ─── */
+@layer components {
+  /* Kit eyebrow text — small uppercase tracking-wide, used above headers */
+  .kit-eyebrow {
+    @apply text-[10px] font-extrabold uppercase tracking-eyebrow text-kit-eyebrow;
+  }
+
+  /* Kit hero header — heavy black, tight letter-spacing, large scale */
+  .kit-h1 {
+    @apply font-black tracking-[-0.06em] text-ink;
+  }
+
+  /* Kit search/chatbot pill — used at top of map, inside forms */
+  .kit-pill {
+    @apply flex items-center gap-2 h-12 px-4 rounded-kit-pill bg-white/95 backdrop-blur shadow-kit-pill border border-ink/5;
+  }
+
+  /* Kit card — photo card pattern with soft shadow + thin border */
+  .kit-card {
+    @apply bg-white rounded-kit-photo shadow-kit-card border border-ink/5;
+  }
+
+  /* Kit chip — pill button used in chip rows + segmented selectors */
+  .kit-chip {
+    @apply px-3 py-1.5 rounded-kit-pill text-[12px] font-bold whitespace-nowrap transition;
+  }
+  .kit-chip-active {
+    @apply bg-yellow border border-yellow text-ink;
+  }
+  .kit-chip-inactive {
+    @apply bg-white border border-ink/10 text-muted;
+  }
+}
+
 html,
 body,
 #root {
