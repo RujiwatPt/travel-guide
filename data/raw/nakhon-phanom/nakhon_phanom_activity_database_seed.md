@@ -11,9 +11,11 @@
 
 | Field | Meaning |
 |---|---|
-| `id` | รหัสกิจกรรม/สถานที่ |
+| `id` | UUID (canonical primary key) |
+| `legacy_code` | รหัสเดิมแบบอ่านง่าย เช่น NP-ACT-001, NP-FOOD-034 |
 | `name_th` | ชื่อไทย |
 | `name_en` | ชื่ออังกฤษ/ชื่อทางเลือก |
+| `entity_type` | ประเภทข้อมูลสำหรับ intent result: activity, food, place |
 | `category` | หมวดกิจกรรมหลัก |
 | `area` | อำเภอ/พื้นที่ |
 | `route_cluster` | กลุ่มเส้นทาง ใช้จัด itinerary |
@@ -29,6 +31,10 @@
 | `evidence_summary` | หลักฐาน/เหตุผลที่ใช้จัดหมวด |
 | `source_urls` | URL อ้างอิง |
 | `search_text_blob` | ข้อความรวมสำหรับ full-text search/embedding |
+| `opening_hours_text` | เวลาเปิด-ปิดแบบข้อความ (nullable ใน seed) |
+| `hours_confidence` | high/medium/low/unknown สำหรับความเชื่อมั่นเวลาเปิด-ปิด |
+| `hours_source_type` | official/facebook/map_listing/community/unknown |
+| `hours_last_checked_at` | วันเวลาที่ตรวจล่าสุด (nullable ใน seed) |
 
 ---
 
@@ -56,6 +62,17 @@ data_confidence:
   MEDIUM: มีแหล่งท่องเที่ยวหลักรองรับ แต่ควรตรวจรายละเอียดเชิงปฏิบัติการเพิ่ม
   LOW_TO_MEDIUM: ใช้ได้เป็น seed แต่ควรลงพื้นที่หรือยืนยันจากแหล่งล่าสุดก่อน production
 ```
+
+### Mandatory retrieval pipeline alignment (match PRD)
+1. Intent gate first (rule + LLM grading)
+2. Scoped retrieval from `entity_type`
+3. Reject out-of-scope entities before final answer
+
+`entity_scope` rules:
+- `activity_only`: allow `activity` only
+- `food_only`: allow `food` only
+- `place_only`: allow `place` only
+- `mixed`: allow all relevant types
 
 ---
 
@@ -1061,7 +1078,9 @@ filters:
 
 ```sql
 CREATE TABLE activity_seed (
-  id TEXT PRIMARY KEY,
+  id UUID PRIMARY KEY,
+  legacy_code TEXT UNIQUE NOT NULL,
+  entity_type TEXT NOT NULL, -- activity | food | place
   name_th TEXT NOT NULL,
   name_en TEXT,
   category TEXT,
@@ -1080,6 +1099,10 @@ CREATE TABLE activity_seed (
   data_confidence TEXT,
   source_urls TEXT[],
   search_text_blob TEXT,
+  opening_hours_text TEXT,
+  hours_confidence TEXT, -- high | medium | low | unknown
+  hours_source_type TEXT, -- official | facebook | map_listing | community | unknown
+  hours_last_checked_at TIMESTAMP,
   implementation_notes TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
@@ -1091,16 +1114,25 @@ CREATE TABLE activity_seed (
 
 ```json
 {
-  "id": "NP-ACT-001",
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "legacy_code": "NP-ACT-001",
+  "entity_type": "activity",
   "name_th": "วัดพระธาตุพนมวรมหาวิหาร",
   "category": "spiritual_landmark",
   "intent_tags": ["ขอลูก", "ขอพร", "สายมู", "ไหว้พระ"],
   "route_cluster": "south_spiritual_route",
   "default_priority": "P1",
   "data_confidence": "HIGH",
-  "search_text_blob": "พระธาตุพนม ขอพร ขอลูก ไหว้พระธาตุ..."
+  "search_text_blob": "พระธาตุพนม ขอพร ขอลูก ไหว้พระธาตุ...",
+  "opening_hours_text": null,
+  "hours_confidence": "unknown",
+  "hours_source_type": "unknown",
+  "hours_last_checked_at": null
 }
 ```
+
+> Migration note: keep existing `NP-ACT-*` / `NP-FOOD-*` labels in markdown section titles for readability, but store them in `legacy_code` and use UUID in all API/database joins.
+> Gate note: if query intent is activity-first, filter `entity_type=activity` before ranking to prevent food leakage.
 
 ---
 
