@@ -1,6 +1,7 @@
 from app.data.seed_data import ENTRIES
 from app.services.intent_gate import IntentGateService
 from app.services.retrieval import RetrievalService
+from app.services.rag_retrieval import EmbeddingRagService
 from app.schemas.intent import IntentGateOut
 
 
@@ -141,3 +142,12 @@ def test_waterfall_query_prioritizes_nature_over_landmark():
     )
     assert len(results) > 0
     assert results[0]['category'] == 'nature'
+
+
+def test_rag_embedding_failure_falls_back_to_lexical():
+    rag = EmbeddingRagService()
+    rag._embedding_enabled = False  # force lexical fallback path
+    hits = rag.retrieve(rows=ENTRIES, query='หาร้านส้มตำใกล้ริมน้ำ', top_k=5)
+    assert len(hits) > 0
+    first = next(iter(hits.values()))
+    assert any(str(s).startswith('lexical_hit:') for s in first.get('snippets', []))

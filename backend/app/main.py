@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -6,8 +8,17 @@ from app.routers.entries import router as entries_router
 from app.routers.search import router as search_router
 from app.routers.ai import router as ai_router
 from app.routers.logs import router as logs_router
+from app.services.rag_retrieval import get_rag_service
 
-app = FastAPI(title=settings.app_name)
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # Pre-load embedding model so the first search request isn't slow.
+    get_rag_service().warm()
+    yield
+
+
+app = FastAPI(title=settings.app_name, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

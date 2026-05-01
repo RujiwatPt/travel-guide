@@ -1,12 +1,19 @@
 from app.services.status_engine import compute_open_status
 from app.schemas.intent import ExcludedCandidate
-from app.services.rag_retrieval import MockRagService
+from app.services.rag_retrieval import get_rag_service
 
 
 class RetrievalService:
-    FOOD_HINTS = ["ของกิน", "อาหาร", "คาเฟ่", "ร้าน", "เวียดนาม", "ลาบ", "ปากหม้อ", "กิน", "ส้มตำ", "somtum"]
-    ACTIVITY_HINTS = ["น้ำตก", "ไหว้พระ", "ทำบุญ", "เดินเล่น", "ธรรมชาติ", "ประวัติศาสตร์", "เที่ยว"]
+    FOOD_HINTS = [
+        "ของกิน", "อาหาร", "คาเฟ่", "ร้าน", "เวียดนาม", "ลาบ", "ปากหม้อ", "กิน", "ส้มตำ", "somtum",
+        "ทาน", "ก๋วยเตี๋ยว", "ข้าว", "ผัด", "ต้ม", "แกง", "หมู", "ไก่", "ปลา",
+        "กาแฟ", "ชา", "บุฟเฟ่", "ร้านอาหาร", "หาร้าน",
+    ]
+    ACTIVITY_HINTS = ["น้ำตก", "ไหว้พระ", "ทำบุญ", "เดินเล่น", "ธรรมชาติ", "ประวัติศาสตร์", "เที่ยว", "ป่า", "ถ้ำ", "ภู"]
     WATERFALL_HINTS = ["น้ำตก", "waterfall", "falls"]
+
+    def __init__(self) -> None:
+        self.rag = get_rag_service()
 
     def _intent_score(self, q: str, intent_tags: list[str]) -> float:
         if not intent_tags:
@@ -149,5 +156,3 @@ class RetrievalService:
         if snippets:
             return f"Matched by RAG evidence ({snippets}) with scope-safe filtering."
         return "Matched by RAG evidence with scope-safe filtering."
-    def __init__(self):
-        self.rag = MockRagService()

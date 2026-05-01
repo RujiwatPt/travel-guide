@@ -2,12 +2,16 @@ from app.schemas.intent import IntentGateOut
 from app.services.openrouter_intent import OpenRouterIntentService
 
 
-ACTIVITY_HINTS = ["น้ำตก", "ไหว้พระ", "ทำบุญ", "เดินเล่น", "ธรรมชาติ", "ประวัติศาสตร์"]
-FOOD_HINTS = ["ของกิน", "อาหาร", "คาเฟ่", "ร้าน", "เวียดนาม", "ลาบ", "ปากหม้อ", "ส้มตำ", "somtum"]
-MIXED_HINTS = ["แล้ว", "ต่อ", "หลังจาก"]
-TEMPLE_HINTS = ["วัด", "ไหว้พระ", "ทำบุญ", "พระธาตุ"]
-LOW_EFFORT_HINTS = ["ไม่เดินเยอะ", "เดินน้อย", "ผู้สูงอายุ", "พาแม่", "wheelchair", "elderly"]
-PLACE_HINTS = ["แลนด์มาร์ก", "จุดถ่ายรูป", "วิว", "ริมโขง", "landmark", "viewpoint", "memorial", "statue"]
+ACTIVITY_HINTS = ["น้ำตก", "ไหว้พระ", "ทำบุญ", "เดินเล่น", "ธรรมชาติ", "ประวัติศาสตร์", "เที่ยว", "ป่า", "ถ้ำ", "ภู"]
+FOOD_HINTS = [
+    "ของกิน", "อาหาร", "คาเฟ่", "ร้าน", "เวียดนาม", "ลาบ", "ปากหม้อ", "ส้มตำ", "somtum",
+    "กิน", "ทาน", "ก๋วยเตี๋ยว", "ข้าว", "ผัด", "ต้ม", "แกง", "หมู", "ไก่", "ปลา",
+    "กาแฟ", "ชา", "บุฟเฟ่", "ร้านอาหาร", "หาร้าน",
+]
+MIXED_HINTS = ["แล้ว", "ต่อ", "หลังจาก", "และ", "กับ", "แล้วก็", "แวะ", "ด้วย"]
+TEMPLE_HINTS = ["วัด", "ไหว้พระ", "ทำบุญ", "พระธาตุ", "สักการะ", "บูชา"]
+LOW_EFFORT_HINTS = ["ไม่เดินเยอะ", "เดินน้อย", "ผู้สูงอายุ", "พาแม่", "wheelchair", "elderly", "เข็น", "นั่งรถ"]
+PLACE_HINTS = ["แลนด์มาร์ก", "จุดถ่ายรูป", "วิว", "ริมโขง", "landmark", "viewpoint", "memorial", "statue", "ชมวิว", "สะพาน"]
 
 
 class IntentGateService:
@@ -67,16 +71,22 @@ class IntentGateService:
         has_place = any(k in q for k in PLACE_HINTS)
         has_low_effort = any(k in q for k in LOW_EFFORT_HINTS)
         hard_filters = ["low_effort"] if has_low_effort else []
+        token_count = len([t for t in q.split() if t.strip()])
 
-        if has_activity and has_food and has_mixed:
+        # Any combination of activity/temple/place + food signals → mixed.
+        # The connector check is relaxed: if BOTH sides are present, intent is mixed
+        # regardless of explicit connectors (user may omit them in Thai shorthand).
+        # Avoid over-triggering mixed scope on very short/noisy queries.
+        # Require either an explicit connector OR at least 3 tokens of content.
+        if (has_activity or has_temple or has_place) and has_food and (has_mixed or token_count >= 3):
             return IntentGateOut(
                 detected_intent="mixed_activity_food",
                 intent_confidence="medium",
                 entity_scope="mixed",
                 hard_filters=hard_filters,
-                reason="contains both activity and food cues with connector terms",
+                reason="both activity/place and food cues detected",
             )
-        if has_food and not has_activity:
+        if has_food:
             return IntentGateOut(
                 detected_intent="food_trip",
                 intent_confidence="high",
@@ -84,7 +94,7 @@ class IntentGateService:
                 hard_filters=hard_filters,
                 reason="food keywords detected",
             )
-        if has_place and not has_food:
+        if has_place and not has_activity and not has_temple:
             return IntentGateOut(
                 detected_intent="place_discovery",
                 intent_confidence="medium",
@@ -92,7 +102,7 @@ class IntentGateService:
                 hard_filters=hard_filters,
                 reason="place/landmark keywords detected",
             )
-        if has_temple and not has_food:
+        if has_temple:
             return IntentGateOut(
                 detected_intent="temple_merit_discovery",
                 intent_confidence="medium",
