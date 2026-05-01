@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAppStore } from '../store/useAppStore'
+import { relativeTime } from '../lib/time'
 import type { LiveStatus } from '../types'
 
 const STATUS_OPTIONS: { value: LiveStatus; label: string; dot: string }[] = [
@@ -16,17 +17,6 @@ const DAY_LABEL: Record<string, string> = {
   thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
 }
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
-
-function relativeTime(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diffMs / 60_000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
-  const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
-  const days = Math.floor(hrs / 24)
-  return `${days}d ago`
-}
 
 export default function OwnerEditPage() {
   const [params] = useSearchParams()

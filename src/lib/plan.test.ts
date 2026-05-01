@@ -50,3 +50,47 @@ describe('Plan shape contract', () => {
     expect(isValidPlan(plan)).toBe(true)
   })
 })
+
+describe('dispatchPlan keyword routing', () => {
+  // Each test verifies that a keyword routes to the BIRTHDAY plan
+  // (recognizable because it features Wat Phra That Phanom).
+  // If a keyword routes to the AFTERNOON plan instead, the test fails with
+  // a clear message — not 'just' a Plan validation issue.
+  const isBirthdayPlan = (entryIds: string[]) => entryIds.includes('wat-phra-that-phanom')
+  const isAfternoonPlan = (entryIds: string[]) => entryIds.includes('pho-sawan')
+
+  it("routes 'born' → birthday plan", async () => {
+    const plan = await getPlan('what should I do, I was born in the spring', 'nkp')
+    expect(isBirthdayPlan(plan.stops.map((s) => s.entry_id))).toBe(true)
+  })
+
+  it("routes 'sunday' → birthday plan", async () => {
+    const plan = await getPlan('something Sunday-themed please', 'nkp')
+    expect(isBirthdayPlan(plan.stops.map((s) => s.entry_id))).toBe(true)
+  })
+
+  it("routes 'stupa' → birthday plan", async () => {
+    const plan = await getPlan('which stupa do I visit?', 'nkp')
+    expect(isBirthdayPlan(plan.stops.map((s) => s.entry_id))).toBe(true)
+  })
+
+  it("routes Thai 'พระธาตุ' → birthday plan", async () => {
+    const plan = await getPlan('แนะนำพระธาตุประจำวันเกิด', 'nkp')
+    expect(isBirthdayPlan(plan.stops.map((s) => s.entry_id))).toBe(true)
+  })
+
+  it("routes Thai 'วันเกิด' → birthday plan", async () => {
+    const plan = await getPlan('วันเกิดวันอาทิตย์ไปไหน', 'nkp')
+    expect(isBirthdayPlan(plan.stops.map((s) => s.entry_id))).toBe(true)
+  })
+
+  it("routes a generic query → afternoon plan (no keyword match)", async () => {
+    const plan = await getPlan('show me cafes and hidden gems', 'nkp')
+    expect(isAfternoonPlan(plan.stops.map((s) => s.entry_id))).toBe(true)
+  })
+
+  it('is case-insensitive — uppercase BIRTHDAY still routes to birthday plan', async () => {
+    const plan = await getPlan('BIRTHDAY temple please', 'nkp')
+    expect(isBirthdayPlan(plan.stops.map((s) => s.entry_id))).toBe(true)
+  })
+})

@@ -1,5 +1,6 @@
 import { isOpenNow } from '../lib/status'
 import { STATUS_COLOR, STATUS_LABEL } from '../lib/statusDisplay'
+import { relativeTime } from '../lib/time'
 import type { Entry } from '../types'
 
 type Props = {
@@ -13,18 +14,6 @@ const PRICE_LABEL: Record<string, string> = {
   budget: '₿',
   mid: '₿₿',
   premium: '₿₿₿',
-}
-
-function relativeTime(iso: string | null): string | null {
-  if (!iso) return null
-  const diffMs = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diffMs / 60_000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
-  const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
-  const days = Math.floor(hrs / 24)
-  return `${days}d ago`
 }
 
 export default function EntryCard({ entry, distanceKm, onTap }: Props) {
