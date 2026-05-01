@@ -56,38 +56,47 @@ export default function OwnerEditPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-panel pb-32">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b border-ink/5 px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="w-10 h-10 grid place-items-center rounded-full hover:bg-ink/5 text-xl">
-          ‹
-        </Link>
-        <h1 className="text-base font-bold text-ink truncate flex-1 text-center">
+    <div className="min-h-[100dvh] bg-panel pb-32 relative">
+      {/* Kit gradient header — Plan A Trip pattern */}
+      <div className="bg-kit-sky-soft pt-4 pb-8 px-4 rounded-b-[36px] relative">
+        <header className="flex items-center justify-between">
+          <Link
+            to="/"
+            className="w-11 h-11 grid place-items-center rounded-kit-pill bg-white/70 backdrop-blur text-xl shadow-kit-pill"
+            aria-label="Back"
+          >
+            ‹
+          </Link>
+          <p className="kit-eyebrow">Owner edit</p>
+          <button className="w-11 h-11 grid place-items-center rounded-kit-pill bg-white/70 backdrop-blur text-xl shadow-kit-pill">⋯</button>
+        </header>
+
+        <h1 className="kit-h1 text-[32px] mt-5 leading-tight tracking-[-0.04em]">
           {entry.name_en}
         </h1>
-        <button className="w-10 h-10 grid place-items-center rounded-full hover:bg-ink/5 text-xl">⋯</button>
-      </header>
+        <p className="text-base text-ink/65 mt-1 font-bold">{entry.name_th}</p>
+      </div>
 
-      <main className="px-4 pt-4 space-y-5">
-        {/* Identity strip */}
+      <main className="px-4 -mt-4 space-y-4 relative z-10">
+        {/* Identity strip — kit elevated card */}
         {owner && (
-          <div className="flex items-center gap-3 bg-white rounded-2xl border border-ink/5 px-4 py-3 shadow-sm">
-            <div className="w-10 h-10 rounded-full bg-cream grid place-items-center text-lg">👤</div>
+          <div className="kit-card flex items-center gap-3 px-4 py-3.5 shadow-kit-card">
+            <div className="w-11 h-11 rounded-kit-pill bg-gradient-to-br from-kit-cream-1 to-kit-gold-2/40 grid place-items-center text-lg shadow-sm">👤</div>
             <div className="flex-1">
-              <div className="font-bold text-ink text-sm">
+              <div className="font-extrabold text-ink text-sm">
                 {owner.display_name}
                 {owner.verified && <span className="ml-1 text-blue-strong">✓</span>}
               </div>
-              <div className="text-xs text-muted">
+              <div className="text-xs text-muted font-semibold">
                 Owner of {entriesForOwner.length} {entriesForOwner.length === 1 ? 'place' : 'places'}
               </div>
             </div>
           </div>
         )}
 
-        {/* Status chip column */}
-        <section>
-          <h2 className="text-sm font-bold text-ink mb-2">Status right now</h2>
+        {/* Status chip column — kit segmented selector */}
+        <section className="kit-card p-4 shadow-kit-card">
+          <p className="kit-eyebrow mb-3">Status right now</p>
           <div className="flex flex-col gap-2">
             {STATUS_OPTIONS.map((opt) => {
               const active = pendingStatus === opt.value
@@ -96,10 +105,10 @@ export default function OwnerEditPage() {
                   key={opt.value}
                   onClick={() => setPendingStatus(opt.value)}
                   className={
-                    'flex items-center gap-3 px-4 py-3 rounded-2xl border text-left transition ' +
+                    'flex items-center gap-3 px-4 py-3 rounded-kit-photo border text-left transition ' +
                     (active
-                      ? 'bg-yellow border-yellow font-bold text-ink shadow'
-                      : 'bg-white border-ink/10 text-ink/80')
+                      ? 'bg-yellow border-yellow font-extrabold text-ink shadow-sm'
+                      : 'bg-white border-ink/10 text-ink/80 hover:bg-panel')
                   }
                 >
                   <span className="text-lg">{opt.dot}</span>
@@ -111,27 +120,27 @@ export default function OwnerEditPage() {
           </div>
         </section>
 
-        {/* Note */}
-        <section>
-          <h2 className="text-sm font-bold text-ink mb-2">Note for tourists (optional)</h2>
+        {/* Note — kit input */}
+        <section className="kit-card p-4 shadow-kit-card">
+          <p className="kit-eyebrow mb-3">Note for tourists (optional)</p>
           <input
             type="text"
             maxLength={80}
             value={pendingNote}
             onChange={(e) => setPendingNote(e.target.value)}
             placeholder="e.g. Back tomorrow 9 AM"
-            className="w-full bg-white border border-ink/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-blue-strong"
+            className="w-full bg-panel border border-ink/10 rounded-kit-photo px-4 py-3 text-sm font-semibold focus:outline-none focus:border-blue-strong focus:bg-white transition"
           />
         </section>
 
-        {/* Today's hours */}
-        <section>
-          <h2 className="text-sm font-bold text-ink mb-2">Today's hours</h2>
-          <div className="bg-white border border-ink/10 rounded-2xl px-4 py-3 text-sm flex items-center justify-between">
+        {/* Today's hours — kit row */}
+        <section className="kit-card p-4 shadow-kit-card">
+          <p className="kit-eyebrow mb-3">Today's hours</p>
+          <div className="text-sm flex items-center justify-between">
             <span className="text-ink">
-              <span className="text-muted">{DAY_LABEL[DAY_KEYS_DISPLAY[new Date().getDay()]]}</span>
+              <span className="text-muted font-bold">{DAY_LABEL[DAY_KEYS_DISPLAY[new Date().getDay()]]}</span>
               <span className="mx-2 text-ink/30">·</span>
-              <span>{todaysHours}</span>
+              <span className="font-semibold">{todaysHours}</span>
             </span>
             <span className="text-muted">›</span>
           </div>
@@ -139,11 +148,11 @@ export default function OwnerEditPage() {
 
         {/* Recent updates */}
         {recentUpdates.length > 0 && (
-          <section>
-            <h2 className="text-sm font-bold text-ink mb-2">Recent updates</h2>
-            <ul className="space-y-1.5 text-sm text-muted">
+          <section className="kit-card p-4 shadow-kit-card">
+            <p className="kit-eyebrow mb-3">Recent updates</p>
+            <ul className="space-y-2 text-sm text-muted">
               {recentUpdates.map((row) => (
-                <li key={row.id}>
+                <li key={row.id} className="font-semibold">
                   • {relativeTime(row.updated_at)} —{' '}
                   set {row.field === 'live_status'
                     ? STATUS_OPTIONS.find((o) => o.value === row.new_value)?.label ?? String(row.new_value)
@@ -155,12 +164,12 @@ export default function OwnerEditPage() {
         )}
       </main>
 
-      {/* Sticky save button */}
-      <div className="fixed inset-x-0 bottom-0 px-4 pb-6 pt-3 bg-gradient-to-t from-white via-white to-transparent">
+      {/* Sticky save button — kit prominent CTA */}
+      <div className="fixed inset-x-0 bottom-0 px-4 pb-6 pt-4 bg-gradient-to-t from-white via-white/95 to-transparent">
         <div className="phone-frame !p-0 !min-h-0 !bg-transparent !shadow-none">
           <button
             onClick={handleSave}
-            className="w-full h-14 rounded-2xl bg-blue-strong text-white font-bold shadow-lg hover:opacity-95 active:scale-[0.99] transition"
+            className="w-full h-15 rounded-kit-hero bg-ink text-white font-extrabold shadow-kit-frame hover:opacity-95 active:scale-[0.99] transition py-4 tracking-wide"
           >
             Save & Notify Tourists
           </button>
@@ -170,7 +179,7 @@ export default function OwnerEditPage() {
       {/* Toast */}
       {showToast && (
         <div className="fixed inset-x-0 bottom-24 flex justify-center z-50 pointer-events-none">
-          <div className="bg-ink text-white text-sm px-4 py-2.5 rounded-full shadow-lg">
+          <div className="bg-ink text-white text-sm font-bold px-5 py-3 rounded-kit-pill shadow-kit-frame">
             ✓ Updated. 3 tourists viewing this now.
           </div>
         </div>
