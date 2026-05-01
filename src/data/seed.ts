@@ -206,7 +206,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon'],
     setting: 'mixed',
     price_band: 'budget',
-    photos: ['https://images.unsplash.com/photo-1565611655036-8af6a82b3b08?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/b/b4/House_HoChiMinh_stayed%40NakhonPhanom.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -283,7 +283,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon'],
     setting: 'mixed',
     price_band: 'free',
-    photos: ['https://images.unsplash.com/photo-1545569310-d063c5ff7adb?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/5/59/Wat_That_Renu_Nakhon_Phanom.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -377,7 +377,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon'],
     setting: 'mixed',
     price_band: 'free',
-    photos: ['https://images.unsplash.com/photo-1564417266706-10d4e1d65bb6?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/5/58/Wat_Phra_That_Phanom_2006-01.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -408,7 +408,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon'],
     setting: 'mixed',
     price_band: 'free',
-    photos: ['https://images.unsplash.com/photo-1601031629921-1ce5b09a3da7?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/d/df/%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%98%E0%B8%B2%E0%B8%95%E0%B8%B8%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%AA%E0%B8%B4%E0%B8%97%E0%B8%98%E0%B8%B4%E0%B9%8C.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -439,7 +439,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon', 'sunset'],
     setting: 'mixed',
     price_band: 'free',
-    photos: ['https://images.unsplash.com/photo-1567127434815-e1cc44efb1f9?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/f/f4/Phra_That_Tha_Uthen.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -470,7 +470,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon', 'evening'],
     setting: 'mixed',
     price_band: 'free',
-    photos: ['https://images.unsplash.com/photo-1604608672516-f1b9b1de1cda?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/e/e7/Nakhon_Phanom_Wat_Mahathat.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
@@ -535,7 +535,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon'],
     setting: 'outdoor',
     price_band: 'free',
-    photos: ['https://images.unsplash.com/photo-1572376313093-2a8eda2caa46?auto=format&w=800&q=70'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/b/b1/Nai_Mueang%2C_Mueang_Nakhon_Phanom_District%2C_Nakhon_Phanom%2C_Thailand_-_panoramio_%281%29.jpg'],
     hours_weekly: { tz: 'Asia/Bangkok', all_day: true },
     duration_min: 90,
     owner_id: null, owner_edit_token: null, live_status: null, status_note: null, status_updated: null,
