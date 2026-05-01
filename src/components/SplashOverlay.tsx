@@ -27,33 +27,56 @@ export default function SplashOverlay() {
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center text-center"
+      className="fixed inset-0 z-50 grid place-items-center text-center bg-kit-sky"
       style={{
-        background:
-          'linear-gradient(155deg, #96cdf5 0%, #fef5df 50%, #ffda59 100%)',
         opacity: fading ? 0 : 1,
         transition: 'opacity 300ms ease-out',
         pointerEvents: fading ? 'none' : 'auto',
       }}
     >
-      <div className="px-6">
-        <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-ink text-white grid place-items-center text-3xl shadow-soft">
+      {/* Soft white glow behind the content (matches kit's hero pages) */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div
+          className="absolute"
+          style={{
+            top: '20%',
+            left: '50%',
+            transform: 'translate(-50%, -10%)',
+            width: 460,
+            height: 460,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.55) 0%, transparent 60%)',
+          }}
+        />
+      </div>
+
+      <div className="relative px-6">
+        {/* Logo block — kit-styled rounded-kit-hero with heavy shadow */}
+        <div className="w-24 h-24 mx-auto mb-7 rounded-kit-hero bg-ink text-white grid place-items-center text-4xl shadow-kit-frame">
           🇹🇭
         </div>
-        <p className="text-ink/70 text-base font-semibold tracking-wide mb-1">
-          Welcome to
-        </p>
-        <h1 className="text-4xl font-extrabold text-ink leading-tight">
+
+        {/* Eyebrow */}
+        <p className="kit-eyebrow mb-3">Welcome to</p>
+
+        {/* Heavy-bold header — kit-style negative tracking */}
+        <h1 className="kit-h1 text-[48px] leading-[0.94] tracking-[-0.07em]">
           {NKP.name_en}
         </h1>
-        <p className="text-xl text-ink/70 mt-1">{NKP.name_th}</p>
-        <p className="text-sm text-ink/60 mt-6 max-w-[280px] mx-auto">
+
+        {/* Thai subtitle */}
+        <p className="text-2xl text-ink/55 mt-2 font-bold">{NKP.name_th}</p>
+
+        {/* Tagline */}
+        <p className="text-[13px] font-semibold text-ink/65 mt-7 max-w-[280px] mx-auto leading-relaxed">
           {NKP.tagline_en}
         </p>
-        <div className="flex gap-1.5 justify-center mt-8">
-          <span className="w-2 h-2 rounded-full bg-ink/60 animate-pulse" style={{ animationDelay: '0ms' }} />
-          <span className="w-2 h-2 rounded-full bg-ink/60 animate-pulse" style={{ animationDelay: '160ms' }} />
-          <span className="w-2 h-2 rounded-full bg-ink/60 animate-pulse" style={{ animationDelay: '320ms' }} />
+
+        {/* Loading dots */}
+        <div className="flex gap-1.5 justify-center mt-9">
+          <span className="w-2 h-2 rounded-full bg-ink/70 animate-pulse" style={{ animationDelay: '0ms' }} />
+          <span className="w-2 h-2 rounded-full bg-ink/70 animate-pulse" style={{ animationDelay: '160ms' }} />
+          <span className="w-2 h-2 rounded-full bg-ink/70 animate-pulse" style={{ animationDelay: '320ms' }} />
         </div>
       </div>
     </div>
