@@ -6,7 +6,7 @@
 @layer components {
   /* Kit eyebrow text — small uppercase tracking-wide, used above headers */
   .kit-eyebrow {
-    @apply text-[10px] font-extrabold uppercase tracking-eyebrow text-kit-eyebrow;
+    @apply text-[10px] font-extrabold uppercase tracking-[0.22em] text-kit-eyebrow;
   }
 
   /* Kit hero header — heavy black, tight letter-spacing, large scale */
