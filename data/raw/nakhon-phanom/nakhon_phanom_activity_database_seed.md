@@ -15,7 +15,7 @@
 | `legacy_code` | รหัสเดิมแบบอ่านง่าย เช่น NP-ACT-001, NP-FOOD-034 |
 | `name_th` | ชื่อไทย |
 | `name_en` | ชื่ออังกฤษ/ชื่อทางเลือก |
-| `entity_type` | ประเภทข้อมูลสำหรับ intent result: activity, food, place |
+| `entity_type` | ประเภทข้อมูลสำหรับ intent result และ storage: activity, place |
 | `category` | หมวดกิจกรรมหลัก |
 | `area` | อำเภอ/พื้นที่ |
 | `route_cluster` | กลุ่มเส้นทาง ใช้จัด itinerary |
@@ -65,12 +65,12 @@ data_confidence:
 
 ### Mandatory retrieval pipeline alignment (match PRD)
 1. Intent gate first (rule + LLM grading)
-2. Scoped retrieval from `entity_type`
+2. Scoped retrieval from `entity_type` + `category`
 3. Reject out-of-scope entities before final answer
 
 `entity_scope` rules:
 - `activity_only`: allow `activity` only
-- `food_only`: allow `food` only
+- `food_only`: allow `activity` where `category='food'` only
 - `place_only`: allow `place` only
 - `mixed`: allow all relevant types
 
@@ -1080,7 +1080,7 @@ filters:
 CREATE TABLE activity_seed (
   id UUID PRIMARY KEY,
   legacy_code TEXT UNIQUE NOT NULL,
-  entity_type TEXT NOT NULL, -- activity | food | place
+  entity_type TEXT NOT NULL, -- activity | place
   name_th TEXT NOT NULL,
   name_en TEXT,
   category TEXT,
@@ -1132,7 +1132,8 @@ CREATE TABLE activity_seed (
 ```
 
 > Migration note: keep existing `NP-ACT-*` / `NP-FOOD-*` labels in markdown section titles for readability, but store them in `legacy_code` and use UUID in all API/database joins.
-> Gate note: if query intent is activity-first, filter `entity_type=activity` before ranking to prevent food leakage.
+> Normalization note: `NP-FOOD-*` rows are stored as `entity_type='activity'` + `category='food'`.
+> Gate note: if query intent is activity-first, filter `entity_type=activity` and exclude `category='food'` unless user explicitly asks for food/cafe.
 
 ---
 

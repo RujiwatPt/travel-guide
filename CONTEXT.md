@@ -73,6 +73,13 @@ _Avoid_: marketplace, platform (these imply transactions; we don't intermediate 
 
 ## Conventions
 
+### PRD alignment notes (hackathon scope)
+- API naming may expose `entries` as canonical endpoints, while `places` can remain backward-compatible aliases.
+- Intent search may return mixed browse results, but storage remains normalized:
+  - `type='activity' | 'place'` only
+  - food rows are `type='activity'` with `category='food'`
+- For activity-first intent queries, retrieval can exclude `category='food'` unless explicitly requested by Tourist.
+
 ### Languages
 - All user-facing text is dual-stored: `name_en` + `name_th`, `description_en` + `description_th`, etc. No translations table.
 - The MVP demo is in English; Thai exists as a UI toggle.
