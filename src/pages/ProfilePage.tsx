@@ -22,6 +22,11 @@ const NKP_PROFILE_OVERRIDES: Overrides = {
   'Wifi':                              { hideLayer: true },
   'Cellular Connection':               { hideLayer: true },
   'Bar':                               { hideLayer: true },
+  // Bottom-right kit floating pill artifact (decorative, not content)
+  'Rectangle 489':                     { hideLayer: true },
+  'image 42':                          { hideLayer: true },
+  'image 43':                          { hideLayer: true },
+  'Vector#6':                          { hideLayer: true },
   // Replace J. Snow avatar with an NKP-themed photo
   'Frame 1000002987':                  { imageSrc: NKP_PHOTOS.phraThatPhanom },
   'J. Snow (あなた)':                 { text: 'Khun Ploy (แขก)' },

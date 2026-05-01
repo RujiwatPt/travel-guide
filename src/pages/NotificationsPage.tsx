@@ -23,6 +23,11 @@ const NKP_NOTIFICATIONS_OVERRIDES: Overrides = {
   'Cellular Connection':                             { hideLayer: true },
   'Bar':                                             { hideLayer: true },
   'Notification':                                    { text: 'Notifications' },
+  // Bottom-right kit floating pill artifact
+  'image 42':                                        { hideLayer: true },
+  'image 43':                                        { hideLayer: true },
+  'Rectangle 490':                                   { hideLayer: true },
+  'Vector#6':                                        { hideLayer: true },
   // Hidden kit photo layers — replace Mount Daisen photos + Jhon Snow avatar
   'Rectangle 2173':                                  { imageSrc: NKP_PHOTOS.phraThatPhanom },
   'Ellipse 7':                                       { imageSrc: NKP_PHOTOS.nagaStatue },

@@ -20,6 +20,11 @@ const NKP_EXPLORE_OVERRIDES: Overrides = {
   'Capacity':                               { hideLayer: true },
   'Wifi':                                   { hideLayer: true },
   'Cellular Connection':                    { hideLayer: true },
+  // Bottom-right kit floating pill artifact
+  'image 42':                               { hideLayer: true },
+  'image 43':                               { hideLayer: true },
+  'Rectangle 490':                          { hideLayer: true },
+  'Vector#10':                              { hideLayer: true },
   // Hero card photo lives in 'Rec' layer (not 'image') — kit Mt Takao mountain
   'Rec':                                    { imageSrc: NKP_PHOTOS.mekongSunset },
   // Frame 7 icon — could be NKP themed
@@ -35,8 +40,9 @@ const NKP_EXPLORE_OVERRIDES: Overrides = {
   'Hidden Gem':                             { text: 'Hidden Gem' },
   'Food & Cafe':                            { text: 'Food & Cafe' },
   'Search  by vibe, place, tag..':          { text: 'Search by vibe, place, tag…' },
-  'Find me base camp nue of\nMount Takao':  { text: 'Find me a sunset spot near\nthe Mekong' },
-  'Base \nCamp':                            { text: 'AI\nPick' },
+  // Layer names use spaces; layer text uses \n. Match by name.
+  'Find me base camp nue of Mount Takao':   { text: 'Find me a sunset spot near\nthe Mekong' },
+  'Base Camp':                              { text: 'AI\nPick' },
   'Must-See Today':                         { text: 'Must-See Today' },
   'AI Curated Route':                       { text: 'AI Curated' },
   'See All':                                { text: 'See All' },

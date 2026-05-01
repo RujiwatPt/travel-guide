@@ -22,6 +22,11 @@ const NKP_JOURNAL_OVERRIDES: Overrides = {
   'Capacity':                      { hideLayer: true },
   'Wifi':                          { hideLayer: true },
   'Cellular Connection':           { hideLayer: true },
+  // Bottom-right kit floating pill artifact
+  'Rectangle 489':                 { hideLayer: true },
+  'image 42':                      { hideLayer: true },
+  'image 43':                      { hideLayer: true },
+  'Vector#8':                      { hideLayer: true },
   // Journal card photos — only some "image" layers have backgroundImage
   'image#0':                       { imageSrc: NKP_PHOTOS.phraThatPhanom },
   'image#2':                       { imageSrc: NKP_PHOTOS.birthdayStupa },

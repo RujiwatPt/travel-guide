@@ -24,6 +24,11 @@ const NKP_BOOKING_OVERRIDES: Overrides = {
   'Wifi':                                         { hideLayer: true },
   'Cellular Connection':                          { hideLayer: true },
   'Explore':                                      { hideLayer: true },
+  // Bottom-right kit floating pill artifact
+  'Rectangle 489':                                { hideLayer: true },
+  'image 42':                                     { hideLayer: true },
+  'image 43':                                     { hideLayer: true },
+  'Vector#6':                                     { hideLayer: true },
   // Hero booking cards (kit shows Kyoto Zen twice — image#0 + image#2)
   'image#0':                                      { imageSrc: NKP_PHOTOS.renuTextiles },
   'image#2':                                      { imageSrc: NKP_PHOTOS.blueGoldCoffee },

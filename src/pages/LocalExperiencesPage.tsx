@@ -23,6 +23,11 @@ const NKP_LOCAL_OVERRIDES: Overrides = {
   'Wifi':                                                      { hideLayer: true },
   'Cellular Connection':                                       { hideLayer: true },
   'Explore':                                                   { hideLayer: true },
+  // Bottom-right kit floating pill artifact
+  'Rectangle 489':                                             { hideLayer: true },
+  'image 42':                                                  { hideLayer: true },
+  'image 43':                                                  { hideLayer: true },
+  'Vector#6':                                                  { hideLayer: true },
   // Wide photo card hero images — 3 instances of "image"
   'image#0':                                                   { imageSrc: NKP_PHOTOS.phoSawan },
   'image#1':                                                   { imageSrc: NKP_PHOTOS.riverVibes },
