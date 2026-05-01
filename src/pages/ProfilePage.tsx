@@ -58,7 +58,7 @@ function ProfileItem({ icon, title, subtitle, to, tone = 'cream' }: ProfileItemP
 
 export default function ProfilePage() {
   return (
-    <div className="bg-white min-h-[100dvh] relative pb-28">
+    <main className="bg-white min-h-[100dvh] relative pb-28">
       <div className="px-5 pt-6 pb-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -141,7 +141,7 @@ export default function ProfilePage() {
       </div>
 
       <KitBottomNav2 active="grid" />
-    </div>
+    </main>
   )
 }
 

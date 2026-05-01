@@ -71,7 +71,7 @@ export default function ExploreVibesPage() {
   )
 
   return (
-    <div className="bg-white min-h-[100dvh] relative pb-28">
+    <main className="bg-white min-h-[100dvh] relative pb-28">
       <div className="px-5 pt-6 pb-6">
         {/* Search header */}
         <div className="flex items-center gap-3 mb-5">
@@ -165,6 +165,6 @@ export default function ExploreVibesPage() {
       </div>
 
       <KitBottomNav2 active="grid" />
-    </div>
+    </main>
   )
 }
