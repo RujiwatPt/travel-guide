@@ -5,8 +5,25 @@ import { NKP_PHOTOS } from '../data/nkpPhotos'
 import type { Overrides } from '../lib/figmaOverrides'
 
 const NKP_BOOKING_OVERRIDES: Overrides = {
+  // Status bar + decorative top-of-screen kit art (this screen has no
+  // "↳ Indicators" wrapper). Frame 21/22 appear deeper in cards too,
+  // so use #0 indexing to hide only the top status-bar instance.
   '↳ Time':                                       { hideLayer: true },
-  '↳ Indicators':                                 { hideLayer: true },
+  'Vector 1':                                     { hideLayer: true },
+  'Vector 2':                                     { hideLayer: true },
+  'Vector#0':                                     { hideLayer: true },
+  'Vector#1':                                     { hideLayer: true },
+  'Vector#2':                                     { hideLayer: true },
+  'Vector#3':                                     { hideLayer: true },
+  'Vector#4':                                     { hideLayer: true },
+  'Vector#5':                                     { hideLayer: true },
+  'Frame 21#0':                                   { hideLayer: true },
+  'Frame 22#0':                                   { hideLayer: true },
+  'Border':                                       { hideLayer: true },
+  'Capacity':                                     { hideLayer: true },
+  'Wifi':                                         { hideLayer: true },
+  'Cellular Connection':                          { hideLayer: true },
+  'Explore':                                      { hideLayer: true },
   // Hero booking cards (kit shows Kyoto Zen twice — image#0 + image#2)
   'image#0':                                      { imageSrc: NKP_PHOTOS.renuTextiles },
   'image#2':                                      { imageSrc: NKP_PHOTOS.blueGoldCoffee },
