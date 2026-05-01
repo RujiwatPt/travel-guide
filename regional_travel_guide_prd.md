@@ -1,502 +1,516 @@
 # Regional Travel Guide AI — Hackathon PRD
 # เอกสาร Product Requirements (PRD) สำหรับ Hackathon
 
-## 0. Context Alignment (Canonical Terms) / การจัดคำให้ตรงกับ CONTEXT
+## 0. Context Alignment / การจัดคำให้ตรงกับ CONTEXT
 
+### English
 This PRD follows `/CONTEXT.md` as canonical language:
-- Use **Entry** as umbrella entity on map/search.
-- Use **Activity** for owner-managed/commercial entries (`type='activity'`).
-- Use **Place** for curated landmark/public entries (`type='place'`).
-- Use **City** for deployment scope. MVP city is **Nakhon Phanom**.
-- Storage normalization: food is `type='activity'` + `category='food'` (not a separate entity type).
+- **Entry** is the umbrella entity.
+- **Activity** is `type='activity'` (owner-managed, live status capable).
+- **Place** is `type='place'` (curated, no owner updates).
+- **City** is the product scope. MVP city is **Nakhon Phanom**.
+- Food is normalized as `type='activity' + category='food'`.
+
+### ภาษาไทย
+เอกสารนี้ยึด `/CONTEXT.md` เป็นคำหลักมาตรฐาน:
+- **Entry** คือหน่วยข้อมูลหลักบนแผนที่และการค้นหา
+- **Activity** คือ `type='activity'` (มีเจ้าของดูแลและอัปเดตสถานะสด)
+- **Place** คือ `type='place'` (ข้อมูล curated ไม่มีเจ้าของอัปเดตสด)
+- **City** คือขอบเขตระบบ โดย MVP ใช้ **นครพนม**
+- ข้อมูลอาหารต้อง normalize เป็น `type='activity' + category='food'`
+
+---
 
 ## 1. Product Overview / ภาพรวมผลิตภัณฑ์
 
 ### English
-Regional Travel Guide AI is a map-first travel assistant for one **unpopular/under-visited city** in Thailand (not Bangkok, not Chiang Mai). The product solves a specific traveler pain point:
-
-- “I arrived in this city and have no idea where to go.”
-- “I found places online but I do not trust opening/closing times.”
+Regional Travel Guide AI is a map-first assistant for one under-visited Thai city. It solves:
+1. “I arrived and don’t know where to go.”
+2. “I found places online but don’t trust opening hours.”
 
 Core value:
-- Help users discover where to go in an unfamiliar city.
-- Reduce failed trips caused by wrong opening hours or closed landmarks.
+- Clear city identity (not generic travel list)
+- Practical decisions with reliability signals
 
 ### ภาษาไทย
-Regional Travel Guide AI คือผู้ช่วยท่องเที่ยวแบบแผนที่สำหรับ **1 พื้นที่ที่ไม่ใช่เมืองยอดนิยม** ในประเทศไทย (ไม่ใช่กรุงเทพฯ และเชียงใหม่) โดยแก้ pain point หลัก:
-
-- “มาถึงแล้วไม่รู้จะไปที่ไหน”
-- “หาข้อมูลเจอแต่ไม่มั่นใจว่าเวลาเปิด-ปิดจริงหรือไม่”
+Regional Travel Guide AI คือผู้ช่วยท่องเที่ยวแบบแผนที่สำหรับเมืองรอง 1 เมือง แก้ปัญหา:
+1. “มาถึงแล้วไม่รู้จะไปไหนดี”
+2. “เจอข้อมูลแล้วแต่ไม่มั่นใจเวลาเปิด-ปิด”
 
 คุณค่าหลัก:
-- ช่วยแนะนำว่าควรไปที่ไหนในพื้นที่ที่ไม่คุ้นเคย
-- ลดการเสียเที่ยวจากข้อมูลเวลาเปิด-ปิดที่ผิด
+- สื่อเอกลักษณ์เมืองให้ชัด (ไม่ใช่ลิสต์ที่เที่ยวทั่วไป)
+- ช่วยตัดสินใจจากข้อมูลที่มีสัญญาณความน่าเชื่อถือ
 
 ---
 
-## 2. City Scope (Mandatory) / ขอบเขตเมือง (บังคับ)
+## 2. City Scope / ขอบเขตเมือง
 
 ### English
-MVP must target exactly one under-visited city.
+MVP supports exactly one city: **Nakhon Phanom (`nkp`)**.
 
-Allowed example cities/scopes:
-- Nan Old Town & nearby districts
-- Phatthalung (Thale Noi + local town landmarks)
-- Nakhon Phanom riverside zone
-- Loei (Chiang Khan + nearby local spots)
-- Trat old community areas (non-island focus)
+Allowed future cities (not MVP):
+- Nan, Phatthalung, Loei, Trat
 
-Not allowed for this MVP:
-- Bangkok
-- Chiang Mai
-- Phuket central tourist zones
-- Pattaya
+Not in MVP:
+- Bangkok, Chiang Mai, Phuket core zones, Pattaya
 
 ### ภาษาไทย
-MVP ต้องเลือกพื้นที่ที่ไม่แมสเพียง 1 พื้นที่เท่านั้น
+MVP รองรับเพียง 1 เมือง: **นครพนม (`nkp`)**
 
-ตัวอย่างที่เลือกได้:
-- เมืองน่านและอำเภอใกล้เคียง
-- พัทลุง (ทะเลน้อย + จุดเที่ยวในเมือง)
-- โซนริมโขงนครพนม
-- เลย (เชียงคาน + จุดท้องถิ่นใกล้เคียง)
-- ย่านเมืองเก่าตราด (ไม่เน้นเกาะ)
+เมืองที่อาจขยายในอนาคต (ยังไม่ใช่ MVP):
+- น่าน, พัทลุง, เลย, ตราด
 
-พื้นที่ที่ไม่อยู่ใน scope:
-- กรุงเทพฯ
-- เชียงใหม่
-- โซนท่องเที่ยวหลักภูเก็ต
-- พัทยา
+ไม่นับใน MVP:
+- กรุงเทพฯ, เชียงใหม่, โซนหลักภูเก็ต, พัทยา
 
 ---
 
 ## 3. Problem Statement / ปัญหาที่ต้องการแก้
 
 ### English
-For unpopular cities, travelers face:
-1. No clear “starter list” of places worth visiting
-2. Landmark/shop opening hours are inconsistent across sources
-3. Some places only communicate via Facebook posts
-4. Transport details are fragmented
-5. Users cannot tell which info is verified vs uncertain
+Tourists in secondary cities face:
+1. Unclear “where to start”
+2. Fragmented opening-hour/contact information
+3. Weak city identity in generic map apps
+4. Low confidence in what is verified vs uncertain
 
 ### ภาษาไทย
-สำหรับพื้นที่ที่ไม่ดัง นักท่องเที่ยวเจอปัญหา:
-1. ไม่มีลิสต์เริ่มต้นว่าควรไปที่ไหน
-2. เวลาเปิด-ปิดของสถานที่ไม่ตรงกันหลายแหล่ง
-3. หลายร้านอัปเดตผ่าน Facebook เป็นหลัก
-4. ข้อมูลการเดินทางกระจัดกระจาย
-5. ไม่รู้ว่าข้อมูลไหนยืนยันแล้วหรือยังไม่ชัวร์
+นักท่องเที่ยวในเมืองรองเจอปัญหา:
+1. ไม่รู้จะเริ่มเที่ยวจากจุดไหน
+2. เวลาเปิด-ปิดและช่องทางติดต่อกระจัดกระจาย
+3. แอปทั่วไปไม่สื่อความเป็นเอกลักษณ์ของเมือง
+4. ไม่รู้ว่าข้อมูลไหนยืนยันแล้วหรือยังไม่ชัด
 
 ---
 
 ## 4. Goals / เป้าหมาย
 
 ### English
-- Deliver a demo-ready MVP within 1-day hackathon
-- Recommend where to go for first-time visitors in a non-popular city
-- Show opening/closing time reliability clearly for each place
-- Allow AI-assisted verification when hours are uncertain
+- Deliver a demo-ready MVP within hackathon time
+- Show city-specific discovery (Themes + Signatures)
+- Enforce intent-correct search results
+- Show opening-hour confidence and verification flow
 
 ### ภาษาไทย
-- สร้าง MVP ที่เดโมได้จริงภายใน hackathon 1 วัน
-- ช่วยแนะนำจุดเที่ยวสำหรับคนมาแรกครั้งในพื้นที่ไม่แมส
-- แสดงความน่าเชื่อถือของเวลาเปิด-ปิดรายสถานที่อย่างชัดเจน
-- ให้ AI ช่วยตรวจสอบข้อมูลเมื่อเวลายังไม่ชัวร์
+- ส่งมอบ MVP ที่เดโมได้จริงในเวลาฮัคกาธอน
+- แสดงการค้นหาแบบมีเอกลักษณ์เมือง (Themes + Signatures)
+- บังคับให้ผลค้นหาตรงเจตนาผู้ใช้
+- แสดงระดับความเชื่อมั่นเวลาเปิด-ปิดและ flow การตรวจสอบ
 
 ---
 
 ## 5. Target Users / กลุ่มผู้ใช้เป้าหมาย
 
 ### English
-- First-time domestic/international travelers to under-visited Thai cities
-- Weekend travelers who need quick “where to go now” guidance
-- Users who prioritize practical reliability over marketing content
+- First-time visitors already in Nakhon Phanom
+- Weekend travelers needing fast decisions
+- Users who value practical reliability over marketing fluff
 
 ### ภาษาไทย
-- นักท่องเที่ยวไทย/ต่างชาติที่มาเที่ยวพื้นที่รองครั้งแรก
-- นักท่องเที่ยวทริปสั้นที่ต้องการคำตอบเร็วว่า “ตอนนี้ไปไหนได้บ้าง”
-- ผู้ใช้ที่เน้นข้อมูลเชื่อถือได้มากกว่าคอนเทนต์รีวิว
+- ผู้มาเที่ยวนครพนมครั้งแรก (อยู่ในพื้นที่แล้ว)
+- นักท่องเที่ยวทริปสั้นที่ต้องตัดสินใจเร็ว
+- ผู้ใช้ที่เน้นข้อมูลใช้งานจริงมากกว่าคอนเทนต์โฆษณา
 
 ---
 
-## 6. MVP Scope (Hackathon) / ขอบเขต MVP สำหรับ Hackathon
-
-### In Scope (P0)
-1. City Map + curated entry pins (20–40 entries max)
-2. Entry detail with opening/closing time, last-verified timestamp, confidence badge
-3. “Where should I go?” smart recommendations (rule-based + AI summary)
-4. Open-now / opening-soon / uncertain filters
-5. Intent-based activity search (for example: `อยากไปเที่ยวน้ำตก`, `อยากไปทำบุญที่วัด`)
-6. AI Verify action per entry (structured result + source summary)
-7. Lightweight transport hints for each entry
-
-### Out of Scope (for hackathon)
-- Multi-city support
-- Full itinerary planner
-- User accounts and social features
-- Real-time traffic integration
-
----
-
-## 7. Core User Stories / User Stories หลัก
+## 6. Product Experience Direction (from Devlog) / ทิศทางประสบการณ์ผลิตภัณฑ์ (จาก Devlog)
 
 ### English
-1. As a first-time traveler, I can see a short list of recommended places so I know where to start.
-2. As a traveler, I can see opening/closing time and confidence before deciding to go.
-3. As a traveler, I can filter places that are open now.
-4. As a traveler, I can search by intent/activity in natural Thai language.
-5. As a traveler, I can trigger AI verification when hours are uncertain.
-6. As a traveler, I can see why a place is recommended (culture, food, view, local uniqueness).
+The experience must answer in first 5 seconds:
+1. What makes this city different?
+2. What should I not miss?
+
+Required UX ideas:
+- Theme strip for city identity
+- Signature entries (iconic highlights)
+- Map-first interaction with quick filter chips
+- Concept FE can be design-heavy, but behavior must stay domain-correct
 
 ### ภาษาไทย
-1. ในฐานะนักท่องเที่ยวครั้งแรก ฉันเห็นลิสต์สถานที่แนะนำสั้นๆ เพื่อเริ่มทริปได้ทันที
-2. ในฐานะนักท่องเที่ยว ฉันเห็นเวลาเปิด-ปิดและระดับความมั่นใจก่อนออกเดินทาง
-3. ในฐานะนักท่องเที่ยว ฉันกรองเฉพาะสถานที่ที่เปิดตอนนี้ได้
-4. ในฐานะนักท่องเที่ยว ฉันพิมพ์ความต้องการแบบภาษาคนได้ เช่น “อยากไปเที่ยวน้ำตก”
-5. ในฐานะนักท่องเที่ยว ฉันกดให้ AI ช่วยตรวจสอบเมื่อข้อมูลยังไม่ชัวร์ได้
-6. ในฐานะนักท่องเที่ยว ฉันเห็นเหตุผลว่าทำไมสถานที่นี้ถึงถูกแนะนำ
+ประสบการณ์ใช้งานต้องตอบให้ได้ใน 5 วินาทีแรก:
+1. เมืองนี้ต่างจากเมืองอื่นอย่างไร
+2. อะไรคือสิ่งที่ห้ามพลาด
+
+แนวทาง UX ที่ต้องมี:
+- Theme strip เพื่อเล่าเอกลักษณ์เมือง
+- Signature entries สำหรับจุดเด่นสำคัญ
+- แผนที่เป็นศูนย์กลาง พร้อม chip กรองเร็ว
+- ฝั่ง FE เป็น concept ได้ แต่พฤติกรรมต้องถูกต้องตามโดเมน
+
+---
+
+## 7. MVP Scope (Hackathon) / ขอบเขต MVP สำหรับ Hackathon
+
+### English
+P0 In scope:
+1. City map + 20–40 curated entries
+2. Entry detail with open/close + confidence + source notes
+3. Intent-based search (`activity_only|food_only|place_only|mixed`)
+4. Open-now / closing-soon / uncertain filters
+5. AI verify-hours endpoint with strict JSON
+6. Verification log retrieval
+
+Out of scope:
+- Multi-city
+- Full itinerary persistence
+- Real-time web crawling
+- Full auth/account system
+
+### ภาษาไทย
+P0 ที่อยู่ในขอบเขต:
+1. แผนที่เมือง + entries curated จำนวน 20–40 จุด
+2. หน้า Entry detail ที่มีเวลาเปิด-ปิด + confidence + source notes
+3. ค้นหาตามเจตนา (`activity_only|food_only|place_only|mixed`)
+4. ตัวกรอง open-now / closing-soon / uncertain
+5. endpoint `verify-hours` ที่คืน JSON ตามสัญญา
+6. endpoint ดู verification logs
+
+นอกขอบเขต:
+- หลายเมือง
+- บันทึก itinerary แบบถาวร
+- ดึงข้อมูลเว็บสดแบบ real-time
+- ระบบบัญชีผู้ใช้เต็มรูปแบบ
 
 ---
 
 ## 8. Functional Requirements / ความต้องการเชิงฟังก์ชัน
 
-1. System must support one selected under-visited city only.
-2. System must display entries on map with status chips:
-   - `open_now`
-   - `closing_soon`
-   - `closed`
-   - `unknown`
-3. System must show per-entry fields:
-   - opening_hours_text
-   - open_close_rules (structured)
-   - timezone
-   - last_verified_at
-   - verification_confidence
-4. System must provide “Where to go now” ranked list (top 5).
-5. System must support AI verification endpoint returning strict JSON.
-6. System must store verification logs and evidence summary.
-7. System must allow filtering by open status, category, and budget.
-8. System must support intent/activity search from Thai natural language query.
-9. System must map query intent to structured tags/categories and return ranked entities.
-10. System must run intent classification and entity-scope gating before retrieval/reranking.
-11. System must support CONTEXT-compatible typing: `type='activity'|'place'`, where food is `type='activity'` + `category='food'`.
-
----
-
-## 9. Opening Hours Reliability Model / โมเดลความน่าเชื่อถือเวลาเปิด-ปิด
-
-### Required fields
-- `hours_source_type`: official | facebook | map_listing | community | unknown
-- `hours_last_checked_at`
-- `hours_confidence`: high | medium | low
-- `hours_note`
-
-### Confidence logic (MVP)
-- High: official source updated within 30 days
-- Medium: indirect source or update older than 30 days
-- Low: conflicting or missing source
-
-### UI rules
-- Show confidence badge beside opening hours
-- If low confidence, show warning: “Hours may be outdated. Verify before travel.”
-- If unknown, place appears in “Uncertain” filter group
-
----
-
-## 10. Recommendation Logic (Where To Go) / ตรรกะแนะนำสถานที่
-
-### MVP ranking signals
-- Open status now (highest weight)
-- Confidence of opening hours
-- Distance from current center
-- Category diversity (avoid top-5 all temples)
-- Local uniqueness tag (`hidden_gem`, `local_food`, `culture`, `nature`)
-
-### Output requirement
-For each recommendation, show:
-- why_recommended (1 sentence)
-- open status + closing time (if known)
-- confidence
-
----
-
-## 10.1 Intent-Based Activity Search / ค้นหาแบบเจตนาและกิจกรรม
-
-### Example user queries
-- `อยากไปเที่ยวน้ำตก`
-- `อยากไปทำบุญที่วัด`
-- `อยากหาที่เดินชิลริมแม่น้ำ`
-- `อยากหาคาเฟ่ท้องถิ่นเปิดเช้า`
-
-### MVP intent mapping
-- `เที่ยวน้ำตก` -> tags: `waterfall`, `nature`, category: `landmark_nature`
-- `ทำบุญที่วัด` -> tags: `temple`, `merit`, category: `landmark_culture`
-- `เดินชิล` -> tags: `walkable`, `scenic`, category: `community_area`
-- `คาเฟ่เปิดเช้า` -> tags: `cafe`, `open_early`, category: `food_drink`
-
-### Ranking for intent results
-1. Intent/tag match score
-2. Open status now
-3. Opening-hours confidence
-4. Distance
-5. Local uniqueness
-
-### Retrieval pipeline (mandatory)
-1. Intent Gate (Rule-based + LLM grading)
-2. Scoped Retrieval (RAG only on allowed entity set)
-3. Post-retrieval grading and rejection
-
-### Intent Gate output contract
-- `detected_intent`
-- `intent_confidence` (`high|medium|low`)
-- `entity_scope` (`activity_only|food_only|place_only|mixed`)
-- `hard_filters` (example: `open_now_only`, `low_effort`)
-- `reason`
-
-### Scoped Retrieval rules
-- If query is activity-first (example: `อยากไปเที่ยวน้ำตก`, `อยากไปไหว้พระ`, `อยากไปเดินชมวิว`) set `entity_scope=activity_only` by default.
-- Do not return food-category activities when `entity_scope=activity_only` unless user explicitly asks for food/cafe.
-- If query contains mixed intent (example: `อยากไหว้พระแล้วหาร้านกินต่อ`) set `entity_scope=mixed`.
-
-### Post-retrieval grading rules
-- Reject candidate if `entity_type` is outside `entity_scope`.
-- Reject candidate if `intent_match_score` below threshold.
-- Include `reject_reason` in debug logs.
-
-### Output requirement
-- `matched_intent`
-- `matched_tags`
-- `why_matched` (1 sentence)
-- `entity_type` (`activity|place`)
-- `category` (example: `food`, `temple`, `nature`)
-- `open_status`
-- `hours_confidence`
-
----
-
-## 11. Data Model (Simplified) / โครงสร้างข้อมูลแบบย่อ
-
-### entries
-- id (UUID)
-- type (`activity|place`)
-- name
-- category
-- city
-- latitude
-- longitude
-- description
-- opening_hours_text
-- open_close_rules_json
-- timezone
-- hours_source_type
-- hours_last_checked_at
-- hours_confidence
-- hours_note
-- recommended_duration_minutes
-- price_level
-- tags[]
-- activity_intents[] (example: `waterfall_trip`, `temple_merit`, `local_food_walk`)
-
-### discovery_entities (for intent search result pool)
-- id (UUID)
-- legacy_code (example: `NP-ACT-001`, `NP-FOOD-034`)
-- entity_type (`activity|place`)
-- name_th
-- name_en
-- name
-- category
-- city
-- tags[]
-- activity_intents[]
-- route_cluster
-- default_priority
-- data_confidence
-- search_text_blob
-- hours_confidence
-
-### verification_logs
-- id (UUID)
-- entry_id (UUID)
-- checked_at
-- computed_open_status
-- confidence
-- source_summary
-- raw_json
-
-### transport_hints
-- id (UUID)
-- entry_id (UUID)
-- access_note
-- nearest_stop
-- walking_minutes
-- caution_note
-
----
-
-## 12. API (Hackathon Contract) / สัญญา API สำหรับ Hackathon
-
-1. `GET /api/v1/entries?city=&open_status=&category=`
-2. `GET /api/v1/entries/{id}`
-3. `GET /api/v1/recommendations?city=&top_k=5`
-4. `GET /api/v1/search-intent?city=&q=&open_now_only=&top_k=10`
-5. `POST /api/v1/ai/verify-hours`
-6. `GET /api/v1/verification-logs/{entry_id}`
-
-Backward-compatible alias:
-- `GET /api/v1/places` -> alias of `GET /api/v1/entries`
-- `GET /api/v1/places/{id}` -> alias of `GET /api/v1/entries/{id}`
-
-### Intent search response (example)
-```json
-{
-  "query": "อยากไปทำบุญที่วัด",
-  "matched_intent": "temple_merit",
-  "intent_confidence": "high",
-  "entity_scope": "activity_only",
-  "results": [
-    {
-      "entity_id": "550e8400-e29b-41d4-a716-446655440000",
-      "legacy_code": "NP-ACT-001",
-      "entity_type": "activity",
-      "category": "temple",
-      "name": "Wat ...",
-      "matched_tags": ["temple", "merit"],
-      "why_matched": "ตรงกับเจตนาไปทำบุญและเปิดอยู่ช่วงเช้า",
-      "open_status": "open_now",
-      "hours_confidence": "medium"
-    }
-  ],
-  "excluded_candidates": [
-    {
-      "legacy_code": "NP-FOOD-034",
-      "reject_reason": "food_category_not_allowed_for_activity_only_scope"
-    }
-  ]
-}
-```
-
-### Mixed-intent response example
-```json
-{
-  "query": "อยากไหว้พระแล้วหาร้านกินต่อ",
-  "matched_intent": "temple_then_food",
-  "intent_confidence": "medium",
-  "entity_scope": "mixed",
-  "results": [
-    {
-      "entity_id": "550e8400-e29b-41d4-a716-446655440000",
-      "legacy_code": "NP-ACT-001",
-      "entity_type": "activity",
-      "category": "temple",
-      "name": "Wat ...",
-      "open_status": "open_now",
-      "hours_confidence": "medium"
-    },
-    {
-      "entity_id": "550e8400-e29b-41d4-a716-446655440001",
-      "legacy_code": "NP-FOOD-034",
-      "entity_type": "activity",
-      "category": "food",
-      "name": "ร้านปากหม้อ...",
-      "open_status": "open_now",
-      "hours_confidence": "low"
-    }
-  ]
-}
-```
-
-### Verify request (example)
-```json
-{
-  "entry_id": "uuid",
-  "name": "Wat ...",
-  "city": "Nakhon Phanom",
-  "existing_hours": "08:00-17:00",
-  "existing_source_type": "map_listing"
-}
-```
-
-### Verify response (strict JSON)
-```json
-{
-  "entry_id": "uuid",
-  "computed_open_status": "open_now|closing_soon|closed|unknown",
-  "opening_hours_text": "08:00-17:00",
-  "confidence": "high|medium|low",
-  "hours_source_type": "official|facebook|map_listing|community|unknown",
-  "needs_manual_check": true,
-  "source_summary": "...",
-  "reason": "..."
-}
-```
-
----
-
-## 13. Hackathon Delivery Plan (1 Day) / แผนส่งมอบใน 1 วัน
-
-### Timeline
-1. Hour 1–2: pick city scope, seed 20–40 entries, define categories
-2. Hour 3–4: build places API + map UI + place detail
-3. Hour 5–6: add open-status computation + filters + recommendation endpoint
-4. Hour 7: add intent-search endpoint + Thai intent mapping table
-5. Hour 8: integrate AI verify-hours endpoint + logs and polish
-
-### Team split (if 3 people)
-1. Frontend: map, filters, detail UI, badges
-2. Backend: APIs, open-status logic, intent-search logic, data model
-3. AI/Data: verification prompt, intent dictionary, seed data curation, demo script
-
----
-
-## 14. Demo Script (2 Minutes) / สคริปต์เดโม 2 นาที
-
-1. Open app in selected under-visited city
-2. Show “Where to go now” top 5
-3. Click one landmark and inspect opening/closing time + confidence
-4. Apply `open_now` filter
-5. Search with intent query: `อยากไปเที่ยวน้ำตก`
-6. Pick low-confidence place and run “Verify Hours with AI”
-7. Show updated verification result and source summary
-
----
-
-## 15. Success Criteria / เกณฑ์ความสำเร็จ
-
-MVP is successful when:
-1. Users can find 3–5 suitable places in under 30 seconds
-2. Every displayed place shows opening-hour confidence label
-3. AI verification returns valid structured JSON in under 8 seconds (demo target)
-4. Demo completes end-to-end in under 2 minutes
-5. Scope clearly avoids popular-city positioning
-
----
-
-## 16. Risks & Mitigations / ความเสี่ยงและวิธีลดความเสี่ยง
-
-1. Incomplete data for unpopular city
-   - Mitigation: preload curated seed dataset and confidence labels
-2. AI hallucination on hours
-   - Mitigation: strict JSON schema + “unknown” fallback + no-guess rule
-3. Time overrun in hackathon
-   - Mitigation: lock P0 scope early, skip checklist/itinerary features
-4. API latency during demo
-   - Mitigation: cache seeded responses and keep one-click retry
-
----
-
-## 17. Product Positioning / การวางตำแหน่งผลิตภัณฑ์
-
 ### English
-Position as:
-**AI-Assisted Local Discovery + Opening-Hours Reliability for Under-Visited Regions**
-
-Pitch:
-“Instead of showing generic tourist spots, we help travelers discover where to go in overlooked cities and avoid wasted trips with clearer opening-time confidence.”
+1. System must use `Entry` model with `type='activity'|'place'`.
+2. Food must be `activity + category='food'`.
+3. System must run intent classification before retrieval.
+4. System must enforce scope gates before ranking.
+5. System must return strict typed JSON for all APIs.
+6. System must provide status chips: `open_now|closing_soon|closed|unknown`.
+7. System must persist verification logs.
 
 ### ภาษาไทย
-วางตำแหน่งเป็น:
-**ผู้ช่วยค้นหาจุดเที่ยวท้องถิ่น + ตรวจความน่าเชื่อถือเวลาเปิด-ปิด สำหรับพื้นที่ที่คนยังไปไม่เยอะ**
+1. ระบบต้องใช้โมเดล `Entry` โดย `type='activity'|'place'`
+2. ข้อมูลอาหารต้องเป็น `activity + category='food'`
+3. ระบบต้องจำแนก intent ก่อนทำ retrieval
+4. ระบบต้องบังคับกฎ scope ก่อนทำ ranking
+5. ทุก API ต้องคืนค่า JSON ตามสัญญาแบบชัดเจน
+6. ต้องแสดงสถานะ `open_now|closing_soon|closed|unknown`
+7. ต้องบันทึก verification logs ได้
 
-Pitch:
-“เราไม่ได้แค่แนะนำที่เที่ยวทั่วไป แต่ช่วยให้ผู้ใช้รู้ว่าจะไปไหนในพื้นที่รอง และลดการเสียเที่ยวด้วยข้อมูลเวลาเปิด-ปิดที่มีระดับความมั่นใจชัดเจน”
+---
+
+## 9. Opening-Hour Reliability Model / โมเดลความน่าเชื่อถือเวลาเปิด-ปิด
+
+### English
+Required fields per entry:
+- `opening_hours_text`
+- `hours_confidence` (`high|medium|low|unknown`)
+- `hours_source_type` (`official|facebook|map_listing|community|unknown`)
+- `hours_last_checked_at`
+
+Confidence policy:
+- High: official and recent
+- Medium: indirect or older
+- Low/Unknown: conflicting or missing
+
+### ภาษาไทย
+ฟิลด์ที่ต้องมีต่อ entry:
+- `opening_hours_text`
+- `hours_confidence` (`high|medium|low|unknown`)
+- `hours_source_type` (`official|facebook|map_listing|community|unknown`)
+- `hours_last_checked_at`
+
+นโยบายความเชื่อมั่น:
+- High: แหล่งทางการและอัปเดตใหม่
+- Medium: แหล่งรองหรือข้อมูลเก่ากว่า
+- Low/Unknown: ข้อมูลขัดแย้งหรือไม่มีข้อมูล
+
+---
+
+## 10. Intent Pipeline (Mandatory) / ท่อประมวลผลเจตนา (บังคับ)
+
+### English
+Pipeline order:
+1. Intent Gate (rule-based deterministic first)
+2. Scoped Retrieval
+3. Post-retrieval Grading + Rejection
+
+Intent Gate output:
+- `detected_intent`
+- `intent_confidence`
+- `entity_scope`
+- `hard_filters`
+- `reason`
+
+Critical rule:
+- Activity-first query must exclude food-category activities unless explicitly requested.
+
+### ภาษาไทย
+ลำดับ pipeline:
+1. Intent Gate (เริ่มจากกฎ deterministic)
+2. Scoped Retrieval
+3. Post-retrieval Grading + Rejection
+
+ผลลัพธ์จาก Intent Gate:
+- `detected_intent`
+- `intent_confidence`
+- `entity_scope`
+- `hard_filters`
+- `reason`
+
+กฎสำคัญ:
+- คำถามสายกิจกรรมต้องไม่หลุดผลหมวดอาหาร ยกเว้นผู้ใช้ระบุอาหารโดยตรง
+
+---
+
+## 11. Ranking Logic / ตรรกะการจัดอันดับ
+
+### English
+Deterministic scoring (fast demo path):
+- 0.40 intent match
+- 0.20 open status
+- 0.15 hours confidence
+- 0.15 distance
+- 0.10 default priority
+
+Return both:
+- `results[]`
+- `excluded_candidates[]` with `reject_reason`
+
+### ภาษาไทย
+คะแนนแบบ deterministic (เหมาะกับเดโม):
+- 0.40 intent match
+- 0.20 open status
+- 0.15 hours confidence
+- 0.15 distance
+- 0.10 default priority
+
+ต้องคืนทั้ง:
+- `results[]`
+- `excluded_candidates[]` พร้อม `reject_reason`
+
+---
+
+## 12. API Contract / สัญญา API
+
+### English
+Canonical endpoints:
+1. `GET /api/v1/entries?city=&open_status=&category=&limit=`
+2. `GET /api/v1/entries/{id}`
+3. `GET /api/v1/search-intent?city=&q=&open_now_only=&top_k=`
+4. `POST /api/v1/ai/verify-hours`
+5. `GET /api/v1/verification-logs/{entry_id}`
+6. `GET /health`
+7. `GET /ready`
+
+Backward-compatible aliases:
+- `GET /api/v1/places`
+- `GET /api/v1/places/{id}`
+
+### ภาษาไทย
+endpoint มาตรฐาน:
+1. `GET /api/v1/entries?city=&open_status=&category=&limit=`
+2. `GET /api/v1/entries/{id}`
+3. `GET /api/v1/search-intent?city=&q=&open_now_only=&top_k=`
+4. `POST /api/v1/ai/verify-hours`
+5. `GET /api/v1/verification-logs/{entry_id}`
+6. `GET /health`
+7. `GET /ready`
+
+alias เพื่อรองรับระบบเดิม:
+- `GET /api/v1/places`
+- `GET /api/v1/places/{id}`
+
+---
+
+## 13. Data Model (Backend MVP) / โครงสร้างข้อมูล (Backend MVP)
+
+### English
+Core entities:
+- `entries`
+- `verification_logs`
+- `transport_hints`
+
+`entries` required fields:
+- `id`, `legacy_code`, `type`, `category`, `city_id`
+- `name_th`, `name_en`, `lat`, `lng`
+- `intent_tags`, `search_text_blob`, `default_priority`
+- opening-hour reliability fields (Section 9)
+
+### ภาษาไทย
+เอนทิตีหลัก:
+- `entries`
+- `verification_logs`
+- `transport_hints`
+
+ฟิลด์ที่จำเป็นใน `entries`:
+- `id`, `legacy_code`, `type`, `category`, `city_id`
+- `name_th`, `name_en`, `lat`, `lng`
+- `intent_tags`, `search_text_blob`, `default_priority`
+- ฟิลด์ความน่าเชื่อถือเวลาเปิด-ปิด (Section 9)
+
+---
+
+## 14. FastAPI Architecture / สถาปัตยกรรม FastAPI
+
+### English
+Reliability-first implementation:
+- Request validation by Pydantic
+- In-memory seed for entries
+- SQLite (or Postgres) for verification logs
+- Optional LLM grader with strict timeout and fallback
+
+Suggested structure:
+- `routers/entries.py`, `routers/search.py`, `routers/ai.py`, `routers/logs.py`
+- `services/intent_gate.py`, `services/retrieval.py`, `services/status_engine.py`
+- `repositories/entry_repo.py`, `repositories/log_repo.py`
+
+### ภาษาไทย
+แนวทางที่เน้นความเสถียร:
+- ตรวจ schema ด้วย Pydantic
+- ใช้ seed ใน memory สำหรับ entries
+- ใช้ SQLite (หรือ Postgres) สำหรับ verification logs
+- LLM เป็นตัวช่วยเสริมและต้องมี timeout + fallback
+
+โครงสร้างที่แนะนำ:
+- `routers/entries.py`, `routers/search.py`, `routers/ai.py`, `routers/logs.py`
+- `services/intent_gate.py`, `services/retrieval.py`, `services/status_engine.py`
+- `repositories/entry_repo.py`, `repositories/log_repo.py`
+
+---
+
+## 15. Demo Reliability Rules / กฎความเสถียรสำหรับเดโม
+
+### English
+Non-negotiable:
+1. Deterministic path works offline
+2. LLM failure must not fail endpoint
+3. Strict JSON response always
+4. Scope enforcement before ranking always
+
+### ภาษาไทย
+ข้อบังคับที่ต้องทำ:
+1. เส้นทาง deterministic ต้องทำงานได้แม้ไม่พึ่งเน็ต
+2. LLM ล้มเหลวแล้ว endpoint ต้องยังตอบได้
+3. ต้องคืน JSON ตามสัญญาเสมอ
+4. ต้องบังคับ scope ก่อนทำ ranking ทุกครั้ง
+
+---
+
+## 16. Delivery Timeline (12–18h) / ไทม์ไลน์ส่งมอบ (12–18 ชั่วโมง)
+
+### English
+- Phase A (2h): scaffold + schemas + health + seed loader
+- Phase B (4h): intent gate + scoped retrieval + search endpoint
+- Phase C (2h): entries endpoints + aliases
+- Phase D (3h): verify-hours + log persistence
+- Phase E (3–7h): tests + hardening + demo prep
+
+### ภาษาไทย
+- Phase A (2 ชม.): ตั้งโครง backend + schema + health + seed loader
+- Phase B (4 ชม.): intent gate + scoped retrieval + endpoint ค้นหา
+- Phase C (2 ชม.): endpoints entries + aliases
+- Phase D (3 ชม.): verify-hours + บันทึก logs
+- Phase E (3–7 ชม.): ทดสอบ + hardening + เตรียมเดโม
+
+---
+
+## 17. Test Plan / แผนทดสอบ
+
+### English
+Contract tests:
+- All endpoints schema-valid
+- Required fields always present
+
+Golden queries:
+- `อยากไปเที่ยวน้ำตก` -> no food leakage
+- `อยากไปทำบุญที่วัด` -> temple-focused
+- `อยากไหว้พระแล้วหาร้านกินต่อ` -> mixed works
+- `ของกินเวียดนาม` -> food-only scope
+- `พาแม่ไปแบบไม่เดินเยอะ` -> low-effort oriented
+
+Failure tests:
+- unknown city => 4xx
+- missing query => 422
+- LLM timeout => deterministic success
+
+### ภาษาไทย
+Contract tests:
+- ทุก endpoint ต้องผ่าน schema
+- ฟิลด์ที่บังคับต้องมีครบ
+
+Golden queries:
+- `อยากไปเที่ยวน้ำตก` -> ต้องไม่หลุดผลอาหาร
+- `อยากไปทำบุญที่วัด` -> เน้นผลวัด
+- `อยากไหว้พระแล้วหาร้านกินต่อ` -> mixed ต้องทำงาน
+- `ของกินเวียดนาม` -> food-only ตาม scope
+- `พาแม่ไปแบบไม่เดินเยอะ` -> เน้นตัวเลือก low-effort
+
+Failure tests:
+- city ไม่ถูกต้อง => 4xx
+- query หาย => 422
+- LLM timeout => ยังต้องตอบ deterministic ได้
+
+---
+
+## 18. Demo Script (4 Minutes) / สคริปต์เดโม (4 นาที)
+
+### English
+1. Show city identity quickly (theme strip + signature entries)
+2. Run activity-first query and show food exclusion behavior
+3. Run mixed-intent query and show valid mixed results
+4. Open entry detail and show confidence/source metadata
+5. Trigger verify-hours and retrieve verification log
+6. (Optional) show owner status update flow and live reflection
+
+### ภาษาไทย
+1. เปิดด้วยเอกลักษณ์เมืองทันที (theme strip + signature entries)
+2. ยิงคำถามสายกิจกรรมและแสดงการกันผลอาหาร
+3. ยิงคำถาม mixed intent และแสดงผลผสมที่ถูกต้อง
+4. เปิด entry detail แล้วชี้ confidence/source metadata
+5. เรียก verify-hours และดึง verification log
+6. (ถ้ามีเวลา) แสดง owner update แล้วฝั่งผู้ใช้สะท้อนผลทันที
+
+---
+
+## 19. Success Criteria / เกณฑ์ความสำเร็จ
+
+### English
+MVP is successful when:
+1. User gets 3–5 relevant entries within 30 seconds
+2. Intent-scope errors are visibly prevented
+3. Every shown entry has open/close confidence signal
+4. API remains stable under demo conditions
+
+### ภาษาไทย
+MVP ถือว่าสำเร็จเมื่อ:
+1. ผู้ใช้ได้รายการที่เกี่ยวข้อง 3–5 จุดภายใน 30 วินาที
+2. ระบบป้องกันผลค้นหาผิดเจตนาได้ชัดเจน
+3. ทุก entry ที่แสดงมีสัญญาณความเชื่อมั่นเวลาเปิด-ปิด
+4. API เสถียรตลอดสถานการณ์เดโม
+
+---
+
+## 20. Risks and Mitigations / ความเสี่ยงและแนวทางลดความเสี่ยง
+
+### English
+1. Data incompleteness
+- Mitigation: freeze curated seed + mark unknown confidence
+
+2. LLM instability
+- Mitigation: deterministic-first + 3s timeout + fallback
+
+3. Demo latency spikes
+- Mitigation: warm endpoints + preloaded seed in memory
+
+4. Scope creep
+- Mitigation: lock P0 APIs and cut non-essential features
+
+### ภาษาไทย
+1. ข้อมูลไม่ครบ
+- วิธีลดความเสี่ยง: ใช้ seed ที่ curated แล้วและติดป้าย confidence ชัดเจน
+
+2. LLM ไม่เสถียร
+- วิธีลดความเสี่ยง: deterministic-first + timeout 3 วินาที + fallback
+
+3. latency ช่วงเดโม
+- วิธีลดความเสี่ยง: warm endpoints ล่วงหน้า + preload seed ใน memory
+
+4. scope บานปลาย
+- วิธีลดความเสี่ยง: ล็อก P0 APIs และตัดฟีเจอร์ที่ไม่จำเป็น
