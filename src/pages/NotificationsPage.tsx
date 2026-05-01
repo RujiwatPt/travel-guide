@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Settings } from 'lucide-react'
 import KitBottomNav2 from '../components/KitBottomNav2'
 import { NKP_PHOTOS } from '../data/nkpPhotos'
 
@@ -52,7 +53,12 @@ function NotificationItem({ icon, photo, tone = 'sky', title, subtitle, time, is
         </p>
         <p className="text-[11px] text-ink/45 mt-1 font-bold">{time}</p>
       </div>
-      {isNew && <div className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0 mt-2" />}
+      {isNew && (
+        <>
+          <span className="sr-only">(unread)</span>
+          <div className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0 mt-2" aria-hidden="true" />
+        </>
+      )}
     </div>
   )
   if (to) return <Link to={to} className="block">{inner}</Link>
@@ -66,7 +72,12 @@ export default function NotificationsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-[20px] font-extrabold text-ink tracking-tight">Notifications</h1>
-          <button className="w-10 h-10 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05]">⚙️</button>
+          <button
+            aria-label="Notification settings"
+            className="w-11 h-11 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05] text-ink"
+          >
+            <Settings size={22} strokeWidth={2.2} aria-hidden="true" />
+          </button>
         </div>
 
         {/* Owner Updates */}

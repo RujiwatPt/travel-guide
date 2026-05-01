@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Search, Star, ShoppingBag } from 'lucide-react'
 import KitBottomNav2 from '../components/KitBottomNav2'
 import { useAppStore } from '../store/useAppStore'
 import type { Entry } from '../types'
@@ -43,16 +44,19 @@ function TravelCard({ entry, rating }: CardProps) {
       to={`/entry/${entry.id}`}
       className="block bg-white rounded-kit-photo overflow-hidden shadow-kit-card border border-ink/[0.04] active:scale-[0.99] transition-transform"
     >
-      <div className="relative">
+      <div className="relative aspect-[4/3]">
         <img
           src={entry.photos?.[0] ?? ''}
           alt={entry.name_en}
-          className="w-full h-32 object-cover bg-kit-cream-1"
+          loading="lazy"
+          width={300}
+          height={225}
+          className="w-full h-full object-cover bg-kit-cream-1"
         />
         {rating != null && (
           <div className="absolute top-2 right-2 bg-white/95 rounded-kit-pill px-2 py-1 flex items-center gap-1 shadow-kit-pill">
-            <span className="text-kit-gold-1 text-xs">★</span>
-            <span className="text-[11px] font-extrabold text-ink">{rating.toFixed(1)}</span>
+            <Star size={12} fill="currentColor" className="text-kit-gold-1" aria-hidden="true" />
+            <span className="text-[11px] font-extrabold text-ink tabular-nums">{rating.toFixed(1)}</span>
           </div>
         )}
       </div>
@@ -86,7 +90,13 @@ export default function LocalExperiencesPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-[20px] font-extrabold text-ink tracking-tight">Explore</h1>
-          <button className="w-10 h-10 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05]">🔍</button>
+          <Link
+            to="/explore"
+            aria-label="Search"
+            className="w-11 h-11 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05] text-ink"
+          >
+            <Search size={20} strokeWidth={2.2} aria-hidden="true" />
+          </Link>
         </div>
 
         {/* Section title */}
@@ -101,8 +111,9 @@ export default function LocalExperiencesPage() {
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
+              aria-pressed={activeTab === t.id}
               className={
-                'shrink-0 px-4 py-2 rounded-kit-pill text-[12px] font-extrabold transition ' +
+                'shrink-0 min-h-[44px] px-5 py-2.5 rounded-kit-pill text-[13px] font-extrabold transition ' +
                 (activeTab === t.id
                   ? 'bg-kit-gold-1 text-ink shadow-kit-pill'
                   : 'bg-kit-cream-2 text-ink/65 hover:bg-ink/5')
@@ -137,8 +148,8 @@ export default function LocalExperiencesPage() {
               className="w-full text-left bg-rose-50 rounded-kit-photo p-4 active:scale-[0.99] transition-transform"
             >
               <div className="flex items-start gap-3">
-                <div className="w-12 h-12 rounded-kit-photo bg-rose-100 grid place-items-center text-xl flex-shrink-0">
-                  🛍️
+                <div className="w-12 h-12 rounded-kit-photo bg-rose-100 grid place-items-center text-rose-600 flex-shrink-0">
+                  <ShoppingBag size={22} strokeWidth={2.2} aria-hidden="true" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="font-extrabold text-ink text-[14px] tracking-tight">

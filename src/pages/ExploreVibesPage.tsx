@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ArrowLeft, Search, Heart, Sparkles, Star } from 'lucide-react'
 import KitBottomNav2 from '../components/KitBottomNav2'
 import { NKP_PHOTOS } from '../data/nkpPhotos'
 import { useAppStore } from '../store/useAppStore'
@@ -30,16 +31,19 @@ function TravelCard({ entry, rating }: { entry: Entry; rating?: number }) {
       to={`/entry/${entry.id}`}
       className="block bg-white rounded-kit-photo overflow-hidden shadow-kit-card border border-ink/[0.04] active:scale-[0.99] transition-transform"
     >
-      <div className="relative">
+      <div className="relative aspect-[4/3]">
         <img
           src={entry.photos?.[0] ?? ''}
           alt={entry.name_en}
-          className="w-full h-32 object-cover bg-kit-cream-1"
+          loading="lazy"
+          width={300}
+          height={225}
+          className="w-full h-full object-cover bg-kit-cream-1"
         />
         {rating != null && (
           <div className="absolute top-2 right-2 bg-white/95 rounded-kit-pill px-2 py-1 flex items-center gap-1 shadow-kit-pill">
-            <span className="text-kit-gold-1 text-xs">★</span>
-            <span className="text-[11px] font-extrabold text-ink">{rating.toFixed(1)}</span>
+            <Star size={12} fill="currentColor" className="text-kit-gold-1" aria-hidden="true" />
+            <span className="text-[11px] font-extrabold text-ink tabular-nums">{rating.toFixed(1)}</span>
           </div>
         )}
       </div>
@@ -74,19 +78,22 @@ export default function ExploreVibesPage() {
           <button
             onClick={() => navigate(-1)}
             aria-label="Back"
-            className="w-10 h-10 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05] text-ink"
+            className="w-11 h-11 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05] text-ink"
           >
-            ←
+            <ArrowLeft size={20} strokeWidth={2.2} aria-hidden="true" />
           </button>
-          <div className="flex-1 relative">
+          <div className="flex-1 relative" role="search">
+            <label htmlFor="explore-search-input" className="sr-only">Search by vibe, place, or tag</label>
             <input
-              type="text"
+              id="explore-search-input"
+              type="search"
+              autoComplete="off"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by vibe, place, tag…"
-              className="w-full bg-kit-cream-2 rounded-kit-pill px-4 py-2.5 pr-10 text-[13px] font-medium text-ink placeholder:text-ink/45 border border-ink/[0.05] focus:outline-none focus:border-blue-strong"
+              className="w-full min-h-[44px] bg-kit-cream-2 rounded-kit-pill px-4 py-2.5 pr-10 text-[13px] font-medium text-ink placeholder:text-ink/45 border border-ink/[0.05] focus:outline-none focus:border-blue-strong"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-ink/45">🔍</span>
+            <Search size={18} strokeWidth={2.2} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink/45" aria-hidden="true" />
           </div>
         </div>
 
@@ -96,8 +103,9 @@ export default function ExploreVibesPage() {
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
+              aria-pressed={activeTab === t.id}
               className={
-                'shrink-0 px-4 py-2 rounded-kit-pill text-[12px] font-extrabold transition ' +
+                'shrink-0 min-h-[44px] px-5 py-2.5 rounded-kit-pill text-[13px] font-extrabold transition ' +
                 (activeTab === t.id
                   ? 'bg-kit-gold-1 text-ink shadow-kit-pill'
                   : 'bg-kit-cream-2 text-ink/65 hover:bg-ink/5')
@@ -119,11 +127,18 @@ export default function ExploreVibesPage() {
             className="w-full h-48 object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/65 via-transparent to-transparent" />
-          <div className="absolute top-4 right-4 bg-white/25 backdrop-blur-md rounded-kit-pill p-2 text-white">
-            ❤
-          </div>
+          <span
+            aria-label="Save"
+            role="img"
+            className="absolute top-4 right-4 w-10 h-10 grid place-items-center rounded-kit-pill bg-white/25 backdrop-blur-md text-white"
+          >
+            <Heart size={18} strokeWidth={2.2} aria-hidden="true" />
+          </span>
           <div className="absolute bottom-4 left-4 right-4 text-white">
-            <p className="text-[11px] font-bold opacity-95 tracking-wide">AI PICK · MUST-SEE TODAY</p>
+            <p className="text-[11px] font-bold opacity-95 tracking-wide flex items-center gap-1">
+              <Sparkles size={12} strokeWidth={2.4} aria-hidden="true" />
+              AI PICK · MUST-SEE TODAY
+            </p>
             <h3 className="text-[18px] font-extrabold tracking-tight leading-tight mt-1 drop-shadow">
               Find a sunset spot near the Mekong
             </h3>

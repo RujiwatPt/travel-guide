@@ -80,7 +80,8 @@ export default function OwnerEditPage() {
       status_note: pendingNote.trim() || null,
     })
     setShowToast(true)
-    setTimeout(() => setShowToast(false), 2400)
+    // Toast visible 3.5s (rule toast-dismiss: 3-5s)
+    setTimeout(() => setShowToast(false), 3500)
   }
 
   return (
@@ -150,15 +151,24 @@ export default function OwnerEditPage() {
 
         {/* Note — kit input */}
         <section className="kit-card p-4 shadow-kit-card">
-          <p className="kit-eyebrow mb-3">Note for tourists (optional)</p>
+          <label htmlFor="status-note" className="kit-eyebrow mb-3 block">
+            Note for tourists (optional)
+          </label>
           <input
+            id="status-note"
             type="text"
             maxLength={80}
             value={pendingNote}
             onChange={(e) => setPendingNote(e.target.value)}
             placeholder="e.g. Back tomorrow 9 AM"
+            autoComplete="off"
+            aria-describedby="status-note-help"
             className="w-full bg-panel border border-ink/10 rounded-kit-photo px-4 py-3 text-sm font-semibold focus:outline-none focus:border-blue-strong focus:bg-white transition"
           />
+          <p id="status-note-help" className="text-[11px] text-muted font-semibold mt-2 flex items-center justify-between">
+            <span>Visible on the place page. Markdown not supported.</span>
+            <span className="tabular-nums">{pendingNote.length}/80</span>
+          </p>
         </section>
 
         {/* Today's hours — kit row */}
@@ -204,14 +214,21 @@ export default function OwnerEditPage() {
         </div>
       </div>
 
-      {/* Toast */}
-      {showToast && (
-        <div className="fixed inset-x-0 bottom-24 flex justify-center z-50 pointer-events-none">
+      {/* Toast — aria-live so screen readers announce confirmation */}
+      <div
+        role="status"
+        aria-live="polite"
+        className={
+          'fixed inset-x-0 bottom-24 flex justify-center z-50 pointer-events-none transition-opacity duration-200 ' +
+          (showToast ? 'opacity-100' : 'opacity-0')
+        }
+      >
+        {showToast && (
           <div className="bg-ink text-white text-sm font-bold px-5 py-3 rounded-kit-pill shadow-kit-frame">
             ✓ Updated. 3 tourists viewing this now.
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

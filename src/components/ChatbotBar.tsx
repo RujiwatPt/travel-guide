@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Sparkles, X, ChevronRight } from 'lucide-react'
 
 type Props = {
   onSubmit: (query: string) => void
@@ -27,11 +28,15 @@ export default function ChatbotBar({ onSubmit, loading, initialQuery, onClear, h
     <div className="absolute top-4 left-4 right-4 z-30">
       <form
         onSubmit={handleSubmit}
+        role="search"
         className="kit-pill"
       >
-        <span className="text-base text-blue-strong">✦</span>
+        <label htmlFor="app-ask-input" className="sr-only">Ask about Nakhon Phanom</label>
+        <Sparkles size={16} strokeWidth={2.2} className="text-blue-strong" aria-hidden="true" />
         <input
-          type="text"
+          id="app-ask-input"
+          type="search"
+          autoComplete="off"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Ask about Nakhon Phanom…"
@@ -48,19 +53,19 @@ export default function ChatbotBar({ onSubmit, loading, initialQuery, onClear, h
           <button
             type="button"
             onClick={handleClear}
-            className="w-8 h-8 grid place-items-center rounded-kit-pill text-muted hover:text-ink hover:bg-ink/5 text-lg leading-none transition"
+            className="w-11 h-11 -mr-1.5 grid place-items-center rounded-kit-pill text-muted hover:text-ink hover:bg-ink/5 transition"
             aria-label="Clear search or plan"
           >
-            ✕
+            <X size={18} strokeWidth={2.2} aria-hidden="true" />
           </button>
         ) : (
           <button
             type="submit"
-            className="w-8 h-8 grid place-items-center rounded-kit-pill bg-ink/5 text-blue-strong text-lg leading-none disabled:opacity-30 hover:bg-ink/10 transition"
+            className="w-11 h-11 -mr-1.5 grid place-items-center rounded-kit-pill bg-ink/5 text-blue-strong disabled:opacity-30 hover:bg-ink/10 transition"
             disabled={value.trim().length === 0}
             aria-label="Submit"
           >
-            ›
+            <ChevronRight size={20} strokeWidth={2.2} aria-hidden="true" />
           </button>
         )}
       </form>

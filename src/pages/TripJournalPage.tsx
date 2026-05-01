@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Calendar, Settings, BookOpen, Sparkles, MapPin, ChevronRight, Star } from 'lucide-react'
 import KitBottomNav2 from '../components/KitBottomNav2'
 import { useAppStore } from '../store/useAppStore'
 import type { Entry } from '../types'
@@ -72,34 +73,50 @@ export default function TripJournalPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-[20px] font-extrabold text-ink tracking-tight">Trip Journal</h1>
           <div className="flex gap-2">
-            <button className="w-10 h-10 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05]">📅</button>
-            <button className="w-10 h-10 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05]">⚙️</button>
+            <button
+              aria-label="Calendar"
+              className="w-11 h-11 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05] text-ink"
+            >
+              <Calendar size={20} strokeWidth={2.2} aria-hidden="true" />
+            </button>
+            <button
+              aria-label="Settings"
+              className="w-11 h-11 grid place-items-center rounded-kit-pill bg-kit-cream-2 border border-ink/[0.05] text-ink"
+            >
+              <Settings size={20} strokeWidth={2.2} aria-hidden="true" />
+            </button>
           </div>
         </div>
 
         {/* Mode toggle */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6" role="tablist">
           <button
             onClick={() => setMode('timeline')}
+            role="tab"
+            aria-selected={mode === 'timeline'}
             className={
-              'px-5 py-2 rounded-kit-pill text-[13px] font-extrabold transition ' +
+              'min-h-[44px] px-5 py-2.5 rounded-kit-pill text-[13px] font-extrabold transition flex items-center gap-1.5 ' +
               (mode === 'timeline'
                 ? 'bg-kit-gold-1 text-ink shadow-kit-pill'
                 : 'text-ink/55 hover:bg-ink/5')
             }
           >
-            📔 Timeline
+            <BookOpen size={16} strokeWidth={2.2} aria-hidden="true" />
+            Timeline
           </button>
           <button
             onClick={() => setMode('storymode')}
+            role="tab"
+            aria-selected={mode === 'storymode'}
             className={
-              'px-5 py-2 rounded-kit-pill text-[13px] font-extrabold transition ' +
+              'min-h-[44px] px-5 py-2.5 rounded-kit-pill text-[13px] font-extrabold transition flex items-center gap-1.5 ' +
               (mode === 'storymode'
                 ? 'bg-kit-gold-1 text-ink shadow-kit-pill'
                 : 'text-ink/55 hover:bg-ink/5')
             }
           >
-            ✨ Storymode
+            <Sparkles size={16} strokeWidth={2.2} aria-hidden="true" />
+            Storymode
           </button>
         </div>
 
@@ -115,27 +132,32 @@ export default function TripJournalPage() {
               <button
                 key={entry.id}
                 onClick={() => navigate(`/entry/${entry.id}`)}
-                className={`w-full text-left rounded-kit-photo p-4 text-white shadow-kit-card bg-gradient-to-br ${config.gradient} active:scale-[0.99] transition-transform`}
+                className={`relative w-full text-left rounded-kit-photo p-4 text-white shadow-kit-card bg-gradient-to-br ${config.gradient} active:scale-[0.99] transition-transform overflow-hidden`}
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm">📍</span>
-                  <span className="text-[12px] font-bold opacity-95">{config.subtitle}</span>
-                </div>
-                <h3 className="text-[18px] font-extrabold tracking-tight leading-tight mb-1">
-                  {entry.name_en}
-                </h3>
-                <p className="text-[13px] opacity-95 font-bold mb-2">{entry.name_th}</p>
-                <p className="text-[12px] opacity-90 mb-3 leading-snug line-clamp-2">
-                  {entry.why_visit_en}
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-[12px] font-bold">
-                    <span className="text-yellow-200">★</span>
-                    <span>{config.rating}</span>
+                {/* Dark scrim ensures white text >= 4.5:1 over the lighter gradients (rule color-accessible-pairs) */}
+                <div className="absolute inset-0 bg-black/25 rounded-kit-photo pointer-events-none" aria-hidden="true" />
+                <div className="relative">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <MapPin size={14} strokeWidth={2.2} aria-hidden="true" />
+                    <span className="text-[12px] font-bold opacity-95">{config.subtitle}</span>
                   </div>
-                  <span className="bg-white/25 backdrop-blur-sm px-3 py-1.5 rounded-kit-pill text-[11px] font-extrabold">
-                    CONTINUE →
-                  </span>
+                  <h3 className="text-[18px] font-extrabold tracking-tight leading-tight mb-1">
+                    {entry.name_en}
+                  </h3>
+                  <p className="text-[13px] opacity-95 font-bold mb-2">{entry.name_th}</p>
+                  <p className="text-[12px] opacity-95 mb-3 leading-snug line-clamp-2">
+                    {entry.why_visit_en}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-[12px] font-bold tabular-nums">
+                      <Star size={12} fill="currentColor" className="text-yellow-200" aria-hidden="true" />
+                      <span>{config.rating}</span>
+                    </div>
+                    <span className="bg-white/25 backdrop-blur-sm px-3 py-1.5 rounded-kit-pill text-[11px] font-extrabold flex items-center gap-1">
+                      CONTINUE
+                      <ChevronRight size={12} strokeWidth={2.4} aria-hidden="true" />
+                    </span>
+                  </div>
                 </div>
               </button>
             )
