@@ -21,6 +21,7 @@ Single-context — `CONTEXT.md` + `docs/adr/` at repo root. See `docs/agents/dom
 - Preserve the existing issue-tracker, triage-label, and domain-doc rules in this file and `docs/agents/`.
 - Read `CONTEXT.md` and relevant ADRs before editing docs or code tied to domain terms.
 - Run the smallest relevant check before commit and report what you ran.
+- New feature work must include tests, or a clear explanation of why tests do not apply; for this repo, normally run `npm.cmd test`, `npm.cmd run build`, and `git diff --check`.
 - Prepare a short PR summary covering intent, changed files, checks, assumptions, and follow-up risks.
 - Keep personal prompts, private notes, secrets, and API keys out of the repository.
 - See `docs/TEAM_SOP.md`, `docs/AI_AGENT_WORKFLOW.md`, `docs/GIT_COLLABORATION.md`, and `docs/SECURITY.md` for the longer shared workflow.
