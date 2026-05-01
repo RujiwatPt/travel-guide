@@ -1,8 +1,11 @@
 import json
+from collections.abc import Callable
+from typing import Any
+
 import httpx
 
-from app.core.config import settings
-from app.schemas.intent import IntentGateOut
+from app.core.config import Settings, settings
+from app.schemas.intent import IntentGateOut, IntentProviderOut
 
 
 _SYSTEM_PROMPT = """\
@@ -27,21 +30,17 @@ Rules:
 Return only valid JSON, no markdown, no extra text.
 """
 
-_VALID_INTENTS = {
-    "activity_discovery",
-    "food_trip",
-    "place_discovery",
-    "temple_merit_discovery",
-    "mixed_activity_food",
-    "general_discovery",
-}
-_VALID_SCOPES = {"activity_only", "food_only", "place_only", "mixed"}
-_VALID_CONFIDENCE = {"high", "medium", "low"}
-
-
 class OpenRouterIntentService:
+    def __init__(
+        self,
+        app_settings: Settings | None = None,
+        client_factory: Callable[..., Any] = httpx.Client,
+    ) -> None:
+        self.settings = app_settings or settings
+        self.client_factory = client_factory
+
     def is_enabled(self) -> bool:
-        return settings.llm_intent_enabled and bool(settings.openrouter_api_key)
+        return self.settings.llm_intent_enabled and bool(self.settings.openrouter_api_key)
 
     def classify(self, query: str) -> IntentGateOut:
         payload_base = {
@@ -52,20 +51,23 @@ class OpenRouterIntentService:
             "temperature": 0.0,
             "max_tokens": 200,
         }
-        models = [settings.openrouter_model_primary]
-        if settings.openrouter_model_fallback and settings.openrouter_model_fallback != settings.openrouter_model_primary:
-            models.append(settings.openrouter_model_fallback)
+        models = [self.settings.openrouter_model_primary]
+        if (
+            self.settings.openrouter_model_fallback
+            and self.settings.openrouter_model_fallback != self.settings.openrouter_model_primary
+        ):
+            models.append(self.settings.openrouter_model_fallback)
 
         last_err: Exception | None = None
         raw: str | None = None
         for model in models:
             payload = {**payload_base, "model": model}
             try:
-                with httpx.Client(timeout=settings.openrouter_timeout_seconds) as client:
+                with self.client_factory(timeout=self.settings.ai_intent_timeout_seconds) as client:
                     resp = client.post(
-                        f"{settings.openrouter_base_url}/chat/completions",
+                        f"{self.settings.openrouter_base_url}/chat/completions",
                         headers={
-                            "Authorization": f"Bearer {settings.openrouter_api_key}",
+                            "Authorization": f"Bearer {self.settings.openrouter_api_key}",
                             "Content-Type": "application/json",
                             "HTTP-Referer": "https://travel-guide.vercel.app",
                             "X-Title": "Regional Travel Guide",
@@ -100,22 +102,15 @@ class OpenRouterIntentService:
         except json.JSONDecodeError as e:
             raise RuntimeError(f"OpenRouter returned invalid JSON: {raw!r}") from e
 
-        detected = data.get("detected_intent", "general_discovery")
-        scope = data.get("entity_scope", "mixed")
-        confidence = data.get("intent_confidence", "low")
-
-        # Sanity-clamp unknown values to safe defaults.
-        if detected not in _VALID_INTENTS:
-            detected = "general_discovery"
-        if scope not in _VALID_SCOPES:
-            scope = "mixed"
-        if confidence not in _VALID_CONFIDENCE:
-            confidence = "low"
+        try:
+            parsed = IntentProviderOut.model_validate(data)
+        except Exception as e:
+            raise RuntimeError(f"OpenRouter returned invalid payload: {data!r}") from e
 
         return IntentGateOut(
-            detected_intent=detected,
-            intent_confidence=confidence,
-            entity_scope=scope,
-            hard_filters=[f for f in data.get("hard_filters", []) if isinstance(f, str)],
-            reason=str(data.get("reason", "llm_classified")),
+            detected_intent=parsed.detected_intent,
+            intent_confidence=parsed.intent_confidence,
+            entity_scope=parsed.entity_scope,
+            hard_filters=parsed.hard_filters,
+            reason=parsed.reason,
         )
