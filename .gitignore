@@ -150,3 +150,8 @@ tmp-*.json
 
 # Figma reference PNGs (regenerate from Figma API)
 figma-reference/
+
+# Python caches
+__pycache__/
+**/__pycache__/
+*.py[cod]

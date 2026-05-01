@@ -12,17 +12,20 @@ import { themesForCity } from '../data/themes'
 import { distanceKm } from '../lib/distance'
 import { CHIPS, applyFilters } from '../lib/filters'
 import {
-  mockIntentClassifierProvider,
-  rankEntriesForIntentWithHints,
   shouldUsePlanMode,
-  type RankedEntry,
 } from '../lib/intentSearch'
+import { searchIntentHits } from '../lib/api'
 import { getPlan, type Plan } from '../lib/plan'
 import { useAppStore } from '../store/useAppStore'
+import type { Entry } from '../types'
 
 type ActiveSearch = {
   query: string
-  results: RankedEntry[]
+  results: Array<{
+    entry: Entry
+    score: number
+    matchedReasons: string[]
+  }>
 }
 
 export default function MapPage() {
@@ -96,11 +99,19 @@ export default function MapPage() {
       return
     }
 
-    const rankedResults = await rankEntriesForIntentWithHints(
-      query,
-      entries,
-      mockIntentClassifierProvider,
-    )
+    const hits = await searchIntentHits('nkp', query, 12).catch(() => [])
+    const byId = new Map(entries.map((e) => [e.id, e]))
+    const rankedResults = hits
+      .map((h) => {
+        const entry = byId.get(h.entryId)
+        if (!entry) return null
+        return {
+          entry,
+          score: Math.round(h.score * 100),
+          matchedReasons: [h.matchedIntent, h.category],
+        }
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null)
     if (rankedResults.length > 0) {
       setActiveSearch({ query, results: rankedResults })
       setSheetState('full')

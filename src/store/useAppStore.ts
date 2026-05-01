@@ -42,6 +42,40 @@ export const useAppStore = create<State>((set, get) => ({
         new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
       )
       .slice(0, limit),
+  hydrateEntriesFromApi: async (city = 'nkp') => {
+    try {
+      const remoteEntries = await fetchEntries(city)
+      if (!Array.isArray(remoteEntries) || remoteEntries.length === 0) return
+      set((state) => {
+        const byId = new Map(state.entries.map((e) => [e.id, e]))
+        const merged = remoteEntries.map((r) => {
+          const local = byId.get(r.id)
+          if (!local) return r
+          return {
+            ...local,
+            type: r.type,
+            city_id: r.city_id,
+            name_en: r.name_en,
+            name_th: r.name_th,
+            lat: r.lat,
+            lng: r.lng,
+            category: r.category,
+            description_en: r.description_en,
+            description_th: r.description_th,
+            why_visit_en: r.why_visit_en,
+            why_visit_th: r.why_visit_th,
+            data_source: 'imported' as const,
+          }
+        })
+        return {
+          entries: merged,
+          statusLog: state.statusLog,
+        }
+      })
+    } catch {
+      // Keep local seed fallback for demo reliability when API is unavailable.
+    }
+  },
 
   updateEntryStatus: (entryId, update) => {
     const now = new Date().toISOString()
