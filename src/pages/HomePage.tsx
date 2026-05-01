@@ -1,5 +1,5 @@
 import EditableFigmaScreenRenderer from '../components/EditableFigmaScreenRenderer'
-import KitBottomNav from '../components/KitBottomNav'
+import KitBottomNav2 from '../components/KitBottomNav2'
 import SplashOverlay from '../components/SplashOverlay'
 import { HOME_SCREEN } from '../data/screenLookup'
 import { NKP_PHOTOS } from '../data/nkpPhotos'
@@ -75,7 +75,7 @@ export default function HomePage() {
         overrides={NKP_HOME_OVERRIDES}
         framed={false}
       />
-      <KitBottomNav active="home" />
+      <KitBottomNav2 active="home" />
     </div>
   )
 }

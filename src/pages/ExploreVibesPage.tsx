@@ -1,5 +1,5 @@
 import EditableFigmaScreenRenderer from '../components/EditableFigmaScreenRenderer'
-import KitBottomNav from '../components/KitBottomNav'
+import KitBottomNav2 from '../components/KitBottomNav2'
 import { EXPLORE_VIBES_SCREEN } from '../data/screenLookup'
 import { NKP_PHOTOS } from '../data/nkpPhotos'
 import type { Overrides } from '../lib/figmaOverrides'
@@ -65,7 +65,7 @@ export default function ExploreVibesPage() {
         overrides={NKP_EXPLORE_OVERRIDES}
         framed={false}
       />
-      <KitBottomNav active="explore" />
+      <KitBottomNav2 active="grid" />
     </div>
   )
 }
