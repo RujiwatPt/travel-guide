@@ -2,6 +2,7 @@ import { MapContainer, Marker, Polyline, TileLayer } from 'react-leaflet'
 import L from 'leaflet'
 import { useMemo } from 'react'
 import type { Plan } from '../lib/plan'
+import { isSignature } from '../lib/signatures'
 import { isOpenNow } from '../lib/status'
 import { STATUS_COLOR } from '../lib/statusDisplay'
 import type { City, Entry } from '../types'
@@ -14,15 +15,22 @@ type Props = {
   routeRevealedSegments?: number  // 0 = none drawn, n = first n segments visible
 }
 
-function makePinIcon(emoji: string, borderColor: string, opts?: { number?: number; faded?: boolean; large?: boolean }): L.DivIcon {
+function makePinIcon(
+  emoji: string,
+  borderColor: string,
+  opts?: { number?: number; faded?: boolean; large?: boolean; signature?: boolean },
+): L.DivIcon {
   const size = opts?.large ? 48 : 40
   const opacity = opts?.faded ? 0.3 : 1
   const numberBadge = opts?.number != null
     ? `<div class="pin-num">${opts.number}</div>`
     : ''
+  const signatureGlow = opts?.signature
+    ? 'box-shadow:0 0 0 3px #ffc20d, 0 4px 14px rgba(20,45,65,0.25);'
+    : ''
   return L.divIcon({
     className: 'pin-wrapper',
-    html: `<div class="pin" style="border-color:${borderColor};width:${size}px;height:${size}px;font-size:${opts?.large ? 26 : 22}px;opacity:${opacity}">${emoji}${numberBadge}</div>`,
+    html: `<div class="pin" style="border-color:${borderColor};width:${size}px;height:${size}px;font-size:${opts?.large ? 26 : 22}px;opacity:${opacity};${signatureGlow}">${emoji}${numberBadge}</div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   })
@@ -48,7 +56,7 @@ export default function MapView({ city, entries, onPinTap, activePlan, routeReve
         const stop = activePlan.stops.find((s) => s.entry_id === entry.id)!
         return makePinIcon(entry.emoji, '#1e8df0', { number: stop.position, large: true })
       }
-      return makePinIcon(entry.emoji, color)
+      return makePinIcon(entry.emoji, color, { signature: isSignature(entry) })
     })
   }, [entries, activePlan, planStopIds])
 

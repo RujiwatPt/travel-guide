@@ -6,7 +6,9 @@ import EntryCard from '../components/EntryCard'
 import MapView from '../components/MapView'
 import PlanResult from '../components/PlanResult'
 import SplashOverlay from '../components/SplashOverlay'
+import ThemeStrip from '../components/ThemeStrip'
 import { NKP } from '../data/seed'
+import { themesForCity } from '../data/themes'
 import { distanceKm } from '../lib/distance'
 import { CHIPS, applyFilters } from '../lib/filters'
 import { getPlan, type Plan } from '../lib/plan'
@@ -17,16 +19,26 @@ export default function MapPage() {
   const entries = useAppStore((s) => s.entries)
   const [sheetState, setSheetState] = useState<SheetState>('peek')
   const [selectedChipIds, setSelectedChipIds] = useState<string[]>([])
+  const [activeThemeId, setActiveThemeId] = useState<string | null>(null)
 
   // Chatbot / plan orchestration
   const [chatbotLoading, setChatbotLoading] = useState(false)
   const [activePlan, setActivePlan] = useState<Plan | null>(null)
   const [routeRevealedSegments, setRouteRevealedSegments] = useState(0)
 
-  const filteredEntries = useMemo(
-    () => applyFilters(entries, selectedChipIds, new Date()),
-    [entries, selectedChipIds],
+  const themes = useMemo(() => themesForCity('nkp'), [])
+  const activeTheme = useMemo(
+    () => themes.find((t) => t.id === activeThemeId) ?? null,
+    [themes, activeThemeId],
   )
+
+  // Filter pipeline: theme narrows the candidate set first; chips refine.
+  const filteredEntries = useMemo(() => {
+    const candidates = activeTheme
+      ? entries.filter((e) => activeTheme.entry_ids.includes(e.id))
+      : entries
+    return applyFilters(candidates, selectedChipIds, new Date())
+  }, [entries, selectedChipIds, activeTheme])
 
   const toggleChip = (id: string) => {
     setSelectedChipIds((prev) => {
@@ -37,6 +49,12 @@ export default function MapPage() {
       }
       return next
     })
+  }
+
+  const handleThemeTap = (themeId: string) => {
+    setActiveThemeId((prev) => (prev === themeId ? null : themeId))
+    setSelectedChipIds([])
+    if (sheetState === 'peek') setSheetState('half')
   }
 
   const handlePinTap = (entryId: string) => {
@@ -52,6 +70,7 @@ export default function MapPage() {
     setActivePlan(null)
     setRouteRevealedSegments(0)
     setSelectedChipIds([])
+    setActiveThemeId(null)
     const plan = await getPlan(query, 'nkp')
     setChatbotLoading(false)
     setActivePlan(plan)
@@ -106,6 +125,13 @@ export default function MapPage() {
           <PlanResult plan={activePlan} onClear={handleClearPlan} />
         ) : (
           <>
+            {/* Theme strip — city identity (above chips) */}
+            <ThemeStrip
+              themes={themes}
+              activeThemeId={activeThemeId}
+              onThemeTap={handleThemeTap}
+            />
+
             {/* Filter chips */}
             <div className="flex gap-2 overflow-x-auto pb-3 -mx-4 px-4 scrollbar-none">
               {CHIPS.map((chip) => {
@@ -126,6 +152,26 @@ export default function MapPage() {
                 )
               })}
             </div>
+
+            {/* Active-theme banner */}
+            {activeTheme && (
+              <div
+                className="rounded-xl p-2.5 mb-2 text-[12px] flex items-center gap-2"
+                style={{ background: `${activeTheme.accent_color}15` }}
+              >
+                <span>{activeTheme.emoji}</span>
+                <span className="flex-1 text-ink/80">
+                  Showing <strong>{activeTheme.name_en}</strong>
+                </span>
+                <button
+                  onClick={() => setActiveThemeId(null)}
+                  className="text-muted hover:text-ink text-base leading-none"
+                  aria-label="Clear theme"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
 
             {/* Card list (filtered) */}
             <div>

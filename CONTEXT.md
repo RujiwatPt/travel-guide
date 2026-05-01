@@ -42,6 +42,14 @@ _Avoid_: availability, state, status (use the full term).
 The geographic scope of one app instance. MVP = Nakhon Phanom only; roadmap = all 55 of Thailand's secondary cities. First-class entity from day one to make multi-city expansion a row insert, not a schema migration.
 _Avoid_: region (Thailand's regions are larger administrative units), destination.
 
+**Theme**:
+A curated proposition about a City — *what this city is for*. A small set (3-5) of named identity statements per City: e.g. "Birthday-Stupa Pilgrimage", "Mekong & Naga Lore", "Vietnamese-Thai Heritage", "OTOP & Local Crafts". Each Theme has a name, a 1-line tagline, an icon, and a curated subset of Entries. Themes are the answer to *"why come to Nakhon Phanom specifically?"* — distinct from the per-Entry tag dimensions, which describe individual Entries rather than make claims about the City.
+_Avoid_: category (overloaded with the Entry-level enum), wedge, hero, collection, route_cluster, intent_group (the latter two are valid synonyms in the teammate's research file but `Theme` is canonical here).
+
+**Signature**:
+A status applied to an individual Entry meaning *"don't miss this — it embodies what this City is famous for."* Distinct from regular Entries. Signatures get visual prominence in the UI (special pin styling, "Don't miss" pinned card section). For MVP, derived from `vibe_tags.includes('iconic')`; in production may become a first-class field. An Entry can be a Signature without belonging to any specific Theme, and vice versa.
+_Avoid_: must-see (informal), featured, top pick, P1 (the teammate's `default_priority` value — that's a ranking score, not the same concept).
+
 ### Vocabulary concepts
 
 **เมืองรอง / Secondary City**:
@@ -70,8 +78,22 @@ _Avoid_: marketplace, platform (these imply transactions; we don't intermediate 
 - Each **Stop** denormalizes a snapshot of its **Entry** (`entry_summary`) so the UI renders without a second fetch
 - An **Activity** has both `hours_weekly` (the standard schedule) and `live_status` (the live override); the override wins when set
 - Every **Owner** edit appends one row to **`entry_status_log`** (append-only audit trail)
+- A **City** has 3-5 **Themes** (1:n)
+- A **Theme** groups n **Entries** (n:m); the same Entry may appear in multiple Themes (e.g., Phra That Phanom belongs to both "Birthday-Stupa Pilgrimage" and "Vietnamese-Thai Heritage" if it has both meanings)
+- An **Entry** is a **Signature** if its `vibe_tags` includes `'iconic'` (MVP derivation); future: a dedicated field. Signature is orthogonal to Theme membership.
 
 ## Conventions
+
+### Theme implementation (MVP)
+- Themes are NOT stored in the database. They are a **hardcoded constant** per City in `src/data/themes.ts`.
+- Each Theme is `{ id, city_id, name_en, name_th, tagline_en, tagline_th, emoji, entry_ids: string[] }`.
+- A Theme without entries (e.g., "OTOP & Local Crafts" before we seed shop entries) renders an empty-state card.
+- Future: Themes may become editable by city-level curators; the structure is stable across that move.
+
+### Signature derivation (MVP)
+- An Entry is a Signature iff `vibe_tags.includes('iconic')`. Single source.
+- Helper: `isSignature(entry)` in `src/lib/signatures.ts`.
+- Future: a dedicated `is_signature: boolean` column on Entry, but the application interface stays the same.
 
 ### PRD alignment notes (hackathon scope)
 - API naming may expose `entries` as canonical endpoints, while `places` can remain backward-compatible aliases.
@@ -131,9 +153,17 @@ Implemented client-side in TypeScript — no backend round-trip per pin.
 >
 > **Dev:** "What if an Owner runs three restaurants — three accounts?"
 > **Domain expert:** "One Owner row, three Entry rows pointing to the same `owner_id`. n:1. Each Entry has its own `owner_edit_token`, so the magic links land directly on the right edit form."
+>
+> **Dev:** "How is a Theme different from a category or a vibe tag?"
+> **Domain expert:** "A Theme makes a claim about the City — 'Nakhon Phanom is for the birthday-stupa pilgrimage.' That's a marketing-level proposition that no individual Entry can carry. A category describes what an individual Entry IS (food, temple, museum). A vibe tag describes what an individual Entry FEELS like (romantic, lively, iconic). Themes group multiple Entries under a unifying claim about why someone would come here — they're the city's identity, made visible."
+>
+> **Dev:** "What's a Signature, and is it the same as 'iconic'?"
+> **Domain expert:** "A Signature is an Entry that embodies what the City is famous for — 'don't miss this.' For MVP we derive Signature from the `'iconic'` vibe_tag, so functionally they're the same right now. But conceptually Signature is a *status* (curatorial decision: this is one of NKP's defining things) while `'iconic'` is a *vibe* (descriptive: it feels iconic). When we eventually add a real Signature column, the vibe_tag stays — the curatorial flag and the descriptive feel can diverge."
 
 ## Flagged ambiguities
 
 - **"Place"** was overloaded — could mean any Entry, or specifically a curated landmark Entry. **Resolved**: Place = Entry where `type='place'` (curated, no Owner). Use **Entry** for the umbrella concept.
 - **"User"** was overloaded — could mean Tourist or Owner. **Resolved**: keep these distinct. Use **Tourist** for the anonymous app visitor, **Owner** for the data-updating local. Never write "user" alone.
 - **"Category"** vs **"tag"** — both used loosely for filtering. **Resolved**: `category` is one specific dimension (a single enum value per Entry — food, cafe, landmark...). The umbrella term for all filterable dimensions is **tag dimension**.
+- **"Theme"** vs **"category"** vs **"tag"** — risk of confusion since all three group/filter Entries. **Resolved**: a **Theme** makes a city-level claim about identity ("NKP is for the birthday stupas") and is curated per City; a **category** is a per-Entry kind enum; a **tag dimension** is a per-Entry descriptive axis. Theme is a higher-level concept than the others.
+- **"Signature"** vs **"iconic"** vibe_tag — currently identical (Signature is derived from the tag). **Resolved**: keep both terms but use them precisely. **Signature** = curatorial status ("this is one of NKP's defining things — don't miss it"). **`'iconic'` vibe_tag** = descriptive flag ("this feels iconic"). For MVP they coincide; future schema may separate them.

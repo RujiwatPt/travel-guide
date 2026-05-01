@@ -84,6 +84,22 @@ export type Entry = {
   data_source: DataSource
 }
 
+/**
+ * Theme — curated city-level identity statement (per CONTEXT.md).
+ * 3-5 per City. Hardcoded in src/data/themes.ts for MVP.
+ */
+export type Theme = {
+  id: string
+  city_id: string
+  name_en: string
+  name_th: string
+  tagline_en: string
+  tagline_th: string
+  emoji: string
+  accent_color: string
+  entry_ids: string[]  // n:m — the same entry can appear in multiple themes
+}
+
 export type StatusLogEntry = {
   id: string
   entry_id: string

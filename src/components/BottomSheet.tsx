@@ -9,15 +9,17 @@ type Props = {
 }
 
 // Heights expressed as CSS top offsets. Smaller top = taller sheet.
+// peek height bumped to 240px to fit ThemeStrip + chip row.
+const PEEK_HEIGHT_PX = 240
 const TOP_BY_STATE: Record<SheetState, string> = {
-  peek: 'calc(100dvh - 110px)',
+  peek: `calc(100dvh - ${PEEK_HEIGHT_PX}px)`,
   half: '55dvh',
   full: '8dvh',
 }
 
 // For snap calculation, work in pixels at runtime
 function snapToNearest(currentTopPx: number, viewportH: number): SheetState {
-  const peekPx = viewportH - 110
+  const peekPx = viewportH - PEEK_HEIGHT_PX
   const halfPx = viewportH * 0.55
   const fullPx = viewportH * 0.08
   const candidates: [SheetState, number][] = [
