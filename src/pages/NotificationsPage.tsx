@@ -1,71 +1,109 @@
-import EditableFigmaScreenRenderer from '../components/EditableFigmaScreenRenderer'
 import KitBottomNav2 from '../components/KitBottomNav2'
-import { NOTIFICATIONS_SCREEN } from '../data/screenLookup'
+import KitNotificationRow from '../components/KitNotificationRow'
+import KitPageHeader from '../components/KitPageHeader'
 import { NKP_PHOTOS } from '../data/nkpPhotos'
-import type { Overrides } from '../lib/figmaOverrides'
 
-const NKP_NOTIFICATIONS_OVERRIDES: Overrides = {
-  // Status bar + decorative top-of-screen kit art
-  '↳ Time':                                          { hideLayer: true },
-  'Vector 1':                                        { hideLayer: true },
-  'Vector 2':                                        { hideLayer: true },
-  'Vector#0':                                        { hideLayer: true },
-  'Vector#1':                                        { hideLayer: true },
-  'Vector#2':                                        { hideLayer: true },
-  'Vector#3':                                        { hideLayer: true },
-  'Vector#4':                                        { hideLayer: true },
-  'Vector#5':                                        { hideLayer: true },
-  'Frame 21':                                        { hideLayer: true },
-  'Frame 22':                                        { hideLayer: true },
-  'Border':                                          { hideLayer: true },
-  'Capacity':                                        { hideLayer: true },
-  'Wifi':                                            { hideLayer: true },
-  'Cellular Connection':                             { hideLayer: true },
-  'Bar':                                             { hideLayer: true },
-  'Notification':                                    { text: 'Notifications' },
-  // Bottom-right kit floating pill artifact
-  'image 42':                                        { hideLayer: true },
-  'image 43':                                        { hideLayer: true },
-  'Rectangle 490':                                   { hideLayer: true },
-  'Vector#6':                                        { hideLayer: true },
-  // Hidden kit photo layers — replace Mount Daisen photos + Jhon Snow avatar
-  'Rectangle 2173':                                  { imageSrc: NKP_PHOTOS.phraThatPhanom },
-  'Ellipse 7':                                       { imageSrc: NKP_PHOTOS.nagaStatue },
-  // Refresh timestamps for NKP context
-  '12m':                                             { text: '2m' },
-  '13h':                                             { text: '3h' },
-  '15h':                                             { text: '6h' },
-  '37m':                                             { text: '15m' },
-  '2d':                                              { text: '1d' },
-  '5d':                                              { text: '2d' },
-  'Trip Reminders':                                  { text: 'Owner Updates' },
-  'AI Travel Tips':                                  { text: 'AI Tips for NKP' },
-  'Weather & Safety Alerts':                         { text: 'Weather & Safety' },
-  'Price Drop Alerts':                               { text: 'Theme Alerts' },
-  'Kyoto Zen (あなた) Hotel Check-in ':              { text: 'Pho Sawan — open now ✓' },
-  'Check-in to your hotel in Osaka.':                { text: 'Khun Somchai updated 2h ago.' },
-  "Explore Kyoto's Secret Gardens":                  { text: 'Walk to Indochina Market tonight' },
-  'Discover hidden gems and local favorites.':       { text: 'Friday — live music after 19:00.' },
-  'Okinawa Typhoon Alert':                           { text: 'Light rain forecast 16:00–19:00' },
-  'Typhoon warning for Okinawa. Stay indoors.':      { text: 'Indoor museums recommended.' },
-  'Sapporo Flight Prices':                           { text: 'Birthday-Stupa Theme refreshed' },
-  'Flights to Sapporo have decreased by 15%.':       { text: '8 stupas now mapped — your Sunday is Phra That Phanom.' },
-  'Golden Hour in Kyoto is at 5:42 PM today':        { text: 'Sunset at Naga Statue at 18:18 today' },
-  'Head to Arashiyama Bamboo..':                     { text: 'Best Mekong photo spot in NKP.' },
-  'Mount Daisen(いせ)':                               { text: 'Phra That Phanom Pilgrimage' },
-  'May 14-17':                                       { text: 'Sunday morning' },
-  'Jhon Snow, you created a travel plan for the coming week..':
-                                                     { text: 'AI created your half-day Sunday plan' },
+type SectionDef = { title: string; rows: RowDef[] }
+type RowDef = {
+  icon?: string
+  photo?: string
+  tone?: 'blue' | 'amber' | 'green' | 'rose' | 'violet' | 'sky'
+  title: string
+  body: string
+  time: string
 }
+
+const SECTIONS: SectionDef[] = [
+  {
+    title: 'Owner Updates',
+    rows: [
+      {
+        icon: '🍜', tone: 'amber',
+        title: 'Pho Sawan — open now ✓',
+        body: 'Khun Somchai updated 2h ago.',
+        time: '2m',
+      },
+      {
+        icon: '🤖', tone: 'violet',
+        title: 'AI created your half-day Sunday plan',
+        body: 'Walk-friendly, sunset-timed, Phra That Phanom included.',
+        time: '15m',
+      },
+      {
+        photo: NKP_PHOTOS.phraThatPhanom,
+        title: 'Phra That Phanom Pilgrimage',
+        body: 'Sunday morning · your birthday-day stupa.',
+        time: '3h',
+      },
+    ],
+  },
+  {
+    title: 'AI Tips for NKP',
+    rows: [
+      {
+        icon: '🌃', tone: 'blue',
+        title: 'Walk to Indochina Market tonight',
+        body: 'Friday — live music after 19:00.',
+        time: '3h',
+      },
+      {
+        icon: '🌅', tone: 'rose',
+        title: 'Sunset at Naga Statue at 18:18 today',
+        body: 'Best Mekong photo spot in NKP.',
+        time: '6h',
+      },
+    ],
+  },
+  {
+    title: 'Weather & Safety',
+    rows: [
+      {
+        icon: '🌧', tone: 'amber',
+        title: 'Light rain forecast 16:00–19:00',
+        body: 'Indoor museums recommended.',
+        time: '1d',
+      },
+    ],
+  },
+  {
+    title: 'Theme Alerts',
+    rows: [
+      {
+        icon: '🛕', tone: 'sky',
+        title: 'Birthday-Stupa Theme refreshed',
+        body: '8 stupas now mapped — your Sunday is Phra That Phanom.',
+        time: '2d',
+      },
+    ],
+  },
+]
 
 export default function NotificationsPage() {
   return (
-    <div className="min-h-[100dvh] bg-white relative pb-20 grid place-items-start">
-      <EditableFigmaScreenRenderer
-        screen={NOTIFICATIONS_SCREEN}
-        overrides={NKP_NOTIFICATIONS_OVERRIDES}
-        framed={false}
-      />
+    <div className="min-h-[100dvh] bg-white relative pb-28">
+      <KitPageHeader title="Notifications" onMenu={() => {}} />
+
+      {SECTIONS.map((section) => (
+        <section key={section.title} className="mt-2">
+          <h2 className="px-5 pt-4 pb-2 text-[16px] font-extrabold text-ink tracking-tight">
+            {section.title}
+          </h2>
+          <div>
+            {section.rows.map((row, i) => (
+              <KitNotificationRow
+                key={`${section.title}-${i}`}
+                icon={row.icon}
+                photo={row.photo}
+                tone={row.tone}
+                title={row.title}
+                body={row.body}
+                time={row.time}
+              />
+            ))}
+          </div>
+        </section>
+      ))}
+
       <KitBottomNav2 active="grid" />
     </div>
   )

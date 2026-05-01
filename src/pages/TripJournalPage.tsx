@@ -1,65 +1,88 @@
-import EditableFigmaScreenRenderer from '../components/EditableFigmaScreenRenderer'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import KitBottomNav2 from '../components/KitBottomNav2'
-import { TRIP_JOURNAL_SCREEN } from '../data/screenLookup'
-import { NKP_PHOTOS } from '../data/nkpPhotos'
-import type { Overrides } from '../lib/figmaOverrides'
+import KitJournalCard from '../components/KitJournalCard'
+import KitPageHeader from '../components/KitPageHeader'
+import { useAppStore } from '../store/useAppStore'
+import type { Entry } from '../types'
 
-const NKP_JOURNAL_OVERRIDES: Overrides = {
-  // Status bar + decorative top-of-screen kit art
-  '↳ Time':                        { hideLayer: true },
-  'Bar#0':                         { hideLayer: true },
-  'Vector 1':                      { hideLayer: true },
-  'Vector 2':                      { hideLayer: true },
-  'Vector#0':                      { hideLayer: true },
-  'Vector#1':                      { hideLayer: true },
-  'Vector#2':                      { hideLayer: true },
-  'Vector#3':                      { hideLayer: true },
-  'Vector#4':                      { hideLayer: true },
-  'Vector#5':                      { hideLayer: true },
-  'Frame 21#0':                    { hideLayer: true },
-  'Frame 22':                      { hideLayer: true },
-  'Border':                        { hideLayer: true },
-  'Capacity':                      { hideLayer: true },
-  'Wifi':                          { hideLayer: true },
-  'Cellular Connection':           { hideLayer: true },
-  // Bottom-right kit floating pill artifact
-  'Rectangle 489':                 { hideLayer: true },
-  'image 42':                      { hideLayer: true },
-  'image 43':                      { hideLayer: true },
-  'Vector#8':                      { hideLayer: true },
-  // Journal card photos — only some "image" layers have backgroundImage
-  'image#0':                       { imageSrc: NKP_PHOTOS.phraThatPhanom },
-  'image#2':                       { imageSrc: NKP_PHOTOS.birthdayStupa },
-  'image#3':                       { imageSrc: NKP_PHOTOS.nagaStatue },
-  'image#4':                       { imageSrc: NKP_PHOTOS.mekongSunset },
-  'image#6':                       { imageSrc: NKP_PHOTOS.thamNakee },
-  'image#8':                       { imageSrc: NKP_PHOTOS.hoChiMinhHouse },
-  'image#9':                       { imageSrc: NKP_PHOTOS.phoSawan },
-  'image#10':                      { imageSrc: NKP_PHOTOS.riverVibes },
-  'Trip Journal':                  { text: 'Birthday-Stupa Pilgrimage' },
-  'Timeline':                      { text: 'Timeline' },
-  'Storymode':                     { text: 'Storymode' },
-  '+10':                           { text: '+8' },
-  'Daisen (いせん)':                { text: 'Phra That Phanom (พระธาตุพนม)' },
-  'Tottori Prefecture':            { text: 'That Phanom District • Sunday' },
-  '17 Km from your location ':     { text: '50 km south of Mueang NKP' },
-  'Mountain':                      { text: 'Spiritual' },
-  'Spiritual':                     { text: 'Iconic' },
-  'Ukai (鵜飼)':                    { text: 'Phra That Renu (พระธาตุเรณู)' },
-  'Nagara River':                  { text: 'Renu Nakhon • Monday' },
-  '60 Km from your location ':     { text: '30 km west of Mueang NKP' },
-  'Cultural':                      { text: 'Phu Thai' },
-  'Fishing':                       { text: 'Pink Stupa' },
+const STUPA_DAY: Record<string, string> = {
+  'wat-phra-that-phanom':       'That Phanom District · Sunday',
+  'phra-that-renu':             'Renu Nakhon · Monday',
+  'phra-that-si-khun':          'Mueang NKP · Tuesday',
+  'phra-that-mahachai':         'Pla Pak District · Wed daytime',
+  'phra-that-marukkha-nakhon':  'Tha Uthen · Wed night',
+  'phra-that-prasit':           'Tha Uthen · Thursday',
+  'phra-that-tha-uthen':        'Tha Uthen · Friday',
+  'phra-that-nakhon':           'Mueang NKP · Saturday',
+}
+
+const STUPA_HINT: Record<string, string> = {
+  'wat-phra-that-phanom':       '50 km south of Mueang NKP',
+  'phra-that-renu':             '30 km west of Mueang NKP',
+  'phra-that-si-khun':          'In Mueang NKP centre',
+  'phra-that-mahachai':         '20 km west of Mueang NKP',
+  'phra-that-marukkha-nakhon':  '40 km north of Mueang NKP',
+  'phra-that-prasit':           '40 km north of Mueang NKP',
+  'phra-that-tha-uthen':        '25 km north of Mueang NKP',
+  'phra-that-nakhon':           'In Mueang NKP centre',
 }
 
 export default function TripJournalPage() {
+  const navigate = useNavigate()
+  const entries = useAppStore((s) => s.entries)
+  const [mode, setMode] = useState<'timeline' | 'storymode'>('timeline')
+
+  const stupas: Entry[] = entries.filter((e) =>
+    e.vibe_tags?.includes('birthday-stupa'),
+  )
+
   return (
-    <div className="min-h-[100dvh] bg-white relative pb-20 grid place-items-start">
-      <EditableFigmaScreenRenderer
-        screen={TRIP_JOURNAL_SCREEN}
-        overrides={NKP_JOURNAL_OVERRIDES}
-        framed={false}
-      />
+    <div className="min-h-[100dvh] bg-white relative pb-28">
+      <KitPageHeader title="Birthday-Stupa Pilgrimage" />
+
+      {/* Tab toggle */}
+      <div className="px-5 pt-2">
+        <div className="flex gap-2 p-1.5 bg-kit-cream-2 rounded-kit-pill">
+          <button
+            onClick={() => setMode('timeline')}
+            className={
+              'flex-1 px-3 py-2 rounded-kit-pill text-[13px] font-extrabold transition flex items-center justify-center gap-1.5 ' +
+              (mode === 'timeline' ? 'bg-white shadow-kit-pill text-ink' : 'text-ink/55')
+            }
+          >
+            📔 Timeline
+          </button>
+          <button
+            onClick={() => setMode('storymode')}
+            className={
+              'flex-1 px-3 py-2 rounded-kit-pill text-[13px] font-extrabold transition flex items-center justify-center gap-1.5 ' +
+              (mode === 'storymode' ? 'bg-white shadow-kit-pill text-ink' : 'text-ink/55')
+            }
+          >
+            ✨ Storymode
+          </button>
+        </div>
+      </div>
+
+      <div className="px-5 pt-4">
+        {stupas.length === 0 && (
+          <div className="text-center text-sm text-ink/55 py-10 font-medium">
+            No stupas mapped yet.
+          </div>
+        )}
+        {stupas.map((entry) => (
+          <KitJournalCard
+            key={entry.id}
+            entry={entry}
+            subtitle={STUPA_DAY[entry.id] ?? 'Birthday-Stupa Trail'}
+            locationHint={STUPA_HINT[entry.id] ?? 'Nakhon Phanom Province'}
+            tags={['Spiritual', 'Iconic']}
+            onTap={(e) => navigate(`/entry/${e.id}`)}
+          />
+        ))}
+      </div>
+
       <KitBottomNav2 active="grid" />
     </div>
   )
