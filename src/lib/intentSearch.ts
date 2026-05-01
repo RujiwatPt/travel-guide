@@ -1,5 +1,8 @@
 import type { Entry } from '../types'
 
+/**
+ * Ranked search result for an intent query, including why the entry matched.
+ */
 export type RankedEntry = {
   entry: Entry
   score: number
@@ -22,6 +25,7 @@ type IntentGroup = {
   timeTags?: Record<string, number>
 }
 
+// Heuristic boosts derived from the seeded Nakhon Phanom intent groups.
 const INTENT_GROUPS: IntentGroup[] = [
   {
     id: 'general_blessing',
@@ -157,6 +161,7 @@ const INTENT_GROUPS: IntentGroup[] = [
   },
 ]
 
+// Phrases that should preserve the existing plan demo flow instead of ranked search.
 const PLAN_MODE_KEYWORDS = [
   'i have one afternoon',
   'one afternoon',
@@ -177,6 +182,7 @@ const PLAN_MODE_KEYWORDS = [
   'หนึ่งวัน',
 ]
 
+/** Normalizes user and entry text for simple multilingual substring matching. */
 function normalize(value: string): string {
   return value
     .toLocaleLowerCase()
@@ -187,6 +193,7 @@ function normalize(value: string): string {
     .trim()
 }
 
+/** Flattens searchable entry fields into one normalized search string. */
 function entrySearchText(entry: Entry): string {
   return normalize(
     [
@@ -210,6 +217,7 @@ function addReason(reasons: Set<string>, reason: string) {
   if (reasons.size < 4) reasons.add(reason)
 }
 
+/** Returns the configured intent groups whose keywords appear in the query. */
 function detectIntentGroups(query: string): IntentGroup[] {
   const normalizedQuery = normalize(query)
   return INTENT_GROUPS.filter((group) =>
@@ -217,6 +225,10 @@ function detectIntentGroups(query: string): IntentGroup[] {
   )
 }
 
+/**
+ * Sends clearly itinerary-like prompts to the existing plan flow.
+ * Search-like prompts stay on the ranked entry path.
+ */
 export function shouldUsePlanMode(query: string): boolean {
   const normalizedQuery = normalize(query)
   if (!normalizedQuery) return false
@@ -226,6 +238,7 @@ export function shouldUsePlanMode(query: string): boolean {
   )
 }
 
+/** Scores direct text overlap between the query and an entry's searchable fields. */
 function scoreTextMatch(query: string, entry: Entry, reasons: Set<string>): number {
   const normalizedQuery = normalize(query)
   const searchText = entrySearchText(entry)
@@ -249,6 +262,7 @@ function scoreTextMatch(query: string, entry: Entry, reasons: Set<string>): numb
   return score
 }
 
+/** Applies intent-specific boosts using entry ids, categories, and tag dimensions. */
 function scoreIntentMatch(group: IntentGroup, entry: Entry, reasons: Set<string>): number {
   let score = 0
 
@@ -291,6 +305,10 @@ function scoreIntentMatch(group: IntentGroup, entry: Entry, reasons: Set<string>
   return score
 }
 
+/**
+ * Ranks mixed Entries for an activity-style query using deterministic intent rules
+ * plus text relevance from the current seed data.
+ */
 export function rankEntriesForIntent(query: string, entries: Entry[]): RankedEntry[] {
   const trimmedQuery = query.trim()
   if (!trimmedQuery) return []
