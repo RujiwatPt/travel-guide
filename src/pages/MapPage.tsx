@@ -5,7 +5,6 @@ import ChatbotBar from '../components/ChatbotBar'
 import EntryCard from '../components/EntryCard'
 import MapView from '../components/MapView'
 import PlanResult from '../components/PlanResult'
-import SplashOverlay from '../components/SplashOverlay'
 import ThemeStrip from '../components/ThemeStrip'
 import { NKP } from '../data/seed'
 import { themesForCity } from '../data/themes'
@@ -104,7 +103,6 @@ export default function MapPage() {
 
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden">
-      <SplashOverlay />
       <ChatbotBar
         onSubmit={handleChatbotSubmit}
         loading={chatbotLoading}
