@@ -1,3 +1,5 @@
+import { isOpenNow } from '../lib/status'
+import { STATUS_COLOR, STATUS_LABEL } from '../lib/statusDisplay'
 import type { Entry } from '../types'
 
 type Props = {
@@ -27,6 +29,7 @@ function relativeTime(iso: string | null): string | null {
 
 export default function EntryCard({ entry, distanceKm, onTap }: Props) {
   const updated = relativeTime(entry.status_updated)
+  const status = isOpenNow(entry, new Date())
   return (
     <button
       onClick={() => onTap?.(entry)}
@@ -52,10 +55,12 @@ export default function EntryCard({ entry, distanceKm, onTap }: Props) {
         </div>
         <p className="text-[12px] text-muted mt-0.5 line-clamp-1">{entry.why_visit_en}</p>
         <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted">
-          {/* Status placeholder dot — Slice 8 makes it dynamic */}
           <span className="inline-flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-status-open inline-block" />
-            <span>OPEN</span>
+            <span
+              className="w-2 h-2 rounded-full inline-block"
+              style={{ background: STATUS_COLOR[status] }}
+            />
+            <span>{STATUS_LABEL[status]}</span>
           </span>
           <span>·</span>
           <span>{PRICE_LABEL[entry.price_band ?? 'free']}</span>
@@ -69,6 +74,11 @@ export default function EntryCard({ entry, distanceKm, onTap }: Props) {
         {entry.type === 'activity' && updated && (
           <div className="text-[11px] text-muted mt-1">
             • Updated {updated} <span className="text-blue-strong">✓</span>
+          </div>
+        )}
+        {entry.type === 'activity' && entry.status_note && (
+          <div className="text-[11px] text-ink/80 mt-1 italic truncate">
+            "{entry.status_note}"
           </div>
         )}
       </div>

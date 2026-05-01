@@ -1,6 +1,8 @@
 import { MapContainer, Marker, TileLayer } from 'react-leaflet'
 import L from 'leaflet'
 import { useMemo } from 'react'
+import { isOpenNow } from '../lib/status'
+import { STATUS_COLOR } from '../lib/statusDisplay'
 import type { City, Entry } from '../types'
 
 type Props = {
@@ -9,23 +11,25 @@ type Props = {
   onPinTap?: (entry: Entry) => void
 }
 
-function makePinIcon(emoji: string): L.DivIcon {
+function makePinIcon(emoji: string, borderColor: string): L.DivIcon {
   return L.divIcon({
     className: 'pin-wrapper',
-    html: `<div class="pin">${emoji}</div>`,
+    html: `<div class="pin" style="border-color:${borderColor}">${emoji}</div>`,
     iconSize: [40, 40],
     iconAnchor: [20, 20],
   })
 }
 
 export default function MapView({ city, entries, onPinTap }: Props) {
-  // Memoize icons by emoji so we don't recreate on every render
-  const iconCache = useMemo(() => {
-    const cache = new Map<string, L.DivIcon>()
-    for (const e of entries) {
-      if (!cache.has(e.emoji)) cache.set(e.emoji, makePinIcon(e.emoji))
-    }
-    return cache
+  const now = new Date()
+
+  // Memoize icons by (emoji + status color) so we don't recreate on every render
+  const pinIcons = useMemo(() => {
+    return entries.map((entry) => {
+      const status = isOpenNow(entry, now)
+      return makePinIcon(entry.emoji, STATUS_COLOR[status])
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entries])
 
   return (
@@ -40,11 +44,11 @@ export default function MapView({ city, entries, onPinTap }: Props) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; OpenStreetMap'
       />
-      {entries.map((entry) => (
+      {entries.map((entry, i) => (
         <Marker
           key={entry.id}
           position={[entry.lat, entry.lng]}
-          icon={iconCache.get(entry.emoji)!}
+          icon={pinIcons[i]}
           eventHandlers={{
             click: () => onPinTap?.(entry),
           }}
