@@ -7,12 +7,13 @@ import type { Overrides } from '../lib/figmaOverrides'
 const NKP_BOOKING_OVERRIDES: Overrides = {
   '↳ Time':                                       { hideLayer: true },
   '↳ Indicators':                                 { hideLayer: true },
-  // First 2 large image layers are the hero booking cards
+  // Hero booking cards (kit shows Kyoto Zen twice — image#0 + image#2)
   'image#0':                                      { imageSrc: NKP_PHOTOS.renuTextiles },
-  'image#1':                                      { imageSrc: NKP_PHOTOS.blueGoldCoffee },
-  // Smaller event icons
-  'image#2':                                      { imageSrc: NKP_PHOTOS.walkingStreet },
-  'image#3':                                      { imageSrc: NKP_PHOTOS.nagaStatue },
+  'image#2':                                      { imageSrc: NKP_PHOTOS.blueGoldCoffee },
+  // Event row icons
+  'image#4':                                      { imageSrc: NKP_PHOTOS.walkingStreet },
+  'image#5':                                      { imageSrc: NKP_PHOTOS.nagaStatue },
+  'image#6':                                      { imageSrc: NKP_PHOTOS.phraThatPhanom },
   'Booking Hub':                                  { text: 'OTOP Hub' },
   'Personalized bookings for your Japan Journey': { text: 'OTOP & local crafts in Nakhon Phanom.' },
   'All':                                          { text: 'All' },

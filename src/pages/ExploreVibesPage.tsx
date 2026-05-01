@@ -7,13 +7,13 @@ import type { Overrides } from '../lib/figmaOverrides'
 const NKP_EXPLORE_OVERRIDES: Overrides = {
   '↳ Time':                                 { hideLayer: true },
   '↳ Indicators':                           { hideLayer: true },
-  // Hero card + Must-See / Hidden Gem photo cards (in occurrence order)
-  'image#0':                                { imageSrc: NKP_PHOTOS.phraThatPhanom },
-  'image#1':                                { imageSrc: NKP_PHOTOS.nagaStatue },
-  'image#2':                                { imageSrc: NKP_PHOTOS.mekongSunset },
-  'image#3':                                { imageSrc: NKP_PHOTOS.thamNakee },
-  'image#4':                                { imageSrc: NKP_PHOTOS.hoChiMinhHouse },
-  'image#5':                                { imageSrc: NKP_PHOTOS.renuTextiles },
+  // image#0 has no backgroundImage in kit (decorative). Photo layers
+  // start at image#1 (Must-See Today / Hidden Gems Nearby cards)
+  'image#1':                                { imageSrc: NKP_PHOTOS.phraThatPhanom },
+  'image#2':                                { imageSrc: NKP_PHOTOS.nagaStatue },
+  'image#3':                                { imageSrc: NKP_PHOTOS.mekongSunset },
+  'image#4':                                { imageSrc: NKP_PHOTOS.thamNakee },
+  'image#5':                                { imageSrc: NKP_PHOTOS.hoChiMinhHouse },
   'Must-See ':                              { text: 'Must-See' },
   'Hidden Gem':                             { text: 'Hidden Gem' },
   'Food & Cafe':                            { text: 'Food & Cafe' },

@@ -7,13 +7,15 @@ import type { Overrides } from '../lib/figmaOverrides'
 const NKP_JOURNAL_OVERRIDES: Overrides = {
   '↳ Time':                        { hideLayer: true },
   '↳ Indicators':                  { hideLayer: true },
-  // Journal cards — kit has multiple "image" layers; map to NKP stupas + iconic places
+  // Journal card photos — only some "image" layers have backgroundImage
   'image#0':                       { imageSrc: NKP_PHOTOS.phraThatPhanom },
-  'image#1':                       { imageSrc: NKP_PHOTOS.birthdayStupa },
-  'image#2':                       { imageSrc: NKP_PHOTOS.nagaStatue },
-  'image#3':                       { imageSrc: NKP_PHOTOS.mekongSunset },
-  'image#4':                       { imageSrc: NKP_PHOTOS.thamNakee },
-  'image#5':                       { imageSrc: NKP_PHOTOS.hoChiMinhHouse },
+  'image#2':                       { imageSrc: NKP_PHOTOS.birthdayStupa },
+  'image#3':                       { imageSrc: NKP_PHOTOS.nagaStatue },
+  'image#4':                       { imageSrc: NKP_PHOTOS.mekongSunset },
+  'image#6':                       { imageSrc: NKP_PHOTOS.thamNakee },
+  'image#8':                       { imageSrc: NKP_PHOTOS.hoChiMinhHouse },
+  'image#9':                       { imageSrc: NKP_PHOTOS.phoSawan },
+  'image#10':                      { imageSrc: NKP_PHOTOS.riverVibes },
   'Trip Journal':                  { text: 'Birthday-Stupa Pilgrimage' },
   'Timeline':                      { text: 'Timeline' },
   'Storymode':                     { text: 'Storymode' },
