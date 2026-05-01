@@ -1,3 +1,4 @@
+import { priceLabel } from '../lib/format'
 import { isOpenNow } from '../lib/status'
 import { STATUS_COLOR, STATUS_LABEL } from '../lib/statusDisplay'
 import { relativeTime } from '../lib/time'
@@ -7,13 +8,6 @@ type Props = {
   entry: Entry
   distanceKm?: number | null
   onTap?: (entry: Entry) => void
-}
-
-const PRICE_LABEL: Record<string, string> = {
-  free: 'Free',
-  budget: '₿',
-  mid: '₿₿',
-  premium: '₿₿₿',
 }
 
 export default function EntryCard({ entry, distanceKm, onTap }: Props) {
@@ -52,7 +46,7 @@ export default function EntryCard({ entry, distanceKm, onTap }: Props) {
             <span>{STATUS_LABEL[status]}</span>
           </span>
           <span>·</span>
-          <span>{PRICE_LABEL[entry.price_band ?? 'free']}</span>
+          <span>{priceLabel(entry.price_band)}</span>
           {distanceKm != null && (
             <>
               <span>·</span>

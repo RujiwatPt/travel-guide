@@ -3,29 +3,10 @@ import { MapContainer, Marker, TileLayer } from 'react-leaflet'
 import L from 'leaflet'
 import { useMemo } from 'react'
 import { useAppStore } from '../store/useAppStore'
+import { todaysHoursLabel } from '../lib/format'
 import { isOpenNow } from '../lib/status'
 import { STATUS_COLOR, STATUS_LABEL } from '../lib/statusDisplay'
 import { relativeTime } from '../lib/time'
-import type { Entry } from '../types'
-
-const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
-
-const PRICE_LABEL: Record<string, string> = {
-  free: 'Free',
-  budget: '₿',
-  mid: '₿₿',
-  premium: '₿₿₿',
-}
-
-function todaysHoursLabel(entry: Entry): string {
-  if (!entry.hours_weekly) return '—'
-  if (entry.hours_weekly.all_day) return 'Open all day'
-  const dayIdx = new Date().getDay()
-  const dayKey = DAY_KEYS[dayIdx]
-  const ranges = entry.hours_weekly.weekly?.[dayKey]
-  if (!ranges || ranges.length === 0) return 'Closed today'
-  return ranges.map(([o, c]) => `${o}–${c}`).join(', ')
-}
 
 function makePinIcon(emoji: string, color: string): L.DivIcon {
   return L.divIcon({
@@ -157,7 +138,7 @@ export default function EntryDetailPage() {
             <span>🕐</span>
             <span className="font-semibold">Today</span>
             <span className="text-ink/30">·</span>
-            <span>{todaysHoursLabel(entry)}</span>
+            <span>{todaysHoursLabel(entry, new Date())}</span>
           </div>
           {entry.hours_weekly?.notes_en && (
             <div className="text-xs text-muted mt-1.5 ml-6">

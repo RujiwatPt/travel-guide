@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAppStore } from '../store/useAppStore'
+import { todaysHoursLabel } from '../lib/format'
 import { relativeTime } from '../lib/time'
 import type { LiveStatus } from '../types'
 
@@ -16,7 +17,7 @@ const DAY_LABEL: Record<string, string> = {
   mon: 'Mon', tue: 'Tue', wed: 'Wed',
   thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
 }
-const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
+const DAY_KEYS_DISPLAY = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
 
 export default function OwnerEditPage() {
   const [params] = useSearchParams()
@@ -34,15 +35,7 @@ export default function OwnerEditPage() {
   const [pendingNote, setPendingNote] = useState<string>(entry?.status_note ?? '')
   const [showToast, setShowToast] = useState(false)
 
-  const todaysHours = useMemo(() => {
-    if (!entry?.hours_weekly) return null
-    if (entry.hours_weekly.all_day) return 'Open all day'
-    const dayIdx = new Date().getDay() // 0 = Sun
-    const dayKey = DAY_KEYS[dayIdx]
-    const ranges = entry.hours_weekly.weekly?.[dayKey]
-    if (!ranges || ranges.length === 0) return 'Closed today'
-    return ranges.map(([o, c]) => `${o}–${c}`).join(', ')
-  }, [entry])
+  const todaysHours = entry ? todaysHoursLabel(entry, new Date()) : '—'
 
   if (!entry) {
     return (
@@ -136,9 +129,9 @@ export default function OwnerEditPage() {
           <h2 className="text-sm font-bold text-ink mb-2">Today's hours</h2>
           <div className="bg-white border border-ink/10 rounded-2xl px-4 py-3 text-sm flex items-center justify-between">
             <span className="text-ink">
-              <span className="text-muted">{DAY_LABEL[DAY_KEYS[new Date().getDay()]]}</span>
+              <span className="text-muted">{DAY_LABEL[DAY_KEYS_DISPLAY[new Date().getDay()]]}</span>
               <span className="mx-2 text-ink/30">·</span>
-              <span>{todaysHours ?? '—'}</span>
+              <span>{todaysHours}</span>
             </span>
             <span className="text-muted">›</span>
           </div>

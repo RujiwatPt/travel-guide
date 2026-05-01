@@ -7,12 +7,7 @@ type Props = {
   onClear: () => void
 }
 
-const PRICE_LABEL: Record<string, string> = {
-  free: 'Free',
-  budget: '₿',
-  mid: '₿₿',
-  premium: '₿₿₿',
-}
+import { priceLabel } from '../lib/format'
 
 function useTypewriter(text: string, speedMs = 22, startDelayMs = 0): { typed: string; done: boolean } {
   const [typed, setTyped] = useState('')
@@ -101,7 +96,7 @@ function StopRow({ stop, visible, isLast }: { stop: Stop; visible: boolean; isLa
             {summary.price_band && (
               <>
                 <span>·</span>
-                <span>{PRICE_LABEL[summary.price_band]}</span>
+                <span>{priceLabel(summary.price_band)}</span>
               </>
             )}
           </div>
