@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import KitBottomNav from '../components/KitBottomNav'
 import SplashOverlay from '../components/SplashOverlay'
 import { NKP } from '../data/seed'
 import { themesForCity } from '../data/themes'
@@ -136,28 +137,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Bottom nav — kit pattern (floating pill at bottom) */}
-      <nav className="fixed bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-2 rounded-kit-pill bg-white/85 backdrop-blur-md shadow-kit-frame border border-ink/5 z-40">
-        <span className="w-12 h-12 grid place-items-center rounded-kit-pill bg-ink text-white text-xl">
-          ⌂
-        </span>
-        <Link
-          to="/app"
-          className="w-12 h-12 grid place-items-center rounded-kit-pill text-ink/55 hover:bg-ink/5 text-xl"
-          aria-label="Open map app"
-          title="Open the working map app"
-        >
-          🗺️
-        </Link>
-        <Link
-          to="/figma-9-screens"
-          className="w-12 h-12 grid place-items-center rounded-kit-pill text-ink/55 hover:bg-ink/5 text-xl"
-          aria-label="Design system"
-          title="See all 9 kit pages"
-        >
-          ◇
-        </Link>
-      </nav>
+      <KitBottomNav active="home" />
     </div>
   )
 }
