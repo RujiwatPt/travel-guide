@@ -97,7 +97,7 @@ export default function HomePage() {
   const street = entries.find((e) => e.id === 'old-town-street-art')
 
   return (
-    <div className="bg-gradient-to-b from-kit-cream-1 to-white min-h-[100dvh] relative pb-28">
+    <main className="bg-gradient-to-b from-kit-cream-1 to-white min-h-[100dvh] relative pb-28">
       <SplashOverlay />
       <div className="px-5 pt-8 pb-6">
         {/* Header */}
@@ -207,6 +207,6 @@ export default function HomePage() {
       </div>
 
       <KitBottomNav2 active="home" />
-    </div>
+    </main>
   )
 }

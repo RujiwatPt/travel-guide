@@ -67,7 +67,7 @@ function NotificationItem({ icon, photo, tone = 'sky', title, subtitle, time, is
 
 export default function NotificationsPage() {
   return (
-    <div className="bg-white min-h-[100dvh] relative pb-28">
+    <main className="bg-white min-h-[100dvh] relative pb-28">
       <div className="px-5 pt-6 pb-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -166,6 +166,6 @@ export default function NotificationsPage() {
       </div>
 
       <KitBottomNav2 active="grid" />
-    </div>
+    </main>
   )
 }

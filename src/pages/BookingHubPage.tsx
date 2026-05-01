@@ -89,7 +89,7 @@ export default function BookingHubPage() {
   const walkingStreet = entries.find((e) => e.id === 'indochina-walking-street')
 
   return (
-    <div className="bg-white min-h-[100dvh] relative pb-28">
+    <main className="bg-white min-h-[100dvh] relative pb-28">
       <div className="px-5 pt-6 pb-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -169,6 +169,6 @@ export default function BookingHubPage() {
       </div>
 
       <KitBottomNav2 active="grid" />
-    </div>
+    </main>
   )
 }
