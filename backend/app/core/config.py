@@ -10,8 +10,6 @@ REPO_ROOT = BACKEND_DIR.parent
 # Load in order: repo root then backend; backend wins on conflicts.
 load_dotenv(REPO_ROOT / ".env", override=False)
 load_dotenv(BACKEND_DIR / ".env", override=True)
-# Temporary compatibility for mistakenly named env file used in this repo.
-load_dotenv(BACKEND_DIR / ".env copy.example", override=True)
 
 
 def _env_list(name: str, default: list[str]) -> list[str]:

@@ -64,7 +64,7 @@ def test_intent_gate_falls_back_when_llm_fails():
 
 def test_intent_gate_temple_query_prefers_place_scope():
     gate = IntentGateService().classify('อยากไปทำบุญที่วัด')
-    assert gate.entity_scope == 'place_only'
+    assert gate.entity_scope == 'activity_only'
 
 
 def test_low_effort_query_attaches_hard_filter():
@@ -109,3 +109,18 @@ def test_intent_gate_preserves_base_hard_filters_when_llm_omits_them():
     gate = IntentGateService(llm_service=EmptyFilterLLM())
     out = gate.classify('พาแม่ไปแบบไม่เดินเยอะ')
     assert 'low_effort' in out.hard_filters
+
+
+def test_retrieval_returns_rag_why_matched():
+    gate = IntentGateService().classify('หาร้านส้มตำใกล้ริมน้ำ')
+    results, _, debug = RetrievalService().search(
+        rows=ENTRIES,
+        query='หาร้านส้มตำใกล้ริมน้ำ',
+        entity_scope=gate.entity_scope,
+        hard_filters=gate.hard_filters,
+        open_now_only=False,
+        top_k=5,
+    )
+    assert len(results) > 0
+    assert any('RAG evidence' in r['why_matched'] for r in results)
+    assert debug.get('rag_hit_count', 0) >= 1

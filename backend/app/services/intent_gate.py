@@ -20,15 +20,26 @@ class IntentGateService:
         try:
             if self.llm_service.is_enabled():
                 llm_out = self.llm_service.classify(query)
-                return self._merge_base_with_llm(base, llm_out)
+                return self._merge_base_with_llm(base, llm_out, query)
         except Exception:
             # Fall back to deterministic rules for demo reliability.
             pass
         return base
 
-    def _merge_base_with_llm(self, base: IntentGateOut, llm_out: IntentGateOut) -> IntentGateOut:
-        # Keep deterministic guardrails when rule confidence is strong.
-        if base.intent_confidence == "high":
+    def _merge_base_with_llm(self, base: IntentGateOut, llm_out: IntentGateOut, query: str) -> IntentGateOut:
+        q = query.strip().lower()
+        has_food_kw = any(k in q for k in FOOD_HINTS)
+        # Keep hard deterministic guardrails for strict food scope;
+        # allow LLM to refine non-strict scopes for better bilingual nuance.
+        if base.entity_scope == "food_only" and base.intent_confidence == "high":
+            scope = base.entity_scope
+            detected_intent = base.detected_intent
+            confidence = base.intent_confidence
+        elif base.entity_scope == "activity_only" and llm_out.entity_scope == "food_only" and not has_food_kw:
+            scope = base.entity_scope
+            detected_intent = base.detected_intent
+            confidence = base.intent_confidence
+        elif base.entity_scope == "mixed" and llm_out.entity_scope == "food_only":
             scope = base.entity_scope
             detected_intent = base.detected_intent
             confidence = base.intent_confidence
@@ -74,15 +85,15 @@ class IntentGateService:
         if has_temple and not has_food:
             return IntentGateOut(
                 detected_intent="temple_merit_discovery",
-                intent_confidence="high",
-                entity_scope="place_only",
+                intent_confidence="medium",
+                entity_scope="activity_only",
                 hard_filters=hard_filters,
                 reason="temple/merit keywords detected",
             )
         if has_activity:
             return IntentGateOut(
                 detected_intent="activity_discovery",
-                intent_confidence="high",
+                intent_confidence="medium",
                 entity_scope="activity_only",
                 hard_filters=hard_filters,
                 reason="activity keywords detected",

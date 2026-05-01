@@ -12,6 +12,8 @@ import { themesForCity } from '../data/themes'
 import { distanceKm } from '../lib/distance'
 import { CHIPS, applyFilters } from '../lib/filters'
 import {
+  mockIntentClassifierProvider,
+  rankEntriesForIntentWithHints,
   shouldUsePlanMode,
 } from '../lib/intentSearch'
 import { searchIntentHits } from '../lib/api'
@@ -101,7 +103,7 @@ export default function MapPage() {
 
     const hits = await searchIntentHits('nkp', query, 12).catch(() => [])
     const byId = new Map(entries.map((e) => [e.id, e]))
-    const rankedResults = hits
+    let rankedResults = hits
       .map((h) => {
         const entry = byId.get(h.entryId)
         if (!entry) return null
@@ -112,15 +114,25 @@ export default function MapPage() {
         }
       })
       .filter((x): x is NonNullable<typeof x> => x !== null)
+
+    // Fallback to deterministic local ranker if backend search is unavailable
+    // or returns no usable mapped results.
+    if (rankedResults.length === 0) {
+      rankedResults = await rankEntriesForIntentWithHints(
+        query,
+        entries,
+        mockIntentClassifierProvider,
+      )
+    }
+
     if (rankedResults.length > 0) {
       setActiveSearch({ query, results: rankedResults })
       setSheetState('full')
       return
     }
-    setChatbotLoading(true)
-    const plan = await getPlan(query, 'nkp')
-    setChatbotLoading(false)
-    setActivePlan(plan)
+
+    // Keep search mode; do not auto-switch to itinerary for normal queries.
+    setActiveSearch({ query, results: [] })
     setSheetState('full')
   }
 

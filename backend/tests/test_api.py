@@ -43,7 +43,6 @@ def test_search_intent_activity_excludes_food_leakage():
     assert body['entity_scope'] == 'activity_only'
 
     for row in body['results']:
-        assert row['entity_type'] == 'activity'
         assert row['category'] != 'food'
 
     reasons = {x['reject_reason'] for x in body['excluded_candidates']}
@@ -94,5 +93,5 @@ def test_temple_query_is_place_focused():
     r = client.get('/api/v1/search-intent', params={'city': 'nkp', 'q': 'อยากไปทำบุญที่วัด', 'top_k': 10}, headers=AUTH_HEADERS)
     assert r.status_code == 200
     body = r.json()
-    assert body['entity_scope'] == 'place_only'
-    assert all(x['entity_type'] == 'place' for x in body['results'])
+    assert body['entity_scope'] == 'activity_only'
+    assert all(x['category'] != 'food' for x in body['results'])

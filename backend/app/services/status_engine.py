@@ -1,5 +1,6 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import re
 
 
 def _to_minutes(hhmm: str) -> int:
@@ -8,7 +9,10 @@ def _to_minutes(hhmm: str) -> int:
 
 
 def _split_ranges(text: str) -> list[tuple[int, int]]:
-    parts = [p.strip() for p in text.replace("to", "-").split(",") if p.strip()]
+    normalized = text.replace("–", "-").replace("—", "-").replace(" to ", "-")
+    # Drop weekday prefixes like Mon-Fri: 08:00-17:00
+    normalized = re.sub(r"(mon|tue|wed|thu|fri|sat|sun)[^0-9:]*", " ", normalized, flags=re.I)
+    parts = [p.strip() for p in re.split(r"[,;/]|\\s{2,}", normalized) if p.strip()]
     ranges: list[tuple[int, int]] = []
     for part in parts:
         if "-" not in part:

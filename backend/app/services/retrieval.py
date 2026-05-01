@@ -1,5 +1,6 @@
 from app.services.status_engine import compute_open_status
 from app.schemas.intent import ExcludedCandidate
+from app.services.rag_retrieval import MockRagService
 
 
 class RetrievalService:
@@ -34,14 +35,12 @@ class RetrievalService:
         q = query.strip().lower()
         q_has_food = any(k in q for k in self.FOOD_HINTS)
         q_has_activity = any(k in q for k in self.ACTIVITY_HINTS)
+        rag_hits = self.rag.retrieve(rows=rows, query=query, top_k=max(8, top_k))
         results: list[dict] = []
         excluded: list[ExcludedCandidate] = []
 
         for e in rows:
             # scope gating
-            if entity_scope == "activity_only" and e["type"] != "activity":
-                excluded.append(ExcludedCandidate(entry_id=e["id"], legacy_code=e["legacy_code"], reject_reason="entity_type_not_allowed"))
-                continue
             if entity_scope == "activity_only" and e["category"] == "food":
                 excluded.append(ExcludedCandidate(entry_id=e["id"], legacy_code=e["legacy_code"], reject_reason="food_category_not_allowed_for_activity_only_scope"))
                 continue
@@ -51,7 +50,7 @@ class RetrievalService:
             if entity_scope == "place_only" and e["type"] != "place":
                 excluded.append(ExcludedCandidate(entry_id=e["id"], legacy_code=e["legacy_code"], reject_reason="not_place_scope"))
                 continue
-            if "low_effort" in hard_filters and float(e.get("default_priority", 0.5)) < 0.55:
+            if "low_effort" in hard_filters and self._effort_level(e) == "high":
                 excluded.append(ExcludedCandidate(entry_id=e["id"], legacy_code=e["legacy_code"], reject_reason="low_effort_filter_mismatch"))
                 continue
 
@@ -66,6 +65,9 @@ class RetrievalService:
                 intent_score = max(intent_score, 0.6)
             if e["category"] in {"temple", "nature", "museum", "landmark"} and q_has_activity:
                 intent_score = max(intent_score, 0.2)
+            rag_score = float(rag_hits.get(e["id"], {}).get("score", 0.0))
+            if rag_score > 0:
+                intent_score = max(intent_score, min(1.0, rag_score * 0.8))
 
             if intent_score < 0.05 and q:
                 excluded.append(ExcludedCandidate(entry_id=e["id"], legacy_code=e["legacy_code"], reject_reason="intent_match_below_threshold"))
@@ -87,7 +89,7 @@ class RetrievalService:
                     "category": e["category"],
                     "name": e["name_en"],
                     "matched_tags": [t for t in e.get("intent_tags", []) if t.lower() in q],
-                    "why_matched": "Matches requested intent with scope-safe filtering.",
+                    "why_matched": self._why_matched(e=e, rag_hit=rag_hits.get(e["id"])),
                     "open_status": status,
                     "hours_confidence": e.get("hours_confidence", "unknown"),
                     "score": round(score, 4),
@@ -95,4 +97,23 @@ class RetrievalService:
             )
 
         results.sort(key=lambda x: x["score"], reverse=True)
-        return results[:top_k], excluded, {"candidate_count": len(rows), "returned": min(len(results), top_k)}
+        return results[:top_k], excluded, {"candidate_count": len(rows), "returned": min(len(results), top_k), "rag_hit_count": len(rag_hits)}
+
+    def _effort_level(self, e: dict) -> str:
+        category = e.get("category", "")
+        tags = " ".join(e.get("intent_tags", [])).lower()
+        if category == "nature" and any(x in tags for x in ["น้ำตก", "ปีน", "เดินป่า", "ภู", "ถ้ำ"]):
+            return "high"
+        if category in {"temple", "museum", "landmark", "food", "cafe"}:
+            return "low"
+        return "medium"
+
+    def _why_matched(self, e: dict, rag_hit: dict | None) -> str:
+        if not rag_hit:
+            return "Matches requested intent with scope-safe filtering."
+        snippets = ", ".join(rag_hit.get("snippets", [])[:2])
+        if snippets:
+            return f"Matched by RAG evidence ({snippets}) with scope-safe filtering."
+        return "Matched by RAG evidence with scope-safe filtering."
+    def __init__(self):
+        self.rag = MockRagService()
