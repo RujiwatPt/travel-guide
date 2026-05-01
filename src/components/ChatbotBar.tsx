@@ -18,18 +18,23 @@ export default function ChatbotBar({ onSubmit, loading, initialQuery, onClear, h
     }
   }
 
+  const handleClear = () => {
+    setValue('')
+    onClear?.()
+  }
+
   return (
     <div className="absolute top-4 left-4 right-4 z-30">
       <form
         onSubmit={handleSubmit}
         className="kit-pill"
       >
-        <span className="text-base text-ink/60">⌕</span>
+        <span className="text-base text-ink/60">âŒ•</span>
         <input
           type="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="Ask about Nakhon Phanom…"
+          placeholder="Ask about Nakhon Phanomâ€¦"
           disabled={loading}
           className="flex-1 bg-transparent outline-none text-sm font-semibold text-ink placeholder:text-muted disabled:opacity-60"
         />
@@ -42,11 +47,11 @@ export default function ChatbotBar({ onSubmit, loading, initialQuery, onClear, h
         ) : hasPlan ? (
           <button
             type="button"
-            onClick={onClear}
+            onClick={handleClear}
             className="w-8 h-8 grid place-items-center rounded-kit-pill text-muted hover:text-ink hover:bg-ink/5 text-lg leading-none transition"
-            aria-label="Clear plan"
+            aria-label="Clear search or plan"
           >
-            ✕
+            âœ•
           </button>
         ) : (
           <button
@@ -55,7 +60,7 @@ export default function ChatbotBar({ onSubmit, loading, initialQuery, onClear, h
             disabled={value.trim().length === 0}
             aria-label="Submit"
           >
-            ◉
+            â—‰
           </button>
         )}
       </form>

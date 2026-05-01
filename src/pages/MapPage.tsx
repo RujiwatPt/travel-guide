@@ -10,8 +10,18 @@ import { NKP } from '../data/seed'
 import { themesForCity } from '../data/themes'
 import { distanceKm } from '../lib/distance'
 import { CHIPS, applyFilters } from '../lib/filters'
+import {
+  rankEntriesForIntent,
+  shouldUsePlanMode,
+  type RankedEntry,
+} from '../lib/intentSearch'
 import { getPlan, type Plan } from '../lib/plan'
 import { useAppStore } from '../store/useAppStore'
+
+type ActiveSearch = {
+  query: string
+  results: RankedEntry[]
+}
 
 export default function MapPage() {
   const navigate = useNavigate()
@@ -19,6 +29,7 @@ export default function MapPage() {
   const [sheetState, setSheetState] = useState<SheetState>('peek')
   const [selectedChipIds, setSelectedChipIds] = useState<string[]>([])
   const [activeThemeId, setActiveThemeId] = useState<string | null>(null)
+  const [activeSearch, setActiveSearch] = useState<ActiveSearch | null>(null)
 
   // Chatbot / plan orchestration
   const [chatbotLoading, setChatbotLoading] = useState(false)
@@ -40,6 +51,7 @@ export default function MapPage() {
   }, [entries, selectedChipIds, activeTheme])
 
   const toggleChip = (id: string) => {
+    setActiveSearch(null)
     setSelectedChipIds((prev) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
       // Auto-promote sheet on first selection
@@ -51,6 +63,7 @@ export default function MapPage() {
   }
 
   const handleThemeTap = (themeId: string) => {
+    setActiveSearch(null)
     setActiveThemeId((prev) => (prev === themeId ? null : themeId))
     setSelectedChipIds([])
     if (sheetState === 'peek') setSheetState('half')
@@ -65,19 +78,39 @@ export default function MapPage() {
   }
 
   const handleChatbotSubmit = async (query: string) => {
-    setChatbotLoading(true)
     setActivePlan(null)
     setRouteRevealedSegments(0)
     setSelectedChipIds([])
     setActiveThemeId(null)
+    setActiveSearch(null)
+
+    if (shouldUsePlanMode(query)) {
+      setChatbotLoading(true)
+      const plan = await getPlan(query, 'nkp')
+      setChatbotLoading(false)
+      setActivePlan(plan)
+      setSheetState('full')
+      return
+    }
+
+    const rankedResults = rankEntriesForIntent(query, entries)
+    if (rankedResults.length > 0) {
+      setActiveSearch({ query, results: rankedResults })
+      setSheetState('full')
+      return
+    }
+    setChatbotLoading(true)
     const plan = await getPlan(query, 'nkp')
     setChatbotLoading(false)
     setActivePlan(plan)
     setSheetState('full')
   }
 
-  const handleClearPlan = () => {
+  const handleClearResults = () => {
+    setActiveSearch(null)
     setActivePlan(null)
+    setSelectedChipIds([])
+    setActiveThemeId(null)
     setRouteRevealedSegments(0)
     setSheetState('peek')
   }
@@ -99,16 +132,17 @@ export default function MapPage() {
   }, [activePlan])
 
   // When a plan is active, use ALL entries (so faded pins still render); otherwise use filtered.
-  const mapEntries = activePlan ? entries : filteredEntries
+  const searchEntries = activeSearch?.results.map((result) => result.entry) ?? []
+  const mapEntries = activePlan ? entries : activeSearch ? searchEntries : filteredEntries
 
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden">
       <ChatbotBar
         onSubmit={handleChatbotSubmit}
         loading={chatbotLoading}
-        initialQuery={activePlan?.query}
-        onClear={handleClearPlan}
-        hasPlan={!!activePlan}
+        initialQuery={activeSearch?.query ?? activePlan?.query}
+        onClear={handleClearResults}
+        hasPlan={!!activePlan || !!activeSearch}
       />
       <MapView
         city={NKP}
@@ -120,7 +154,51 @@ export default function MapPage() {
 
       <BottomSheet state={sheetState} onStateChange={setSheetState}>
         {activePlan ? (
-          <PlanResult plan={activePlan} onClear={handleClearPlan} />
+          <PlanResult plan={activePlan} onClear={handleClearResults} />
+        ) : activeSearch ? (
+          <div>
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-muted font-semibold">
+                  Search results
+                </p>
+                <h2 className="text-lg font-bold text-ink leading-tight">
+                  {activeSearch.query}
+                </h2>
+                <p className="text-[12px] text-muted mt-0.5">
+                  {activeSearch.results.length} ranked result
+                  {activeSearch.results.length === 1 ? '' : 's'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleClearResults}
+                className="text-[12px] font-semibold text-blue-strong hover:text-ink"
+              >
+                Clear
+              </button>
+            </div>
+
+            {activeSearch.results.map((result, index) => (
+              <div key={result.entry.id} className="mb-3">
+                <div className="flex items-center gap-2 mb-1 text-[11px] text-muted">
+                  <span className="font-bold text-blue-strong">#{index + 1}</span>
+                  <span>{result.score} pts</span>
+                  {result.matchedReasons.length > 0 && (
+                    <span className="truncate">{result.matchedReasons.join(' · ')}</span>
+                  )}
+                </div>
+                <EntryCard
+                  entry={result.entry}
+                  distanceKm={distanceKm(
+                    { lat: NKP.default_lat, lng: NKP.default_lng },
+                    { lat: result.entry.lat, lng: result.entry.lng },
+                  )}
+                  onTap={(e) => handleCardTap(e.id)}
+                />
+              </div>
+            ))}
+          </div>
         ) : (
           <>
             {/* Theme strip — city identity (above chips) */}
