@@ -1,9 +1,11 @@
 import type { Entry, HoursWeekly, LiveStatus } from '../types'
 import { ENTRIES as LOCAL_SEED } from '../data/seed'
 
-// Temporary demo fallback until Vercel env vars are configured for the deployed frontend.
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() || 'https://pattarabordee-nakhon-phanom-backend.hf.space'
-const API_KEY = (import.meta.env.VITE_API_KEY as string | undefined)?.trim() || 'nkp-demo-key-2026'
+// Production should set VITE_API_BASE_URL and VITE_API_KEY in Vercel; local development falls back to localhost.
+const RAW_API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim()
+const RAW_API_KEY = (import.meta.env.VITE_API_KEY as string | undefined)?.trim()
+const API_BASE_URL = RAW_API_BASE_URL || (import.meta.env.PROD ? '' : 'http://127.0.0.1:8000')
+const API_KEY = RAW_API_KEY || (import.meta.env.PROD ? '' : 'dev-local-key')
 
 type ApiEntry = {
   id: string
@@ -189,7 +191,14 @@ function toFrontendEntry(api: ApiEntry): Entry {
   }
 }
 
+function requireApiConfig(): void {
+  if (import.meta.env.PROD && (!API_BASE_URL || !API_KEY)) {
+    throw new Error('Missing VITE_API_BASE_URL or VITE_API_KEY for production API request')
+  }
+}
+
 async function apiGet<T>(path: string): Promise<T> {
+  requireApiConfig()
   const res = await fetch(`${API_BASE_URL}${path}`, {
     method: 'GET',
     headers: {
@@ -260,6 +269,7 @@ export async function searchIntentHits(
 }
 
 export async function fetchPlan(city: string, query: string): Promise<ApiPlan> {
+  requireApiConfig()
   const res = await fetch(`${API_BASE_URL}/api/v1/plan`, {
     method: 'POST',
     headers: {
