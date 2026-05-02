@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "deploy:prod": "bash scripts/deploy-prod.sh"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
