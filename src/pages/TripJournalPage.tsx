@@ -6,55 +6,23 @@ import { useAppStore } from '../store/useAppStore'
 import type { Entry } from '../types'
 
 /**
- * TripJournalPage — adapted from Builder.io's Screen 3 (Trip Journal):
- * gradient-background cards with location chip + title + description +
- * rating + CTA. Tokyo content swapped for NKP birthday-stupa pilgrimage.
+ * TripJournalPage — Birthday-Stupa Pilgrimage list.
+ * Cards use the photo-on-top + content-below pattern that matches
+ * /local, /booking, /explore for visual consistency across the app.
  */
 
 const STUPA_CONFIG: Record<
   string,
-  { gradient: string; subtitle: string; rating: string }
+  { subtitle: string; rating: string }
 > = {
-  'wat-phra-that-phanom': {
-    gradient: 'from-amber-400 to-rose-400',
-    subtitle: 'That Phanom · Sunday',
-    rating: '4.9 (3.2k pilgrims)',
-  },
-  'phra-that-renu': {
-    gradient: 'from-pink-400 to-fuchsia-400',
-    subtitle: 'Renu Nakhon · Monday',
-    rating: '4.7 (1.5k pilgrims)',
-  },
-  'phra-that-si-khun': {
-    gradient: 'from-orange-400 to-amber-500',
-    subtitle: 'Mueang NKP · Tuesday',
-    rating: '4.6 (980 pilgrims)',
-  },
-  'phra-that-mahachai': {
-    gradient: 'from-emerald-400 to-teal-500',
-    subtitle: 'Pla Pak · Wed daytime',
-    rating: '4.5 (640 pilgrims)',
-  },
-  'phra-that-marukkha-nakhon': {
-    gradient: 'from-blue-400 to-indigo-500',
-    subtitle: 'Tha Uthen · Wed night',
-    rating: '4.6 (510 pilgrims)',
-  },
-  'phra-that-prasit': {
-    gradient: 'from-violet-400 to-purple-500',
-    subtitle: 'Tha Uthen · Thursday',
-    rating: '4.5 (430 pilgrims)',
-  },
-  'phra-that-tha-uthen': {
-    gradient: 'from-sky-400 to-cyan-500',
-    subtitle: 'Tha Uthen · Friday',
-    rating: '4.7 (720 pilgrims)',
-  },
-  'phra-that-nakhon': {
-    gradient: 'from-rose-400 to-orange-400',
-    subtitle: 'Mueang NKP · Saturday',
-    rating: '4.7 (1.1k pilgrims)',
-  },
+  'wat-phra-that-phanom':       { subtitle: 'That Phanom · Sunday',     rating: '4.9 (3.2k pilgrims)' },
+  'phra-that-renu':             { subtitle: 'Renu Nakhon · Monday',     rating: '4.7 (1.5k pilgrims)' },
+  'phra-that-si-khun':          { subtitle: 'Mueang NKP · Tuesday',     rating: '4.6 (980 pilgrims)'  },
+  'phra-that-mahachai':         { subtitle: 'Pla Pak · Wed daytime',    rating: '4.5 (640 pilgrims)'  },
+  'phra-that-marukkha-nakhon':  { subtitle: 'Tha Uthen · Wed night',    rating: '4.6 (510 pilgrims)'  },
+  'phra-that-prasit':           { subtitle: 'Tha Uthen · Thursday',     rating: '4.5 (430 pilgrims)'  },
+  'phra-that-tha-uthen':        { subtitle: 'Tha Uthen · Friday',       rating: '4.7 (720 pilgrims)'  },
+  'phra-that-nakhon':           { subtitle: 'Mueang NKP · Saturday',    rating: '4.7 (1.1k pilgrims)' },
 }
 
 export default function TripJournalPage() {
@@ -120,11 +88,10 @@ export default function TripJournalPage() {
           </button>
         </div>
 
-        {/* Stupa cards */}
+        {/* Stupa cards — photo on top, content below (matches /local, /booking) */}
         <div className="space-y-4">
           {stupas.map((entry) => {
             const config = STUPA_CONFIG[entry.id] ?? {
-              gradient: 'from-slate-400 to-slate-500',
               subtitle: 'Birthday-Stupa Trail',
               rating: '4.5',
             }
@@ -132,28 +99,39 @@ export default function TripJournalPage() {
               <button
                 key={entry.id}
                 onClick={() => navigate(`/entry/${entry.id}`)}
-                className={`relative w-full text-left rounded-kit-photo p-4 text-white shadow-kit-card bg-gradient-to-br ${config.gradient} active:scale-[0.99] transition-transform overflow-hidden`}
+                className="w-full text-left rounded-kit-photo overflow-hidden shadow-kit-card border border-ink/[0.04] bg-white active:scale-[0.99] transition-transform"
               >
-                {/* Dark scrim ensures white text >= 4.5:1 over the lighter gradients (rule color-accessible-pairs) */}
-                <div className="absolute inset-0 bg-black/25 rounded-kit-photo pointer-events-none" aria-hidden="true" />
-                <div className="relative">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <MapPin size={14} strokeWidth={2.2} aria-hidden="true" />
-                    <span className="text-[12px] font-bold opacity-95">{config.subtitle}</span>
+                {/* Photo */}
+                <div className="relative aspect-[16/10]">
+                  <img
+                    src={entry.photos?.[0] ?? ''}
+                    alt={entry.name_en}
+                    loading="lazy"
+                    width={400}
+                    height={250}
+                    className="w-full h-full object-cover bg-kit-cream-1"
+                  />
+                  {/* Subtitle (day-of-week) overlaid on photo for at-a-glance scanning */}
+                  <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm rounded-kit-pill px-3 py-1.5 flex items-center gap-1.5 shadow-kit-pill">
+                    <MapPin size={12} strokeWidth={2.4} className="text-blue-strong" aria-hidden="true" />
+                    <span className="text-[11px] font-extrabold text-ink">{config.subtitle}</span>
                   </div>
-                  <h3 className="text-[18px] font-extrabold tracking-tight leading-tight mb-1">
+                </div>
+                {/* Content */}
+                <div className="px-4 py-3">
+                  <h3 className="text-[17px] font-extrabold text-ink tracking-tight leading-tight">
                     {entry.name_en}
                   </h3>
-                  <p className="text-[13px] opacity-95 font-bold mb-2">{entry.name_th}</p>
-                  <p className="text-[12px] opacity-95 mb-3 leading-snug line-clamp-2">
+                  <p className="text-[13px] text-ink/55 mt-0.5 font-semibold">{entry.name_th}</p>
+                  <p className="text-[12px] text-ink/65 mt-2 leading-snug line-clamp-2 font-medium">
                     {entry.why_visit_en}
                   </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-[12px] font-bold tabular-nums">
-                      <Star size={12} fill="currentColor" className="text-yellow-200" aria-hidden="true" />
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="flex items-center gap-1 text-[12px] font-extrabold text-ink tabular-nums">
+                      <Star size={12} fill="currentColor" className="text-kit-gold-1" aria-hidden="true" />
                       <span>{config.rating}</span>
                     </div>
-                    <span className="bg-white/25 backdrop-blur-sm px-3 py-1.5 rounded-kit-pill text-[11px] font-extrabold flex items-center gap-1">
+                    <span className="bg-blue-soft/30 text-blue-strong px-3 py-1.5 rounded-kit-pill text-[11px] font-extrabold flex items-center gap-1">
                       CONTINUE
                       <ChevronRight size={12} strokeWidth={2.4} aria-hidden="true" />
                     </span>
