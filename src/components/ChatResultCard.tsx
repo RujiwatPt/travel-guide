@@ -1,4 +1,6 @@
 import { ChevronRight } from 'lucide-react'
+import type { ChatLanguage } from '../lib/chatGuard'
+import { simplifyChatLabels } from '../lib/chatLabels'
 import { isOpenNow } from '../lib/status'
 import { STATUS_COLOR, STATUS_LABEL } from '../lib/statusDisplay'
 import type { Entry } from '../types'
@@ -7,11 +9,19 @@ type Props = {
   entry: Entry
   score: number
   matchedReasons: string[]
+  language?: ChatLanguage
   onTap?: (entry: Entry) => void
 }
 
-export default function ChatResultCard({ entry, score, matchedReasons, onTap }: Props) {
+export default function ChatResultCard({
+  entry,
+  score,
+  matchedReasons,
+  language = 'en',
+  onTap,
+}: Props) {
   const status = isOpenNow(entry, new Date())
+  const labels = simplifyChatLabels(matchedReasons, language)
 
   return (
     <button
@@ -49,9 +59,9 @@ export default function ChatResultCard({ entry, score, matchedReasons, onTap }: 
             <span className="text-ink/20">/</span>
             <span className="capitalize">{entry.category}</span>
           </div>
-          {matchedReasons.length > 0 && (
+          {labels.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
-              {matchedReasons.slice(0, 3).map((reason) => (
+              {labels.map((reason) => (
                 <span
                   key={reason}
                   className="rounded-kit-pill bg-panel px-2 py-1 text-[10px] font-bold text-ink/70"
