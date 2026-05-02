@@ -20,6 +20,8 @@ import {
   shouldUsePlanMode,
 } from '../lib/intentSearch'
 import { searchIntentHits } from '../lib/api'
+import { classifyChatIntent, type ChatLanguage } from '../lib/chatGuard'
+import { decideChatResponse } from '../lib/chatResponsePolicy'
 import { getPlan, type Plan } from '../lib/plan'
 import { useAppStore } from '../store/useAppStore'
 import type { Entry } from '../types'
@@ -41,6 +43,7 @@ type ChatMessage = {
   id: string
   role: 'assistant' | 'user'
   text: string
+  language?: ChatLanguage
   results?: RankedSearchResult[]
   plan?: Plan
 }
@@ -78,19 +81,6 @@ function buildPlanPrompt(selections: PlanMyDaySelections): string {
   }
 
   return `Plan ${durationText[selections.duration]} in Nakhon Phanom with a ${paceText[selections.pace]} pace focused on ${vibeText[selections.vibe]}.`
-}
-
-function buildSearchReply(query: string, results: RankedSearchResult[]): string {
-  if (results.length === 0) {
-    return `I could not find a strong match for "${query}", but you can still explore the map and nearby picks.`
-  }
-
-  const [first, second] = results
-  if (!second) {
-    return `I found one strong match for "${query}". ${first.entry.name_en} looks like the best place to start.`
-  }
-
-  return `I found ${results.length} matches for "${query}". Start with ${first.entry.name_en}, then keep ${second.entry.name_en} as a strong backup.`
 }
 
 function buildPlanReply(plan: Plan): string {
@@ -212,12 +202,17 @@ export default function MapPage() {
     navigate(`/entry/${id}`)
   }
 
-  const prepareFreshResults = () => {
+  const clearVisibleResults = () => {
+    setActiveSearch(null)
     setActivePlan(null)
     setRouteRevealedSegments(0)
+    setSheetState('peek')
+  }
+
+  const prepareFreshResults = () => {
+    clearVisibleResults()
     setSelectedChipIds([])
     setActiveThemeId(null)
-    setActiveSearch(null)
   }
 
   const resolveSearchResults = async (query: string): Promise<ActiveSearch> => {
@@ -259,18 +254,14 @@ export default function MapPage() {
   ) => {
     const normalized = query.trim()
     if (!normalized) return
-
-    prepareFreshResults()
-
-    if (options?.switchToMap) {
-      setViewMode('map')
-    }
+    const guard = classifyChatIntent(normalized)
 
     if (options?.appendToChat) {
       addChatMessage({
         id: `user-${Date.now()}`,
         role: 'user',
         text: normalized,
+        language: guard.language,
       })
       setChatThinking(true)
     }
@@ -278,8 +269,34 @@ export default function MapPage() {
     setChatbotLoading(true)
 
     try {
-      if (options?.forcePlan || shouldUsePlanMode(normalized)) {
-        const plan = await getPlan(normalized, 'nkp')
+      const shouldPlan = options?.forcePlan || guard.intent === 'travel_plan'
+
+      if (guard.intent === 'pause' || guard.intent === 'off_topic' || guard.intent === 'unclear') {
+        clearVisibleResults()
+        const response = decideChatResponse({
+          guard,
+          searchResultCount: 0,
+          topScore: 0,
+        })
+        if (options?.appendToChat) {
+          addChatMessage({
+            id: `assistant-guard-${Date.now()}`,
+            role: 'assistant',
+            text: response.text,
+            language: guard.language,
+          })
+        }
+        return
+      }
+
+      if (options?.switchToMap) {
+        setViewMode('map')
+      }
+
+      prepareFreshResults()
+
+      if (shouldPlan || shouldUsePlanMode(guard.normalizedQuery)) {
+        const plan = await getPlan(guard.normalizedQuery, 'nkp')
         setActivePlan(plan)
         setSheetState('full')
 
@@ -288,17 +305,27 @@ export default function MapPage() {
             id: `assistant-plan-${Date.now()}`,
             role: 'assistant',
             text: buildPlanReply(plan),
+            language: guard.language,
             plan,
           })
         }
       } else {
-        const search = await resolveSearchResults(normalized)
+        const search = await resolveSearchResults(guard.normalizedQuery)
+        const response = decideChatResponse({
+          guard,
+          searchResultCount: search.results.length,
+          topScore: search.results[0]?.score ?? 0,
+        })
+        if (!response.shouldShowCards) {
+          clearVisibleResults()
+        }
         if (options?.appendToChat) {
           addChatMessage({
             id: `assistant-search-${Date.now()}`,
             role: 'assistant',
-            text: buildSearchReply(normalized, search.results),
-            results: search.results.slice(0, 3),
+            text: response.text,
+            language: guard.language,
+            results: response.shouldShowCards ? search.results.slice(0, 3) : undefined,
           })
         }
       }
@@ -648,6 +675,7 @@ export default function MapPage() {
                         entry={result.entry}
                         score={result.score}
                         matchedReasons={result.matchedReasons}
+                        language={message.language}
                         onTap={(entry) => handleCardTap(entry.id)}
                       />
                     ))}
