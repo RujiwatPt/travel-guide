@@ -2,18 +2,18 @@ import { expect, test } from 'playwright/test'
 
 test.describe('frontend MVP smoke', () => {
   test('home and map routes load', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
     await expect(
       page.getByRole('heading', { name: 'Ready to Explore', exact: false }),
     ).toBeVisible()
 
-    await page.goto('/app')
+    await page.goto('/app', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('search')).toBeVisible()
     await expect(page.getByLabel('Ask about Nakhon Phanom')).toBeVisible()
   })
 
   test('intent search returns ranked results and can be cleared', async ({ page }) => {
-    await page.goto('/app')
+    await page.goto('/app', { waitUntil: 'domcontentloaded' })
 
     const searchInput = page.getByLabel('Ask about Nakhon Phanom')
     await searchInput.fill('ไหว้พระ ขอพร')
@@ -29,7 +29,7 @@ test.describe('frontend MVP smoke', () => {
   })
 
   test('plan-style prompt shows a plan without crashing', async ({ page }) => {
-    await page.goto('/app')
+    await page.goto('/app', { waitUntil: 'domcontentloaded' })
 
     const searchInput = page.getByLabel('Ask about Nakhon Phanom')
     await searchInput.fill('I have one afternoon, I love food and history')

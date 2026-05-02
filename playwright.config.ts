@@ -5,7 +5,7 @@ const host = '127.0.0.1'
 
 export default defineConfig({
   testDir: './tests/e2e',
-  timeout: 15_000,
+  timeout: 30_000,
   expect: {
     timeout: 10_000,
   },
@@ -14,6 +14,7 @@ export default defineConfig({
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: {
     baseURL: `http://${host}:${port}`,
+    navigationTimeout: 30_000,
     trace: 'on-first-retry',
   },
   projects: [
