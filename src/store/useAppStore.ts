@@ -44,17 +44,30 @@ export const useAppStore = create<State>((set, get) => ({
       const remoteEntries = await fetchEntries(city)
       if (!Array.isArray(remoteEntries) || remoteEntries.length === 0) return
       set((state) => {
-        const byId = new Map(state.entries.map((e) => [e.id, e]))
-        const merged = remoteEntries.map((r) => {
-          const local = byId.get(r.id)
-          if (!local) return r
+        // ADDITIVE merge: walk local seed (the source of truth for slug IDs
+        // + vibe_tags) and ENRICH each entry with backend fields when IDs
+        // align. Backend entries whose IDs are unknown locally are SKIPPED
+        // — they do NOT replace the local seed.
+        //
+        // This protects every page that filters by vibe_tags or looks up
+        // entries by slug id (Journal birthday-stupa, Explore Must-See ids,
+        // Booking price overrides, Home destination cards, etc.) from being
+        // wiped when the backend returns UUID-keyed data with empty
+        // vibe_tags. Once the backend schema returns matching slug ids +
+        // vibe_tags, those fields will start enriching automatically.
+        const remoteById = new Map(remoteEntries.map((r) => [r.id, r]))
+        const enriched = state.entries.map((local) => {
+          const remote = remoteById.get(local.id)
+          if (!remote) return local
           return {
             ...local,
-            ...r,
+            ...remote,
+            // Preserve local vibe_tags — backend currently returns []
+            vibe_tags: local.vibe_tags,
             data_source: 'imported' as const,
           }
         })
-        return { entries: merged, statusLog: state.statusLog }
+        return { entries: enriched, statusLog: state.statusLog }
       })
     } catch {
       // Keep local seed fallback for demo reliability when API is unavailable.
