@@ -62,8 +62,12 @@ export const useAppStore = create<State>((set, get) => ({
           return {
             ...local,
             ...remote,
-            // Preserve local vibe_tags — backend currently returns []
+            // Preserve local-curated narrative fields — backend metadata
+            // overwrites them with terse snippets ("Opening hours: 06:00-18:00")
+            // that break the read-along Storymode and Journal cards.
             vibe_tags: local.vibe_tags,
+            description_en: local.description_en,
+            why_visit_en: local.why_visit_en,
             data_source: 'imported' as const,
           }
         })
