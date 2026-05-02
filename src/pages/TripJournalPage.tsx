@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Calendar, Settings, BookOpen, Sparkles, MapPin, ChevronRight, Star } from 'lucide-react'
 import KitBottomNav2 from '../components/KitBottomNav2'
+import KitStorymode, { type StoryItem } from '../components/KitStorymode'
 import { useAppStore } from '../store/useAppStore'
 import type { Entry } from '../types'
 
@@ -29,10 +30,33 @@ export default function TripJournalPage() {
   const navigate = useNavigate()
   const entries = useAppStore((s) => s.entries)
   const [mode, setMode] = useState<'timeline' | 'storymode'>('timeline')
+  const [storyStartIdx, setStoryStartIdx] = useState(0)
 
   const stupas: Entry[] = entries.filter((e) =>
     e.vibe_tags?.includes('birthday-stupa'),
   )
+
+  // Build StoryItem[] from stupas — mirrors the timeline metadata so the two
+  // views show the same content, just with different framing.
+  const storyItems: StoryItem[] = stupas.map((entry) => {
+    const config = STUPA_CONFIG[entry.id]
+    return {
+      id: entry.id,
+      photo: entry.photos?.[0] ?? '',
+      eyebrow: config?.subtitle ?? 'Birthday-Stupa Trail',
+      title: entry.name_en,
+      subtitle: entry.name_th,
+      body: entry.why_visit_en,
+      href: `/entry/${entry.id}`,
+      ctaLabel: 'Visit place',
+    }
+  })
+
+  const openStorymode = (startIdx = 0) => {
+    setStoryStartIdx(startIdx)
+    setMode('storymode')
+  }
+  const closeStorymode = () => setMode('timeline')
 
   return (
     <main className="bg-white min-h-[100dvh] relative pb-28">
@@ -73,7 +97,7 @@ export default function TripJournalPage() {
             Timeline
           </button>
           <button
-            onClick={() => setMode('storymode')}
+            onClick={() => openStorymode(0)}
             role="tab"
             aria-selected={mode === 'storymode'}
             className={
@@ -144,6 +168,16 @@ export default function TripJournalPage() {
       </div>
 
       <KitBottomNav2 active="grid" />
+
+      {/* Storymode overlay — opens when the toggle is tapped, closes via X / swipe-down / Esc / browser-back */}
+      {mode === 'storymode' && storyItems.length > 0 && (
+        <KitStorymode
+          items={storyItems}
+          startIndex={storyStartIdx}
+          autoAdvanceMs={7000}
+          onClose={closeStorymode}
+        />
+      )}
     </main>
   )
 }
