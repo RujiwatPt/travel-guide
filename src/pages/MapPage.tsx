@@ -202,12 +202,17 @@ export default function MapPage() {
     navigate(`/entry/${id}`)
   }
 
-  const prepareFreshResults = () => {
+  const clearVisibleResults = () => {
+    setActiveSearch(null)
     setActivePlan(null)
     setRouteRevealedSegments(0)
+    setSheetState('peek')
+  }
+
+  const prepareFreshResults = () => {
+    clearVisibleResults()
     setSelectedChipIds([])
     setActiveThemeId(null)
-    setActiveSearch(null)
   }
 
   const resolveSearchResults = async (query: string): Promise<ActiveSearch> => {
@@ -267,6 +272,7 @@ export default function MapPage() {
       const shouldPlan = options?.forcePlan || guard.intent === 'travel_plan'
 
       if (guard.intent === 'pause' || guard.intent === 'off_topic' || guard.intent === 'unclear') {
+        clearVisibleResults()
         const response = decideChatResponse({
           guard,
           searchResultCount: 0,
@@ -310,14 +316,17 @@ export default function MapPage() {
           searchResultCount: search.results.length,
           topScore: search.results[0]?.score ?? 0,
         })
+        if (!response.shouldShowCards) {
+          clearVisibleResults()
+        }
         if (options?.appendToChat) {
-            addChatMessage({
-              id: `assistant-search-${Date.now()}`,
-              role: 'assistant',
-              text: response.text,
-              language: guard.language,
-              results: response.shouldShowCards ? search.results.slice(0, 3) : undefined,
-            })
+          addChatMessage({
+            id: `assistant-search-${Date.now()}`,
+            role: 'assistant',
+            text: response.text,
+            language: guard.language,
+            results: response.shouldShowCards ? search.results.slice(0, 3) : undefined,
+          })
         }
       }
     } catch {

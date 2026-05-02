@@ -74,6 +74,7 @@ export function decideChatResponse({
   topScore,
 }: ResponsePolicyInput): ChatResponseDecision {
   const thai = guard.language === 'th'
+  const hasStrongTravelHint = Boolean(guard.travelHint && guard.travelHint !== 'general')
 
   if (guard.intent === 'off_topic') {
     return thai ? thaiOffTopic() : englishOffTopic()
@@ -97,7 +98,7 @@ export function decideChatResponse({
     }
   }
 
-  const confidence = computeConfidence(topScore, Boolean(guard.travelHint))
+  const confidence = computeConfidence(topScore, hasStrongTravelHint)
   if (confidence === 'low' || searchResultCount === 0) {
     return thai ? thaiUnclear() : englishUnclear()
   }

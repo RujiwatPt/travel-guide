@@ -30,6 +30,8 @@ type KeywordGroup = {
   keywords: string[]
 }
 
+const LATIN_WORD_PATTERN = /[a-z]/
+
 const PAUSE_PATTERNS = [
   'เดี๋ยวนะ',
   'เดียวนะ',
@@ -150,12 +152,28 @@ function detectLanguage(query: string): ChatLanguage {
 }
 
 function includesPattern(query: string, patterns: string[]): string | null {
-  return patterns.find((pattern) => query.includes(normalizeQuery(pattern))) ?? null
+  return (
+    patterns.find((pattern) => matchesNormalizedPattern(query, normalizeQuery(pattern))) ?? null
+  )
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function matchesNormalizedPattern(query: string, pattern: string): boolean {
+  if (!pattern) return false
+  if (!LATIN_WORD_PATTERN.test(pattern)) {
+    return query.includes(pattern)
+  }
+
+  const boundedPattern = new RegExp(`(^|[^a-z0-9])${escapeRegex(pattern)}($|[^a-z0-9])`)
+  return boundedPattern.test(query)
 }
 
 function detectTravelHint(query: string): TravelHint | undefined {
   for (const group of TRAVEL_KEYWORD_GROUPS) {
-    if (group.keywords.some((keyword) => query.includes(normalizeQuery(keyword)))) {
+    if (group.keywords.some((keyword) => matchesNormalizedPattern(query, normalizeQuery(keyword)))) {
       return group.hint
     }
   }

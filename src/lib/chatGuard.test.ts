@@ -68,4 +68,10 @@ describe('classifyChatIntent', () => {
     expect(classifyChatIntent('temple').travelHint).toBe('blessing')
     expect(classifyChatIntent('food').travelHint).toBe('food')
   })
+
+  it('uses bounded matching for Latin keywords', () => {
+    expect(classifyChatIntent('templeton review').intent).not.toBe('travel_search')
+    expect(classifyChatIntent('breakfasting tips').travelHint).not.toBe('food')
+    expect(classifyChatIntent('hidden gemstone market').travelHint).not.toBe('hidden_gem')
+  })
 })

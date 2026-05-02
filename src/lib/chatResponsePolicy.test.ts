@@ -51,7 +51,7 @@ describe('decideChatResponse', () => {
     })
     expect(result.confidence).toBe('medium')
     expect(result.shouldShowCards).toBe(true)
-    expect(result.text).toContain('สถานที่ขอพรเรื่องบุตรหรือสายบุญ')
+    expect(result.text).toContain('สถานที่ขอพรเรื่องบุตร')
   })
 
   it('returns grounded high-confidence wording for strong matches', () => {
@@ -71,6 +71,17 @@ describe('decideChatResponse', () => {
       guard: guard({ language: 'th', travelHint: undefined }),
       searchResultCount: 2,
       topScore: 22,
+    })
+    expect(result.confidence).toBe('low')
+    expect(result.shouldShowCards).toBe(false)
+    expect(result.text).toContain('ผมยังไม่แน่ใจ')
+  })
+
+  it('allows generic travel hints to fall back to clarification at low confidence', () => {
+    const result = decideChatResponse({
+      guard: guard({ language: 'th', travelHint: 'general' }),
+      searchResultCount: 2,
+      topScore: 24,
     })
     expect(result.confidence).toBe('low')
     expect(result.shouldShowCards).toBe(false)

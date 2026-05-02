@@ -41,9 +41,11 @@ test.describe('frontend MVP smoke', () => {
   test('blessing and travel queries still work without exposing internal labels', async ({ page }) => {
     await page.goto('/app', { waitUntil: 'domcontentloaded' })
 
+    const topMatches = page.getByText('Top matches', { exact: true })
+
     await sendChatMessage(page, 'ขอลูก')
     await expect(page.getByText(/ขอพรเรื่องบุตร|ตรงกับคำขอของคุณ/)).toBeVisible()
-    await expect(page.getByText('Top matches')).toBeVisible()
+    await expect(topMatches.last()).toBeVisible()
     await expect(page.getByText('general_discovery')).toHaveCount(0)
     await expect(page.getByText('food_trip')).toHaveCount(0)
     await expect(page.getByText('grade:medium')).toHaveCount(0)
@@ -51,7 +53,7 @@ test.describe('frontend MVP smoke', () => {
     await expect(page.getByText('grade:low')).toHaveCount(0)
 
     await sendChatMessage(page, 'ไหว้พระ ขอพร')
-    await expect(page.getByText('Top matches')).toBeVisible()
+    await expect(topMatches.last()).toBeVisible()
 
     await page.getByRole('tab', { name: 'Map' }).click()
     await expect(page.getByRole('search')).toBeVisible()
