@@ -470,7 +470,7 @@ export const ENTRIES: Entry[] = [
     time_tags: ['morning', 'afternoon', 'evening'],
     setting: 'mixed',
     price_band: 'free',
-    photos: ['https://upload.wikimedia.org/wikipedia/commons/e/e7/Nakhon_Phanom_Wat_Mahathat.jpg'],
+    photos: ['https://upload.wikimedia.org/wikipedia/commons/6/62/Wat_Phra_That_Phanom.jpg'],
     hours_weekly: {
       tz: 'Asia/Bangkok',
       weekly: {
