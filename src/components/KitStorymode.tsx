@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { X, ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -13,7 +13,8 @@ export type StoryItem = {
   title: string
   /** Smaller subtitle (e.g. Thai name) */
   subtitle?: string
-  /** Body copy — kept under ~140 chars for readability */
+  /** Body copy — supports **markdown bold**. Read-along mode (default) sets
+   * autoAdvanceMs=0 so users pace themselves; long bodies get scroll. */
   body: string
   /** Where tapping "Visit" goes */
   href?: string
@@ -21,11 +22,24 @@ export type StoryItem = {
   ctaLabel?: string
 }
 
+/** Parse `**bold**` markdown into JSX fragments (no full markdown parser needed) */
+function parseBold(text: string) {
+  return text.split(/\*\*/).map((part, i) =>
+    i % 2 === 1
+      ? <strong key={i} className="font-extrabold">{part}</strong>
+      : <Fragment key={i}>{part}</Fragment>,
+  )
+}
+
 type Props = {
   items: StoryItem[]
   /** Initial slide index */
   startIndex?: number
-  /** Auto-advance ms per slide. 0 = no auto-advance. Spec default 7000. */
+  /**
+   * Auto-advance ms per slide.
+   * Default 0 = read-along mode (user taps to advance — closer to a storybook
+   * than to Instagram Stories). Pass 7000 for the Instagram-style timed mode.
+   */
   autoAdvanceMs?: number
   onClose: () => void
 }
@@ -50,7 +64,7 @@ function preloadImage(src: string) {
  *   user-paused by default (auto-advance off — pilgrims need time to read),
  *   no reply box, no DM.
  */
-export default function KitStorymode({ items, startIndex = 0, autoAdvanceMs = 7000, onClose }: Props) {
+export default function KitStorymode({ items, startIndex = 0, autoAdvanceMs = 0, onClose }: Props) {
   const [idx, setIdx] = useState(Math.max(0, Math.min(startIndex, items.length - 1)))
   const [progress, setProgress] = useState(0) // 0..1 for the current slide (only used if autoAdvanceMs > 0)
   const [paused, setPaused] = useState(false)
@@ -226,8 +240,9 @@ export default function KitStorymode({ items, startIndex = 0, autoAdvanceMs = 70
         </button>
       </div>
 
-      {/* Bottom: content */}
-      <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-10 pt-12 text-white">
+      {/* Bottom: content panel — taller in read-along mode so body has room.
+          Scrolls vertically when copy overflows; tap zones still work above it. */}
+      <div className="absolute inset-x-0 bottom-0 z-20 max-h-[68%] overflow-y-auto overscroll-contain px-5 pb-10 pt-14 text-white scrollbar-none">
         <div className="flex items-center gap-2 mb-3">
           <span className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-kit-pill">
             <MapPin size={12} strokeWidth={2.4} aria-hidden="true" />
@@ -244,18 +259,26 @@ export default function KitStorymode({ items, startIndex = 0, autoAdvanceMs = 70
         {item.subtitle && (
           <p className="text-[14px] font-bold opacity-95 mt-1 drop-shadow">{item.subtitle}</p>
         )}
-        <p className="text-[14px] font-medium leading-snug opacity-95 mt-3 drop-shadow line-clamp-3">
-          {item.body}
+        {/* Body — read-along sized at 16px / 1.55 lh for comfortable reading.
+            Markdown bold (**text**) is preserved. */}
+        <p className="text-[16px] font-medium leading-[1.55] opacity-[0.97] mt-4 drop-shadow whitespace-pre-line">
+          {parseBold(item.body)}
         </p>
         {item.href && (
           <Link
             to={item.href}
             onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1.5 mt-5 px-5 py-3 rounded-kit-pill bg-white text-ink text-[14px] font-extrabold shadow-kit-pill"
+            className="inline-flex items-center gap-1.5 mt-6 px-5 py-3 rounded-kit-pill bg-white text-ink text-[14px] font-extrabold shadow-kit-pill"
           >
             {item.ctaLabel ?? 'Visit place'}
             <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
           </Link>
+        )}
+        {/* End-of-list summary on the last slide */}
+        {idx === items.length - 1 && (
+          <p className="mt-8 text-[12px] font-bold opacity-70 text-center">
+            ✦ End of pilgrimage · tap or × to close
+          </p>
         )}
       </div>
 

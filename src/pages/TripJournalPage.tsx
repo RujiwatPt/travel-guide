@@ -36,8 +36,11 @@ export default function TripJournalPage() {
     e.vibe_tags?.includes('birthday-stupa'),
   )
 
-  // Build StoryItem[] from stupas — mirrors the timeline metadata so the two
-  // views show the same content, just with different framing.
+  // Build StoryItem[] from stupas — read-along framing.
+  // Body uses the FULL description_en (multi-sentence prose with markdown
+  // bold), not the one-liner why_visit_en. Falls back to why_visit_en if
+  // description is missing. Storymode renders longer copy at comfortable
+  // reading size (16px / 1.55 line-height) and lets the user tap to advance.
   const storyItems: StoryItem[] = stupas.map((entry) => {
     const config = STUPA_CONFIG[entry.id]
     return {
@@ -46,7 +49,7 @@ export default function TripJournalPage() {
       eyebrow: config?.subtitle ?? 'Birthday-Stupa Trail',
       title: entry.name_en,
       subtitle: entry.name_th,
-      body: entry.why_visit_en,
+      body: entry.description_en || entry.why_visit_en,
       href: `/entry/${entry.id}`,
       ctaLabel: 'Visit place',
     }
@@ -169,12 +172,13 @@ export default function TripJournalPage() {
 
       <KitBottomNav2 active="grid" />
 
-      {/* Storymode overlay — opens when the toggle is tapped, closes via X / swipe-down / Esc / browser-back */}
+      {/* Storymode overlay — read-along mode (autoAdvanceMs=0 default).
+          User taps right side to advance, left to go back, swipes down to close.
+          Body shows the full description_en in 16px / 1.55 lh for comfortable reading. */}
       {mode === 'storymode' && storyItems.length > 0 && (
         <KitStorymode
           items={storyItems}
           startIndex={storyStartIdx}
-          autoAdvanceMs={7000}
           onClose={closeStorymode}
         />
       )}
