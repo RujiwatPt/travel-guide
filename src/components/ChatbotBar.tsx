@@ -7,9 +7,10 @@ type Props = {
   initialQuery?: string
   onClear?: () => void
   hasPlan?: boolean
+  className?: string
 }
 
-export default function ChatbotBar({ onSubmit, loading, initialQuery, onClear, hasPlan }: Props) {
+export default function ChatbotBar({ onSubmit, loading, initialQuery, onClear, hasPlan, className }: Props) {
   const [value, setValue] = useState(initialQuery ?? '')
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -25,7 +26,7 @@ export default function ChatbotBar({ onSubmit, loading, initialQuery, onClear, h
   }
 
   return (
-    <div className="absolute top-4 left-4 right-4 z-kit-overlay">
+    <div className={className ?? 'absolute top-4 left-4 right-4 z-kit-overlay'}>
       <form
         onSubmit={handleSubmit}
         role="search"
