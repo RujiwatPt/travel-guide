@@ -1,4 +1,4 @@
-import type { Entry, LiveStatus } from '../types'
+import type { Entry, HoursWeekly, LiveStatus } from '../types'
 import { ENTRIES as LOCAL_SEED } from '../data/seed'
 
 // Temporary demo fallback until Vercel env vars are configured for the deployed frontend.
@@ -93,6 +93,30 @@ function parseLiveStatus(_confidence: ApiEntry['hours_confidence']): LiveStatus 
   return null
 }
 
+function parseHoursWeekly(openingHoursText?: string | null): HoursWeekly | null {
+  const raw = openingHoursText?.trim()
+  if (!raw) return null
+  const lower = raw.toLowerCase()
+  if (lower === '24/7' || lower === 'all day' || lower === 'open area') {
+    return { tz: 'Asia/Bangkok', all_day: true }
+  }
+  const m = raw.match(/^(\d{2}:\d{2})\s*[-–—]\s*(\d{2}:\d{2})$/)
+  if (!m) return null
+  const range: [string, string] = [m[1], m[2]]
+  return {
+    tz: 'Asia/Bangkok',
+    weekly: {
+      mon: [range],
+      tue: [range],
+      wed: [range],
+      thu: [range],
+      fri: [range],
+      sat: [range],
+      sun: [range],
+    },
+  }
+}
+
 function normalizeName(s: string): string {
   return s
     .toLocaleLowerCase()
@@ -125,8 +149,10 @@ function normalizeCategory(input: string): Entry['category'] {
 function toFrontendEntry(api: ApiEntry): Entry {
   const hoursNote = api.opening_hours_text?.trim() || null
   const cityId = (api.city_id || api.city || 'nkp').toLowerCase()
+  const stableId = resolveStableLocalId(api)
+  const local = LOCAL_SEED.find((e) => e.id === stableId)
   return {
-    id: resolveStableLocalId(api),
+    id: stableId,
     type: api.type,
     city_id: cityId,
     name_en: api.name_en,
@@ -144,8 +170,8 @@ function toFrontendEntry(api: ApiEntry): Entry {
     time_tags: [],
     setting: 'mixed',
     price_band: 'budget',
-    photos: [],
-    hours_weekly: null,
+    photos: local?.photos ?? [],
+    hours_weekly: parseHoursWeekly(api.opening_hours_text),
     duration_min: 45,
     price_min_thb: null,
     price_max_thb: null,
